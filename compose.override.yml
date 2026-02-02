@@ -1,0 +1,11 @@
+services:
+  fcp-mpdp-admin:
+    ports:
+      - '3003:3003'
+    networks:
+      - fcp-mpdp
+
+networks:
+  fcp-mpdp:
+    driver: bridge
+    name: fcp-mpdp

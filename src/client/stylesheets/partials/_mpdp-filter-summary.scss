@@ -1,0 +1,24 @@
+.mpdp-filter-summary {
+  list-style: none;
+}
+
+.mpdp-filter-summary:before {
+  content: "";
+  display: inline-block;
+  border-right: 3px solid black;
+  border-bottom: 3px solid black;
+  width: 10px;
+  height: 10px;
+  transform: rotate(-45deg);
+  margin-right: 10px;
+}
+
+.mpdp-filter-summary::-webkit-details-marker {
+  display: none
+}
+
+details[open] .mpdp-filter-summary:before {
+  transform: rotate(-315deg);
+  position: relative;
+  top: -3px;
+}

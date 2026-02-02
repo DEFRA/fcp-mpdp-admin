@@ -1,0 +1,51 @@
+{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+
+{% macro searchFilters(model) %}
+  <div data-module="search-filters" class="govuk-body govuk-!-padding-top-3">
+    <div class="govuk-!-margin-bottom-5 mpdp-height-10">
+      <div class="govuk-grid-column-one-half govuk-!-padding-left-0">
+        <span>Filters</span>
+      </div>
+
+      <div class="govuk-grid-column-one-half govuk-!-padding-right-0">
+        <button 
+          id="clear-all-filters" 
+          class="govuk-link govuk-!-font-size-16 govuk-!-padding-top-1 mpdp-link-btn mpdp-float-right nojs-hidden" 
+          aria-live="polite"
+          onClick="this.form.querySelectorAll('input[type=&quot;checkbox&quot;]').forEach(box => box.checked=false); this.form.submit();"
+        >
+          Clear all filters
+        </button>
+      </div>
+    </div>
+
+    {% for key, object in model.filters %}
+      <div id="{{ key | lower }}Filter" class="govuk-!-margin-3">
+        <details open>
+          <summary class="mpdp-filter-summary mpdp-text-link-colour">{{ object.name }}</summary>
+          <div class="description">
+            {% if object.name === "Year" %}
+              <span class="govuk-!-font-size-19">Financial year (1 April to 31 March)</span>
+            {% endif %}
+            {% if object.selected %}
+              <div id="{{ key | lower }}Selected" class="govuk-!-font-size-14 govuk-!-margin-1 govuk-!-margin-left-4 nojs-hidden">{{ object.selected }} selected</div>
+            {% endif %}
+            {{ govukCheckboxes({
+                name: key,
+                classes: "govuk-checkboxes--small",
+                items: object.items,
+                attributes: {
+                  "data-filter-checkbox": "true"
+                }
+              }) 
+            }}
+          </div>
+        </details>
+      </div>
+
+      {% if not loop.last %}
+        <hr class="govubk-section-break govuk-section-break--visible section-break-heading--lightgray" role="presentation">
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endmacro %}

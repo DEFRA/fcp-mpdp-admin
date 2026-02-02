@@ -1,0 +1,76 @@
+{% from "./search-filter-tags.njk" import searchFilterTags %}
+{% from "./sort-by-dropdown.njk" import sortByDropdown %}
+
+{% macro searchResults(model) %}
+  <div>
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-third">
+        {% set resultsText = [model.total, ("result" if model.total == 1 else "results")] | join(" ") %}
+        <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="total-results">{{ resultsText }}</h2>
+      </div>
+      <div class="govuk-grid-column-two-thirds download-csv-flex-end">
+        {% if(model.total) %}
+          <a id="download-results-link"
+            class="govuk-!-margin-bottom-0 govuk-!-margin-right-3"
+            href="{{ model.downloadResultsLink }}">
+            Download {{ resultsText }} (.CSV)
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    {{ searchFilterTags(model) }}
+    <hr class="govuk-section-break govuk-section-break--visible section-break-heading" role="presentation">
+    
+    {% if (model.total) %}
+      <div class="govuk-!-margin-top-2">
+        <div class="govuk-grid-row">
+          <div class="govuk-grid-column-one-half">
+            <p></p>
+          </div>
+          <div class="govuk-grid-column-one-half mpdp-justify-content-flex-end">
+            {{ sortByDropdown(model.sortBy) }}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% for item in model.results %}
+      <div>
+        <div class="mpdp-grid-column-two-one">
+          <h3 class="govuk-!-margin-top-2">
+            <a href="/details?payeeName={{ item.payee_name | urlencode }}&partPostcode={{ item.part_postcode }}&searchString={{model.searchString | urlencode}}&page={{model.page}}" class="govuk-link govuk-link--no-visited-state">
+              {{ item.payee_name }}
+            </a>
+          </h3>
+          <div></div>
+        </div>
+
+        <div class="govuk-body govuk-!-margin-bottom-4 govuk-!-font-size-16">Business Location: 
+          {% if(item.county_council != 'None') %} {{ item.county_council }}, {% endif %}
+          {% if(item.town != 'None') %} {{ item.town }}, {% endif %}
+          {% if(item.part_postcode != 'None') %} {{ item.part_postcode }} {% endif %}
+        </div>
+
+        <hr class="govuk-section-break govuk-section-break--visible mpdp-section-break-heading--lightgray" role="presentation">
+      </div>
+      
+    {% else %}
+
+      <h2 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-font-weight-bold" id="no-results">There are no matching results.</h2>
+      <p>Improve your search results by:</p>
+      <ul class="govuk-list govuk-list--bullet">
+        <li>double-checking your spelling</li>
+        <li>searching for something less specific</li>
+        <li>removing filters</li>
+      </ul>
+      <p>You can search for:</p>
+      <ul class="govuk-list govuk-list--bullet">
+        <li>an agreement holder's name, for example, Alex Smith</li>
+        <li>the first part of a postcode, for example, GL55</li>
+        <li>a county, for example, Gloucestershire</li>
+      </ul>
+      <p>You can also <a id="download-all-scheme-payment-data-link" href="/all-scheme-payment-data/file">download all scheme payment data (5.7MB)</a></p>
+    {% endfor %}  
+  </div>
+{% endmacro %}

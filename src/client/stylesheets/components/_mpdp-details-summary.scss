@@ -1,0 +1,111 @@
+@use "govuk-frontend" as *;
+
+.mpdp-details-summary {
+  margin: 5px 15px 5px 15px;
+  display: grid; 
+  grid-template-columns: 1fr 25fr 1fr; 
+  column-gap: 5px
+}
+
+.mpdp-details-summary:hover :first-child {
+  color: govuk-colour("dark-blue");
+  cursor: pointer;
+}
+
+.mpdp-details-summary::-webkit-details-marker {
+  display: none
+}
+
+.mpdp-details-summary:before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-left: 12px solid govuk-colour("blue");
+  border-bottom: 7px solid transparent;
+  margin-top: 7px;
+}
+
+@media screen and (max-width: 640px) {
+  .mpdp-details-summary:before {
+    margin-top: 4px;
+  }
+}
+
+details[open] .mpdp-details-summary:before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 12px solid govuk-colour("blue");
+  margin-top: 6px;
+}
+
+.mpdp-details-summary:hover::before {
+  border-left: 12px solid govuk-colour("dark-blue");
+  cursor: pointer;
+}
+
+details[open] .mpdp-details-summary:hover::before {
+  border-top: 12px solid govuk-colour("dark-blue");
+  cursor: pointer;
+}
+
+@media (min-width: 641px) {
+  .download-csv-flex-end {
+    justify-content: flex-end;
+  }
+}
+
+.detailsSummary {
+  margin: 5px 15px 5px 15px;
+  display: grid; 
+  grid-template-columns: 1fr 25fr 1fr; 
+  column-gap: 5px
+}
+
+.detailsSummary:hover :first-child {
+  color: govuk-colour("dark-blue");
+  cursor: pointer;
+}
+
+.detailsSummary::-webkit-details-marker {
+  display: none
+}
+
+.detailsSummary:before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-left: 12px solid govuk-colour("blue");
+  border-bottom: 7px solid transparent;
+  margin-top: 7px;
+}
+
+@media screen and (max-width: 640px) {
+  .detailsSummary:before {
+    margin-top: 4px;
+  }
+}
+
+details[open] .detailsSummary:before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 12px solid govuk-colour("blue");
+  margin-top: 6px;
+}
+
+.detailsSummary:hover::before {
+  border-left: 12px solid govuk-colour("dark-blue");
+  cursor: pointer;
+}
+
+details[open] .detailsSummary:hover::before {
+  border-top: 12px solid govuk-colour("dark-blue");
+  cursor: pointer;
+}

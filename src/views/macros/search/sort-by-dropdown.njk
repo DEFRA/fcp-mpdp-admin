@@ -1,0 +1,18 @@
+{% from "govuk/components/select/macro.njk" import govukSelect %}
+
+{% macro sortByDropdown(model) %}
+  {{ govukSelect({
+    id: "sort-by-dropdown",
+    name: "sortByDropdown",
+    value: model.selected,
+    label: {
+			text: "Sort by",
+			classes: "mpdp-label-inline"
+    },
+		classes: "mpdp-select-min-width",
+    attributes: {
+			"data-module": "sort-by-dropdown"
+    },
+    items: model.items
+  }) }}
+{% endmacro %}

@@ -1,0 +1,100 @@
+.mpdp-grid-column-two-one {
+  display: grid; 
+  grid-template-columns: 2fr 1fr;
+  column-gap: 5px;
+}
+
+.mpdp-grid-column-three-one {
+  display: grid; 
+  grid-template-columns: 3fr 1fr;
+  column-gap: 5px;
+}
+
+.mpdp-grid-column-1-span-2 {
+  grid-column: 1 / span 2
+}
+
+.mpdp-position-absolute {
+  position: absolute;
+}
+
+.mpdp-position-relative {
+  position: relative;
+}
+
+.mpdp-float-left {
+  float: left;
+}
+
+.mpdp-float-right {
+  float: right;
+}
+
+.mpdp-right-0 {
+  right: 0;
+}
+
+.mpdp-text-align-right {
+  text-align: right;
+}
+
+.mpdp-hr {
+  margin: 3px 0
+}
+
+.mpdp-show-all-height {
+  height: 20px;
+}
+
+.mpdp-text-align-center {
+  text-align: center;
+}
+
+.mpdp-align-items-center {
+  align-items: center;
+}
+
+.mpdp-overflow-wrap {
+  overflow-wrap: anywhere;
+}
+
+.mpdp-justify-content-flex-end {
+  display: flex;
+  justify-content: flex-end
+}
+
+.mpdp-section-break-heading {
+  height: 2px;
+  border-width: 0;
+  background-color: gray
+}
+
+.mpdp-section-break-heading--lightgray {
+  @extend .mpdp-section-break-heading;
+  background-color: lightgray;
+}
+
+.mpdp-display-inline-block {
+  display: inline-block;
+}
+
+.mpdp-height-10 { 
+  height: 10px; 
+}
+
+.mpdp-whitespace-nowrap {
+  white-space: nowrap;
+}
+
+.mpdp-bottom-0 {
+  bottom: 0;
+}
+
+.mpdp-grid-row-three-auto {
+  display: grid; 
+  grid-template-rows: 3fr auto;
+}
+
+.mpdp-grid-column-1 {
+  grid-column: 1
+}

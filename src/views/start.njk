@@ -1,0 +1,92 @@
+{% extends "layout.njk" %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds govuk-prose-scope">
+      <div class="govuk-body" data-testid="app-page-body">
+        <h1>{{ serviceName }}</h1>
+
+        <p>Check agricultural scheme payments to farmers and land managers in England</p>
+
+        <p>You can search for payments from the:</p>
+        <ul>
+          <li>Farm Resilience Fund</li>
+          <li>Farming Investment Fund</li>
+          <li>Landscape Recovery</li>
+          <li>Sustainable Farming Incentive</li>
+        </ul>
+
+        <p>You can also <a id="view-yearly-totals" class="govuk-link" href="/scheme-payments-by-year">view yearly totals</a> for the:</p>
+        <ul>
+          <li>Tree Health</li>
+          <li>Animal (Formerly Annual) Health and Welfare Review</li>
+        </ul>
+
+        <div class="govuk-inset-text">
+          This service shows payments by financial year (1 April to 31 March).
+        </div>
+
+        <details class="govuk-details" id="published-data">
+          <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+              What data we publish
+            </span>
+          </summary>
+          <div class="govuk-details__text">
+            <p class="govuk-!-font-size-16">The data we publish varies for different schemes and depends on the total funding a business has received.</p>
+
+            <p class="govuk-!-font-size-16 govuk-!-font-weight-bold">Schemes included</p>
+            <ul class="govuk-!-font-size-16">
+              <li>Farm Resilience Fund</li>
+              <li>Farming Investment Fund</li>
+              <li>Landscape Recovery</li>
+              <li>Sustainable Farming Incentive</li>
+            </ul>
+
+            <p class="govuk-!-font-size-16 govuk-!-font-weight-bold">What we publish</p>
+
+            <p class="govuk-!-font-size-16">When a business has received total agricultural scheme payments of £1,250 or more, we publish: </p>
+            <ul class="govuk-!-font-size-16">
+              <li>full names of agreement holders and businesses</li>
+              <li>partial postcodes, post towns and districts where the agreement holder is resident or located</li>
+              <li>total payments received by the agreement holder in the last financial year</li>
+              <li>a description of the activities financed by the relevant payments</li>
+            </ul>
+
+            <p class="govuk-!-font-size-16 govuk-!-font-weight-bold">Schemes published as a single yearly payment</p>
+
+            <p class="govuk-!-font-size-16">We also publish payment totals made through the:</p>
+            <ul class="govuk-!-font-size-16">
+              <li>Tree Health</li>
+              <li>Animal (Formerly Annual) Health and Welfare Review</li>
+            </ul>
+            
+            <p class="govuk-!-font-size-16 govuk-!-font-weight-bold">How long we keep the data online</p>
+            
+            <p class="govuk-!-font-size-16">Payment data will remain online for 3 years from the date we publish it.</p>
+          </div>
+        </details>
+
+        <a href="/search" role="button" draggable="false" id="start-button" class="govuk-button govuk-button--start govuk-!-margin-top-2 govuk-!-margin-bottom-7" data-module="govuk-button">
+          Start now
+          <svg class="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19" viewBox="0 0 33 40" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z" />
+          </svg>
+        </a>
+
+        <p class="govuk-!-margin-bottom-5">
+          <b>More data is available</b>
+        </p>
+
+        <p>You can <a id="download-all-scheme-payment-data-link" class="govuk-link" href="/all-scheme-payment-data/file">download all scheme payment data (5.7MB)</a></p>
+
+        <p>
+          <a id="cap-link" class="govuk-link" href="https://cap-payments.defra.gov.uk/Default.aspx">Search the UK Co-ordinating Body service for other Common Agricultural Policy (CAP) schemes</a>
+        </p>
+      </div>
+    </div>
+    <div class="govuk-grid-column-one-third govuk-!-margin-top-5">
+      {% include "related-content.njk" %}
+    </div>
+  </div>
+{% endblock %}
