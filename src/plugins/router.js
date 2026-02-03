@@ -14,6 +14,12 @@ import { privacy } from '../routes/privacy.js'
 import { cookies } from '../routes/cookies.js'
 import { accessibility } from '../routes/accessibility.js'
 import { serveStaticFiles } from '../common/helpers/serve-static-files.js'
+import { managePayments } from '../routes/admin/manage-payments.js'
+import { addPayment } from '../routes/admin/add-payment.js'
+import { editPayment } from '../routes/admin/edit-payment.js'
+import { deletePayment } from '../routes/admin/delete-payment.js'
+import { bulkUpload } from '../routes/admin/bulk-upload.js'
+import { deleteByYear } from '../routes/admin/delete-by-year.js'
 
 export const router = {
   plugin: {
@@ -34,6 +40,12 @@ export const router = {
       await server.route(privacy)
       await server.route(cookies)
       await server.route(accessibility)
+      await server.route(managePayments)
+      await server.route(addPayment)
+      await server.route(editPayment)
+      await server.route(deletePayment)
+      await server.route(bulkUpload)
+      await server.route(deleteByYear)
       await server.register([serveStaticFiles])
     }
   }

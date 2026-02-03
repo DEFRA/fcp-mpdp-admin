@@ -1,0 +1,167 @@
+{% extends "layout.njk" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% block pageTitle %}
+  {% if errorList %}Error: {% endif %}{{ pageTitle }} - {{ serviceName }} - GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  {{ super() }}
+  {% if errorList %}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: errorList
+    }) }}
+  {% endif %}
+  <nav>
+    <a id="back-link" href="/admin/payments" class="govuk-back-link">Back</a>
+  </nav>
+{% endblock %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+
+  <form method="post" action="/admin/payments/add" novalidate>
+    {{ govukInput({
+      label: {
+        text: "Payee name",
+        classes: "govuk-label--s"
+      },
+      id: "payee_name",
+      name: "payee_name",
+      value: payee_name,
+      classes: "govuk-!-width-two-thirds",
+      errorMessage: { text: "Enter the payee name" } if errorList and errorList | length > 0
+    }) }}
+
+    {{ govukInput({
+      label: {
+        text: "Part postcode",
+        classes: "govuk-label--s"
+      },
+      id: "part_postcode",
+      name: "part_postcode",
+      value: part_postcode,
+      classes: "govuk-!-width-one-quarter"
+    }) }}
+
+    {{ govukInput({
+      label: {
+        text: "Town",
+        classes: "govuk-label--s"
+      },
+      id: "town",
+      name: "town",
+      value: town,
+      classes: "govuk-!-width-two-thirds"
+    }) }}
+
+    {{ govukInput({
+      label: {
+        text: "County council",
+        classes: "govuk-label--s"
+      },
+      id: "county_council",
+      name: "county_council",
+      value: county_council,
+      classes: "govuk-!-width-two-thirds"
+    }) }}
+
+    {{ govukInput({
+      label: {
+        text: "Parliamentary constituency",
+        classes: "govuk-label--s"
+      },
+      id: "parliamentary_constituency",
+      name: "parliamentary_constituency",
+      value: parliamentary_constituency,
+      classes: "govuk-!-width-two-thirds"
+    }) }}
+
+    {{ govukInput({
+      label: {
+        text: "Scheme",
+        classes: "govuk-label--s"
+      },
+      id: "scheme",
+      name: "scheme",
+      value: scheme,
+      classes: "govuk-!-width-two-thirds"
+    }) }}
+
+    {{ govukInput({
+      label: {
+        text: "Scheme detail",
+        classes: "govuk-label--s"
+      },
+      id: "scheme_detail",
+      name: "scheme_detail",
+      value: scheme_detail,
+      classes: "govuk-!-width-two-thirds"
+    }) }}
+
+    {{ govukInput({
+      label: {
+        text: "Activity level",
+        classes: "govuk-label--s"
+      },
+      id: "activity_level",
+      name: "activity_level",
+      value: activity_level,
+      classes: "govuk-!-width-two-thirds"
+    }) }}
+
+    {{ govukInput({
+      label: {
+        text: "Amount (£)",
+        classes: "govuk-label--s"
+      },
+      id: "amount",
+      name: "amount",
+      type: "number",
+      step: "0.01",
+      value: amount,
+      classes: "govuk-!-width-one-quarter",
+      prefix: {
+        text: "£"
+      }
+    }) }}
+
+    {{ govukInput({
+      label: {
+        text: "Financial year (e.g. 21/22)",
+        classes: "govuk-label--s"
+      },
+      id: "financial_year",
+      name: "financial_year",
+      value: financial_year,
+      classes: "govuk-!-width-one-quarter"
+    }) }}
+
+    {{ govukInput({
+      label: {
+        text: "Payment date",
+        classes: "govuk-label--s",
+        hint: {
+          text: "For example, 2021-12-31"
+        }
+      },
+      id: "payment_date",
+      name: "payment_date",
+      type: "date",
+      value: payment_date,
+      classes: "govuk-!-width-one-third"
+    }) }}
+
+    <div class="govuk-button-group">
+      {{ govukButton({
+        text: "Add payment"
+      }) }}
+      <a class="govuk-link" href="/admin/payments">Cancel</a>
+    </div>
+  </form>
+{% endblock %}
