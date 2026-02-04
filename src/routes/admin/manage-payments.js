@@ -11,7 +11,7 @@ export const managePayments = {
     validate: {
       query: Joi.object({
         page: Joi.number().integer().positive().default(1),
-        searchString: Joi.string().trim().optional(),
+        searchString: Joi.string().trim().allow('').optional(),
         success: Joi.string().optional()
       })
     },

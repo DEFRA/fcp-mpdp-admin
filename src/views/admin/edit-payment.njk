@@ -2,6 +2,7 @@
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% block pageTitle %}
@@ -25,6 +26,7 @@
   <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
 
   <form method="post" action="/admin/payments/{{ payment.id }}/edit" novalidate>
+    <input type="hidden" name="crumb" value="{{ crumb }}"/>
     {{ govukInput({
       label: {
         text: "Payee name",
@@ -140,19 +142,36 @@
       classes: "govuk-!-width-one-quarter"
     }) }}
 
-    {{ govukInput({
-      label: {
-        text: "Payment date",
-        classes: "govuk-label--s",
-        hint: {
-          text: "For example, 2021-12-31"
+    {{ govukDateInput({
+      fieldset: {
+        legend: {
+          text: "Payment date",
+          classes: "govuk-fieldset__legend--s"
         }
       },
-      id: "payment_date",
-      name: "payment_date",
-      type: "date",
-      value: payment.payment_date,
-      classes: "govuk-!-width-one-third"
+      hint: {
+        text: "For example, 27 3 2021"
+      },
+      items: [
+        {
+          name: "payment_date_day",
+          classes: "govuk-input--width-2",
+          label: "Day",
+          value: payment.payment_date_day
+        },
+        {
+          name: "payment_date_month",
+          classes: "govuk-input--width-2",
+          label: "Month",
+          value: payment.payment_date_month
+        },
+        {
+          name: "payment_date_year",
+          classes: "govuk-input--width-4",
+          label: "Year",
+          value: payment.payment_date_year
+        }
+      ]
     }) }}
 
     <div class="govuk-button-group">

@@ -36,7 +36,7 @@ export async function createPayment (paymentData) {
 }
 
 export async function updatePayment (id, paymentData) {
-  const backendUrl = buildBackendUrl(`admin/payments/${id}`)
+  const backendUrl = buildBackendUrl(`/admin/payments/${id}`)
   const { res, payload } = await Wreck.put(backendUrl, {
     payload: JSON.stringify(paymentData),
     headers: {
@@ -52,7 +52,7 @@ export async function updatePayment (id, paymentData) {
 }
 
 export async function deletePaymentById (id) {
-  const backendUrl = buildBackendUrl(`admin/payments/${id}`)
+  const backendUrl = buildBackendUrl(`/admin/payments/${id}`)
   const { res, payload } = await Wreck.delete(backendUrl)
 
   if (res.statusCode !== 200) {
@@ -72,8 +72,13 @@ export async function fetchFinancialYears () {
 }
 
 export async function deletePaymentsByYear (financialYear) {
-  const backendUrl = buildBackendUrl(`admin/payments/year/${financialYear}`)
+  const encodedYear = encodeURIComponent(financialYear)
+  const backendUrl = buildBackendUrl(`/admin/payments/year/${encodedYear}`)
+  console.log('Delete by year URL:', backendUrl)
   const { res, payload } = await Wreck.delete(backendUrl)
+
+  console.log('Delete response status:', res.statusCode)
+  console.log('Delete response payload:', payload.toString())
 
   if (res.statusCode !== 200) {
     throw new Error('Failed to delete payments')
@@ -83,7 +88,8 @@ export async function deletePaymentsByYear (financialYear) {
 }
 
 export async function uploadPaymentsCsv (fileStream) {
-  const backendUrl = buildBackendUrl('admin/payments/bulk-upload')
+  const backendUrl = buildBackendUrl('/admin/payments/bulk-upload')
+
   const { res, payload } = await Wreck.post(backendUrl, {
     payload: fileStream,
     headers: {

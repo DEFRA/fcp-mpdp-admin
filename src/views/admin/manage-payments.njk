@@ -71,24 +71,36 @@
   </div>
 
   <form method="get" action="/admin/payments">
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        {{ govukInput({
-          label: {
-            text: "Search by payee name",
-            classes: "govuk-label--s"
-          },
-          id: "searchString",
-          name: "searchString",
-          value: searchString
-        }) }}
-      </div>
-      <div class="govuk-grid-column-one-third">
-        {{ govukButton({
-          text: "Search"
-        }) }}
+    <div class="govuk-form-group">
+      <label class="govuk-label govuk-label--s" for="searchString">
+        Search by payee name
+      </label>
+      <div class="form-inline">
+        <div class="container">
+          <input 
+            class="govuk-input" 
+            id="searchString" 
+            name="searchString" 
+            type="search" 
+            value="{{ searchString }}"
+            autocomplete="off"
+          />
+        </div>
+        <button 
+          id="search-button" 
+          class="govuk-button" 
+          data-module="govuk-button" 
+          type="submit"
+        >
+          Search
+        </button>
       </div>
     </div>
+    {% if searchString %}
+      <p class="govuk-body">
+        <a href="/admin/payments" class="govuk-link">Clear search and show all results</a>
+      </p>
+    {% endif %}
   </form>
 
   <p class="govuk-body">Showing {{ rows | length }} of {{ count }} total payments</p>
@@ -97,7 +109,6 @@
     {% set tableRows = [] %}
     {% for payment in rows %}
       {% set tableRows = (tableRows.push([
-        { text: payment.id },
         { text: payment.payee_name },
         { text: payment.part_postcode },
         { text: payment.town or '-' },
@@ -110,7 +121,6 @@
 
     {{ govukTable({
       head: [
-        { text: "ID" },
         { text: "Payee Name" },
         { text: "Postcode" },
         { text: "Town" },
