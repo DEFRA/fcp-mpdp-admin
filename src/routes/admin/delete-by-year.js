@@ -40,16 +40,13 @@ export const deleteByYear = [
         const { financial_year: financialYear } = request.payload
 
         try {
-          request.logger.info(`Attempting to delete payments for year: ${financialYear}`)
           const result = await deletePaymentsByYear(financialYear)
-          request.logger.info('Deletion successful:', result)
           return h.view('admin/delete-by-year-success', {
             pageTitle: 'Deletion Complete',
             financial_year: financialYear,
             result
           })
         } catch (err) {
-          request.logger.error('Delete by year error:', err)
           const years = await fetchFinancialYears()
           return h.view('admin/delete-by-year', {
             pageTitle: 'Delete Payments by Financial Year',

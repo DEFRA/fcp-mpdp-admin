@@ -74,11 +74,7 @@ export async function fetchFinancialYears () {
 export async function deletePaymentsByYear (financialYear) {
   const encodedYear = encodeURIComponent(financialYear)
   const backendUrl = buildBackendUrl(`/admin/payments/year/${encodedYear}`)
-  console.log('Delete by year URL:', backendUrl)
   const { res, payload } = await Wreck.delete(backendUrl)
-
-  console.log('Delete response status:', res.statusCode)
-  console.log('Delete response payload:', payload.toString())
 
   if (res.statusCode !== 200) {
     throw new Error('Failed to delete payments')
