@@ -20,6 +20,10 @@ import { editPayment } from '../routes/admin/edit-payment.js'
 import { deletePayment } from '../routes/admin/delete-payment.js'
 import { bulkUpload } from '../routes/admin/bulk-upload.js'
 import { deleteByYear } from '../routes/admin/delete-by-year.js'
+import { manageSummariesRoute } from '../routes/admin/manage-summaries.js'
+import { addSummaryRoute } from '../routes/admin/add-summary.js'
+import { editSummaryRoute } from '../routes/admin/edit-summary.js'
+import { deleteSummaryRoute } from '../routes/admin/delete-summary.js'
 
 export const router = {
   plugin: {
@@ -46,6 +50,10 @@ export const router = {
       await server.route(deletePayment)
       await server.route(bulkUpload)
       await server.route(deleteByYear)
+      await server.route(manageSummariesRoute)
+      await server.route(addSummaryRoute)
+      await server.route(editSummaryRoute)
+      await server.route(deleteSummaryRoute)
       await server.register([serveStaticFiles])
     }
   }

@@ -140,6 +140,7 @@ export const config = convict({
     endpoint: {
       doc: 'Endpoint for fcp-mpdp-backend',
       format: String,
+      nullable: true,
       default: null,
       env: 'MPDP_BACKEND_ENDPOINT'
     },

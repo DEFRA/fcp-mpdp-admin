@@ -12,20 +12,20 @@ const mockPayments = {
   rows: [
     {
       id: 1,
-      payee_name: 'Test Payee 1',
-      part_postcode: 'SW1A',
+      payeeName: 'Test Payee 1',
+      partPostcode: 'SW1A',
       town: 'London',
       scheme: 'SFI',
-      financial_year: '23/24',
+      financialYear: '23/24',
       amount: '1000.00'
     },
     {
       id: 2,
-      payee_name: 'Test Payee 2',
-      part_postcode: 'NE1',
+      payeeName: 'Test Payee 2',
+      partPostcode: 'NE1',
       town: 'Newcastle',
       scheme: 'CS',
-      financial_year: '23/24',
+      financialYear: '23/24',
       amount: '2000.00'
     }
   ],
@@ -157,10 +157,10 @@ describe('Admin manage payments route', () => {
       const $ = cheerio.load(response.payload)
 
       expect($('form[action="/admin/payments/add"]').length).toBeGreaterThan(0)
-      expect($('input[name="payee_name"]').length).toBeGreaterThan(0)
-      expect($('input[name="part_postcode"]').length).toBeGreaterThan(0)
+      expect($('input[name="payeeName"]').length).toBeGreaterThan(0)
+      expect($('input[name="partPostcode"]').length).toBeGreaterThan(0)
       expect($('input[name="amount"]').length).toBeGreaterThan(0)
-      expect($('input[name="financial_year"]').length).toBeGreaterThan(0)
+      expect($('input[name="financialYear"]').length).toBeGreaterThan(0)
     })
 
     test('should display date input with day, month, year fields', async () => {
@@ -168,9 +168,9 @@ describe('Admin manage payments route', () => {
       const response = await server.inject(options)
       const $ = cheerio.load(response.payload)
 
-      expect($('input[name="payment_date_day"]').length).toBeGreaterThan(0)
-      expect($('input[name="payment_date_month"]').length).toBeGreaterThan(0)
-      expect($('input[name="payment_date_year"]').length).toBeGreaterThan(0)
+      expect($('input[name="paymentDateDay"]').length).toBeGreaterThan(0)
+      expect($('input[name="paymentDateMonth"]').length).toBeGreaterThan(0)
+      expect($('input[name="paymentDateYear"]').length).toBeGreaterThan(0)
     })
   })
 
@@ -183,11 +183,11 @@ describe('Admin manage payments route', () => {
         method: 'POST',
         url: '/admin/payments/add',
         payload: {
-          payee_name: 'New Payee',
-          part_postcode: 'SW1A',
+          payeeName: 'New Payee',
+          partPostcode: 'SW1A',
           town: 'London',
           amount: 1000,
-          financial_year: '23/24',
+          financialYear: '23/24',
           crumb: viewCrumb
         },
         headers: {
@@ -238,8 +238,8 @@ describe('Admin manage payments route', () => {
       const $ = cheerio.load(response.payload)
 
       expect($('form[action="/admin/payments/1/edit"]').length).toBeGreaterThan(0)
-      expect($('input[name="payee_name"]').val()).toBe('Test Payee 1')
-      expect($('input[name="part_postcode"]').val()).toBe('SW1A')
+      expect($('input[name="payeeName"]').val()).toBe('Test Payee 1')
+      expect($('input[name="partPostcode"]').val()).toBe('SW1A')
     })
 
     test('should return 404 for non-existent payment', async () => {
@@ -259,11 +259,11 @@ describe('Admin manage payments route', () => {
         method: 'POST',
         url: '/admin/payments/1/edit',
         payload: {
-          payee_name: 'Updated Payee',
-          part_postcode: 'SW1A',
+          payeeName: 'Updated Payee',
+          partPostcode: 'SW1A',
           town: 'London',
           amount: 2000,
-          financial_year: '23/24',
+          financialYear: '23/24',
           crumb: viewCrumb
         },
         headers: {
@@ -369,7 +369,7 @@ describe('Admin manage payments route', () => {
       const response = await server.inject(options)
       const $ = cheerio.load(response.payload)
 
-      expect($('input[name="financial_year"]').length).toBeGreaterThan(0)
+      expect($('input[name="financialYear"]').length).toBeGreaterThan(0)
       expect($('.govuk-radios').text()).toContain('23/24')
       expect($('.govuk-radios').text()).toContain('22/23')
     })
@@ -402,7 +402,7 @@ describe('Admin manage payments route', () => {
         method: 'POST',
         url: '/admin/payments/delete-by-year',
         payload: {
-          financial_year: '23/24',
+          financialYear: '23/24',
           confirm: 'yes',
           crumb: viewCrumb
         },

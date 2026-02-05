@@ -1,0 +1,47 @@
+{% extends "layout.njk" %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+
+    {% if errorMessage %}
+      <div class="govuk-error-summary" data-module="govuk-error-summary">
+        <div role="alert">
+          <h2 class="govuk-error-summary__title">There is a problem</h2>
+          <div class="govuk-error-summary__body">
+            <p class="govuk-body">{{ errorMessage }}</p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <form method="POST" action="/admin/summary/add">
+      <input type="hidden" name="crumb" value="{{ crumb }}">
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="financialYear">Financial Year</label>
+        <input class="govuk-input govuk-input--width-10" id="financialYear" name="financialYear" type="text" maxlength="8" required>
+      </div>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="scheme">Scheme</label>
+        <input class="govuk-input" id="scheme" name="scheme" type="text" maxlength="64" required>
+      </div>
+
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="totalAmount">Total Amount</label>
+        <div class="govuk-input__wrapper">
+          <div class="govuk-input__prefix" aria-hidden="true">£</div>
+          <input class="govuk-input govuk-input--width-10" id="totalAmount" name="totalAmount" type="number" step="0.01" required>
+        </div>
+      </div>
+
+      <div class="govuk-button-group">
+        <button type="submit" class="govuk-button" data-module="govuk-button">Add Payment Summary</button>
+        <a class="govuk-link" href="/admin/summary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "layout.njk" %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-full">
+    <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+
+    <p class="govuk-body">
+      <a href="/admin/summary/add" class="govuk-link">Add new payment summary</a>
+    </p>
+
+    {% if summaries.length > 0 %}
+      <table class="govuk-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header">Financial Year</th>
+            <th scope="col" class="govuk-table__header">Scheme</th>
+            <th scope="col" class="govuk-table__header">Total Amount</th>
+            <th scope="col" class="govuk-table__header">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          {% for summary in summaries %}
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell">{{ summary.financialYear }}</td>
+              <td class="govuk-table__cell">{{ summary.scheme }}</td>
+              <td class="govuk-table__cell">£{{ summary.totalAmount | string }}</td>
+              <td class="govuk-table__cell">
+                <a href="/admin/summary/edit/{{ summary.id }}" class="govuk-link">Edit</a> |
+                <a href="/admin/summary/delete/{{ summary.id }}" class="govuk-link">Delete</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="govuk-body">No payment summaries found.</p>
+    {% endif %}
+
+    <p class="govuk-body">
+      <a href="/admin" class="govuk-link">Back to admin</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

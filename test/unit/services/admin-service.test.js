@@ -180,7 +180,16 @@ describe('admin-service', () => {
       const apiResponse = {
         id: 1,
         payee_name: 'Updated Payee',
-        amount: 2000
+        part_postcode: '',
+        town: '',
+        parliamentary_constituency: '',
+        county_council: '',
+        scheme: '',
+        amount: 2000,
+        financial_year: undefined,
+        payment_date: null,
+        scheme_detail: '',
+        activity_level: ''
       }
 
       const mockPut = vi.fn().mockResolvedValue({
@@ -196,10 +205,12 @@ describe('admin-service', () => {
       expect(mockPut).toHaveBeenCalledWith(
         expect.stringContaining('/admin/payments/1'),
         expect.objectContaining({
-          payload: JSON.stringify(paymentData),
           headers: { 'Content-Type': 'application/json' }
         })
       )
+      const payloadSent = JSON.parse(mockPut.mock.calls[0][1].payload)
+      expect(payloadSent.payee_name).toBe('Updated Payee')
+      expect(payloadSent.amount).toBe(2000)
     })
 
     test('should throw error if update fails', async () => {
