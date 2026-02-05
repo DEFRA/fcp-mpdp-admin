@@ -8,6 +8,9 @@ export const deleteByYear = [
   {
     method: 'GET',
     path: '/admin/payments/delete-by-year',
+    options: {
+      auth: { scope: ['MPDP.Admin'] }
+    },
     handler: async function (_request, h) {
       const years = await fetchFinancialYears()
 
@@ -21,6 +24,7 @@ export const deleteByYear = [
     method: 'POST',
     path: '/admin/payments/delete-by-year',
     options: {
+      auth: { scope: ['MPDP.Admin'] },
       validate: {
         payload: Joi.object({
           financialYear: Joi.string().max(8).required(),

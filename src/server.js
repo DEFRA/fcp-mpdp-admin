@@ -2,11 +2,15 @@ import path from 'node:path'
 import Hapi from '@hapi/hapi'
 import Scooter from '@hapi/scooter'
 import Joi from 'joi'
+import Bell from '@hapi/bell'
+import Cookie from '@hapi/cookie'
+import { Engine as CatboxRedis } from '@hapi/catbox-redis'
+import { auth } from './plugins/auth.js'
+import { session } from './plugins/session.js'
 import { contentSecurityPolicy } from './plugins/content-security-policy.js'
 import { headers } from './plugins/headers.js'
 import { router } from './plugins/router.js'
 import { userAgentProtection } from './plugins/user-agent-protection.js'
-import { cookies } from './plugins/cookies.js'
 import { crumb } from './plugins/crumb.js'
 import { config } from './config/config.js'
 import { pulse } from './common/helpers/pulse.js'
@@ -47,7 +51,25 @@ export async function createServer () {
     },
     state: {
       strictHeader: false
-    }
+    },
+    cache: [{
+      name: config.get('cache.name'),
+      provider: {
+        constructor: CatboxRedis,
+        options: {
+          host: config.get('cache.host'),
+          port: config.get('cache.port'),
+          password: config.get('cache.password'),
+          tls: config.get('cache.tls')
+        }
+      }
+    }]
+  })
+
+  server.app.cache = server.cache({
+    cache: config.get('cache.name'),
+    segment: config.get('cache.segment'),
+    expiresIn: config.get('cache.ttl')
   })
 
   server.validator(Joi)
@@ -55,6 +77,10 @@ export async function createServer () {
   await server.register([
     userAgentProtection, // Must be registered before Scooter to intercept malicious User-Agents
     Scooter,
+    Bell,
+    Cookie,
+    auth,
+    session,
     requestLogger,
     requestTracing,
     secureContext,
@@ -63,8 +89,7 @@ export async function createServer () {
     contentSecurityPolicy,
     headers,
     crumb,
-    router,
-    cookies
+    router
   ])
 
   server.ext('onPreResponse', catchAll)

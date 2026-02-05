@@ -5,6 +5,7 @@ export const managePayments = {
   method: 'GET',
   path: '/admin/payments',
   options: {
+    auth: { scope: ['MPDP.Admin'] },
     validate: {
       query: Joi.object({
         page: Joi.number().integer().positive().default(1),

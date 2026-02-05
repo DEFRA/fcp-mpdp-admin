@@ -5,7 +5,10 @@ import { fetchPaymentById, updatePayment } from '../../services/admin-service.js
 const { constants: httpConstants } = http2
 
 function parseDateComponents (dateString) {
-  if (!dateString) return {}
+  if (!dateString) {
+    return {}
+  }
+
   const dateStr = String(dateString).split('T')[0]
   const [year, month, day] = dateStr.split('-')
   return {
@@ -16,7 +19,10 @@ function parseDateComponents (dateString) {
 }
 
 function parseDateFromComponents (day, month, year) {
-  if (!day || !month || !year) return null
+  if (!day || !month || !year) {
+    return null
+  }
+
   const paddedDay = String(day).padStart(2, '0')
   const paddedMonth = String(month).padStart(2, '0')
   return `${year}-${paddedMonth}-${paddedDay}`
@@ -27,6 +33,7 @@ export const editPayment = [
     method: 'GET',
     path: '/admin/payments/{id}/edit',
     options: {
+      auth: { scope: ['MPDP.Admin'] },
       validate: {
         params: Joi.object({
           id: Joi.number().integer().positive().required()
@@ -56,6 +63,7 @@ export const editPayment = [
     method: 'POST',
     path: '/admin/payments/{id}/edit',
     options: {
+      auth: { scope: ['MPDP.Admin'] },
       validate: {
         params: Joi.object({
           id: Joi.number().integer().positive().required()

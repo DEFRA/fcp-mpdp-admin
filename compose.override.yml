@@ -2,6 +2,19 @@ services:
   fcp-mpdp-admin:
     ports:
       - '3003:3003'
+      - '9002:9229'
+    networks:
+      - fcp-mpdp
+    depends_on:
+      redis:
+        condition: service_started
+
+  redis:
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --dir /data --save 5 1
     networks:
       - fcp-mpdp
 
@@ -9,3 +22,6 @@ networks:
   fcp-mpdp:
     driver: bridge
     name: fcp-mpdp
+
+volumes:
+  redis_data:

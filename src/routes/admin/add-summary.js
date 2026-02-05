@@ -5,6 +5,9 @@ const addSummaryRoute = [
   {
     method: 'GET',
     path: '/admin/summary/add',
+    options: {
+      auth: { scope: ['MPDP.Admin'] }
+    },
     handler: async (_request, h) => {
       return h.view('admin/add-summary', {
         pageTitle: 'Add payment summary'
@@ -15,6 +18,7 @@ const addSummaryRoute = [
     method: 'POST',
     path: '/admin/summary/add',
     options: {
+      auth: { scope: ['MPDP.Admin'] },
       validate: {
         payload: Joi.object({
           financialYear: Joi.string().max(8).required(),

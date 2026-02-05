@@ -5,6 +5,9 @@ services:
     command: npm test
     environment:
       GOOGLE_TAG_MANAGER_KEY: ${GOOGLE_TAG_MANAGER_KEY_TEST}
+      ENTRA_WELL_KNOWN_URL: https://login.microsoftonline.com/${ENTRA_TENANT_ID}/v2.0/.well-known/openid-configuration
+      ENTRA_CLIENT_ID: test-client-id
+      ENTRA_CLIENT_SECRET: test-client-secret
     volumes:
       - ./test:/home/node/test
       - ./coverage:/home/node/coverage

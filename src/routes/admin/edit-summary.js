@@ -5,6 +5,9 @@ const editSummaryRoute = [
   {
     method: 'GET',
     path: '/admin/summary/edit/{id}',
+    options: {
+      auth: { scope: ['MPDP.Admin'] }
+    },
     handler: async (request, h) => {
       const { id } = request.params
       const summary = await fetchPaymentSummaryById(id)
@@ -19,6 +22,7 @@ const editSummaryRoute = [
     method: 'POST',
     path: '/admin/summary/edit/{id}',
     options: {
+      auth: { scope: ['MPDP.Admin'] },
       validate: {
         payload: Joi.object({
           financialYear: Joi.string().max(8).required(),

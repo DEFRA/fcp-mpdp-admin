@@ -15,6 +15,9 @@ export const addPayment = [
   {
     method: 'GET',
     path: '/admin/payments/add',
+    options: {
+      auth: { scope: ['MPDP.Admin'] }
+    },
     handler: async function (_request, h) {
       return h.view('admin/add-payment', {
         pageTitle: 'Add Payment'
@@ -25,6 +28,7 @@ export const addPayment = [
     method: 'POST',
     path: '/admin/payments/add',
     options: {
+      auth: { scope: ['MPDP.Admin'] },
       validate: {
         payload: Joi.object({
           payeeName: Joi.string().max(128).required(),

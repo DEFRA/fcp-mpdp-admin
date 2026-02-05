@@ -12,7 +12,7 @@ const manifestPath = path.join(
 
 let webpackManifest
 
-export function context (request) {
+export async function context (request) {
   const ctx = request.response.source?.context || {}
 
   if (!webpackManifest) {
@@ -23,7 +23,7 @@ export function context (request) {
     }
   }
 
-  return {
+  const defaultContext = {
     ...ctx,
     assetPath: `${assetPath}/assets/rebrand`,
     serviceName: config.get('serviceName'),
@@ -32,7 +32,22 @@ export function context (request) {
     getAssetPath (asset) {
       const webpackAssetPath = webpackManifest?.[asset]
       return `${assetPath}/${webpackAssetPath ?? asset}`
-    },
-    googleTagManagerKey: config.get('googleAnalytics.googleTagManagerKey')
+    }
+  }
+
+  if (!request.auth.isAuthenticated || !request.auth.credentials?.sessionId) {
+    return defaultContext
+  }
+
+  try {
+    const auth = await request.server.app.cache.get(request.auth.credentials.sessionId)
+    return {
+      ...defaultContext,
+      auth
+    }
+  } catch (error) {
+    // If cache lookup fails, return context without auth to prevent circular errors
+    request.log(['warn', 'views'], `Failed to get auth from cache: ${error.message}`)
+    return defaultContext
   }
 }

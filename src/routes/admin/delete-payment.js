@@ -9,6 +9,7 @@ export const deletePayment = [
     method: 'GET',
     path: '/admin/payments/{id}/delete',
     options: {
+      auth: { scope: ['MPDP.Admin'] },
       validate: {
         params: Joi.object({
           id: Joi.number().integer().positive().required()
@@ -33,6 +34,7 @@ export const deletePayment = [
     method: 'POST',
     path: '/admin/payments/{id}/delete',
     options: {
+      auth: { scope: ['MPDP.Admin'] },
       validate: {
         params: Joi.object({
           id: Joi.number().integer().positive().required()

@@ -7,6 +7,9 @@ export const bulkUpload = [
   {
     method: 'GET',
     path: '/admin/payments/bulk-upload',
+    options: {
+      auth: { scope: ['MPDP.Admin'] }
+    },
     handler: async function (_request, h) {
       return h.view('admin/bulk-upload', {
         pageTitle: 'Bulk Upload Payments'
@@ -17,6 +20,7 @@ export const bulkUpload = [
     method: 'POST',
     path: '/admin/payments/bulk-upload',
     options: {
+      auth: { scope: ['MPDP.Admin'] },
       payload: {
         parse: true,
         output: 'stream',

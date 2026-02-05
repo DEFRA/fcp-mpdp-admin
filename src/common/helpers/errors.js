@@ -14,6 +14,11 @@ export function catchAll (request, h) {
   let template = 'errors/500'
   let pageTitle = 'Sorry, there is a problem with the service'
 
+  if (statusCode === httpConstants.HTTP_STATUS_FORBIDDEN) {
+    template = 'errors/403'
+    pageTitle = 'Sorry, you are not authorised to perform that action'
+  }
+
   if (statusCode === httpConstants.HTTP_STATUS_NOT_FOUND) {
     template = 'errors/404'
     pageTitle = 'Page not found'

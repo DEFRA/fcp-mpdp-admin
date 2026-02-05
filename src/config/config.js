@@ -159,52 +159,101 @@ export const config = convict({
     }
   },
   cookie: {
-    name: {
-      doc: 'Name of cookie set as part of cookie policy',
+    password: {
+      doc: 'The cookie password.',
       format: String,
-      default: 'fcp_mpdp_cookie_policy',
+      default: null,
+      env: 'COOKIE_PASSWORD'
     },
-    policy: {
-      clearInvalid: {
-        doc: 'Clear invalid cookie policy',
-        format: Boolean,
-        default: true
-      },
-      encoding: {
-        doc: 'Encoding protocol for cookie policy',
-        format: String,
-        default: 'base64json'
-      },
-      isSameSite: {
-        doc: 'Check if site is the same',
-        format: String,
-        default: 'Lax'
-      },
-      isSecure: {
-        doc: 'Check if secure',
-        format: Boolean,
-        default: isProduction
-      }
-    },
-    config: {
-      ttl: {
-        doc: 'Time to live for cookie policy (ms)',
-        format: 'nat',
-        default: 1000 * 60 * 60 * 24 * 365
-      }
+    secure: {
+      doc: 'set secure flag on cookie',
+      format: Boolean,
+      default: process.env.NODE_ENV === 'production',
+      env: 'SESSION_COOKIE_SECURE'
     }
   },
-  googleAnalytics: {
-    googleTagManagerKey: {
-      doc: 'Google tag manager (GTM) key for Google Analytics',
+  entra: {
+    wellKnownUrl: {
+      doc: 'The Entra well known URL.',
       format: String,
-      default: undefined,
-      env: 'GOOGLE_TAG_MANAGER_KEY'
+      nullable: true,
+      default: null,
+      env: 'ENTRA_WELL_KNOWN_URL'
     },
-    enabled: {
-      doc: 'Check if GTM is present and enable Google Analytics',
+    clientId: {
+      doc: 'The Entra client ID.',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'ENTRA_CLIENT_ID'
+    },
+    clientSecret: {
+      doc: 'The Entra client secret.',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'ENTRA_CLIENT_SECRET'
+    },
+    redirectUrl: {
+      doc: 'The Entra redirect URl.',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'ENTRA_REDIRECT_URL'
+    },
+    signOutRedirectUrl: {
+      doc: 'The Entra sign out redirect URl.',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'ENTRA_SIGN_OUT_REDIRECT_URL'
+    },
+    refreshTokens: {
+      doc: 'True if Entra refresh tokens are enabled.',
       format: Boolean,
-      default: !!process.env.GOOGLE_TAG_MANAGER_KEY
+      default: true,
+      env: 'ENTRA_REFRESH_TOKENS'
+    }
+  },
+  cache: {
+    name: {
+      doc: 'The cache name.',
+      format: String,
+      default: 'redis'
+    },
+    host: {
+      doc: 'The Redis cache host.',
+      format: String,
+      default: null,
+      env: 'REDIS_HOST'
+    },
+    port: {
+      doc: 'The Redis cache port.',
+      format: 'port',
+      default: 6379,
+      env: 'REDIS_PORT'
+    },
+    password: {
+      doc: 'The Redis cache password.',
+      format: String,
+      default: process.env.NODE_ENV === 'production' ? null : undefined,
+      env: 'REDIS_PASSWORD'
+    },
+    tls: {
+      doc: 'True if the Redis cache is using TLS.',
+      format: Object,
+      default: process.env.NODE_ENV === 'production' ? {} : undefined
+    },
+    segment: {
+      doc: 'The cache segment.',
+      format: String,
+      default: 'session'
+    },
+    ttl: {
+      doc: 'The cache TTL.',
+      format: Number,
+      default: 1000 * 60 * 60 * 24,
+      env: 'REDIS_TTL'
     }
   }
 })
