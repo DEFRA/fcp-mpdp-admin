@@ -109,11 +109,11 @@
     {% set tableRows = [] %}
     {% for payment in rows %}
       {% set tableRows = (tableRows.push([
-        { text: payment.payee_name },
-        { text: payment.part_postcode },
+        { text: payment.payeeName },
+        { text: payment.partPostcode },
         { text: payment.town or '-' },
         { text: payment.scheme or '-' },
-        { text: payment.financial_year },
+        { text: payment.financialYear },
         { text: '£' + (payment.amount | string) },
         { html: '<a href="/admin/payments/' + payment.id + '/edit" class="govuk-link">Edit</a> | <a href="/admin/payments/' + payment.id + '/delete" class="govuk-link">Delete</a>' }
       ]), tableRows) %}

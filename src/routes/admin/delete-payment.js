@@ -40,18 +40,8 @@ export const deletePayment = [
       },
       handler: async function (request, h) {
         const { id } = request.params
-
-        try {
-          await deletePaymentById(id)
-          return h.redirect('/admin/payments?success=deleted')
-        } catch (err) {
-          const payment = await fetchPaymentById(id)
-          return h.view('admin/delete-payment', {
-            pageTitle: 'Delete Payment',
-            payment,
-            errorList: [{ text: 'Failed to delete payment. Please try again.' }]
-          }).code(httpConstants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-        }
+        await deletePaymentById(id)
+        return h.redirect('/admin/payments?success=deleted')
       }
     }
   }

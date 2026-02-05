@@ -32,11 +32,11 @@
         text: "Payee name",
         classes: "govuk-label--s"
       },
-      id: "payee_name",
-      name: "payee_name",
-      value: payee_name,
+      id: "payeeName",
+      name: "payeeName",
+      value: payeeName,
       classes: "govuk-!-width-two-thirds",
-      errorMessage: { text: errors.payee_name } if errors.payee_name
+      errorMessage: { text: errors.payeeName } if errors.payeeName
     }) }}
 
     {{ govukInput({
@@ -44,9 +44,9 @@
         text: "Part postcode",
         classes: "govuk-label--s"
       },
-      id: "part_postcode",
-      name: "part_postcode",
-      value: part_postcode,
+      id: "partPostcode",
+      name: "partPostcode",
+      value: partPostcode,
       classes: "govuk-!-width-one-quarter"
     }) }}
 
@@ -66,9 +66,9 @@
         text: "County council",
         classes: "govuk-label--s"
       },
-      id: "county_council",
-      name: "county_council",
-      value: county_council,
+      id: "countyCouncil",
+      name: "countyCouncil",
+      value: countyCouncil,
       classes: "govuk-!-width-two-thirds"
     }) }}
 
@@ -77,9 +77,9 @@
         text: "Parliamentary constituency",
         classes: "govuk-label--s"
       },
-      id: "parliamentary_constituency",
-      name: "parliamentary_constituency",
-      value: parliamentary_constituency,
+      id: "parliamentaryConstituency",
+      name: "parliamentaryConstituency",
+      value: parliamentaryConstituency,
       classes: "govuk-!-width-two-thirds"
     }) }}
 
@@ -99,9 +99,9 @@
         text: "Scheme detail",
         classes: "govuk-label--s"
       },
-      id: "scheme_detail",
-      name: "scheme_detail",
-      value: scheme_detail,
+      id: "schemeDetail",
+      name: "schemeDetail",
+      value: schemeDetail,
       classes: "govuk-!-width-two-thirds"
     }) }}
 
@@ -110,9 +110,9 @@
         text: "Activity level",
         classes: "govuk-label--s"
       },
-      id: "activity_level",
-      name: "activity_level",
-      value: activity_level,
+      id: "activityLevel",
+      name: "activityLevel",
+      value: activityLevel,
       classes: "govuk-!-width-two-thirds"
     }) }}
 
@@ -137,9 +137,9 @@
         text: "Financial year (e.g. 21/22)",
         classes: "govuk-label--s"
       },
-      id: "financial_year",
-      name: "financial_year",
-      value: financial_year,
+      id: "financialYear",
+      name: "financialYear",
+      value: financialYear,
       classes: "govuk-!-width-one-quarter"
     }) }}
 
@@ -155,22 +155,22 @@
       },
       items: [
         {
-          name: "payment_date_day",
+          name: "paymentDateDay",
           classes: "govuk-input--width-2",
           label: "Day",
-          value: payment_date_day
+          value: paymentDateDay
         },
         {
-          name: "payment_date_month",
+          name: "paymentDateMonth",
           classes: "govuk-input--width-2",
           label: "Month",
-          value: payment_date_month
+          value: paymentDateMonth
         },
         {
-          name: "payment_date_year",
+          name: "paymentDateYear",
           classes: "govuk-input--width-4",
           label: "Year",
-          value: payment_date_year
+          value: paymentDateYear
         }
       ]
     }) }}

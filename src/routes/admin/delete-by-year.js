@@ -23,7 +23,7 @@ export const deleteByYear = [
     options: {
       validate: {
         payload: Joi.object({
-          financial_year: Joi.string().max(8).required(),
+          financialYear: Joi.string().max(8).required(),
           confirm: Joi.string().valid('yes').required()
         }),
         failAction: async function (request, h, error) {
@@ -37,24 +37,13 @@ export const deleteByYear = [
         }
       },
       handler: async function (request, h) {
-        const { financial_year: financialYear } = request.payload
-
-        try {
-          const result = await deletePaymentsByYear(financialYear)
-          return h.view('admin/delete-by-year-success', {
-            pageTitle: 'Deletion Complete',
-            financial_year: financialYear,
-            result
-          })
-        } catch (err) {
-          const years = await fetchFinancialYears()
-          return h.view('admin/delete-by-year', {
-            pageTitle: 'Delete Payments by Financial Year',
-            years,
-            financial_year: financialYear,
-            errorList: [{ text: 'Failed to delete payments. Please try again.' }]
-          }).code(httpConstants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-        }
+        const { financialYear } = request.payload
+        const result = await deletePaymentsByYear(financialYear)
+        return h.view('admin/delete-by-year-success', {
+          pageTitle: 'Deletion Complete',
+          financialYear,
+          result
+        })
       }
     }
   }

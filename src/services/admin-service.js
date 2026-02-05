@@ -3,6 +3,7 @@ import { get } from '../api/get.js'
 import { post } from '../api/post.js'
 import Wreck from '@hapi/wreck'
 import { buildBackendUrl } from '../api/build-backend-url.js'
+import { toViewModel, toApiModel, paymentsToViewModel } from './mappers/payment-mapper.js'
 
 export async function fetchAdminPayments (page = 1, limit = 20, searchString = '') {
   const url = getUrlParams('admin/payments', {
@@ -14,7 +15,7 @@ export async function fetchAdminPayments (page = 1, limit = 20, searchString = '
   if (!response) {
     return { count: 0, rows: [], page: 1, totalPages: 0 }
   }
-  return JSON.parse(response.payload)
+  return paymentsToViewModel(JSON.parse(response.payload))
 }
 
 export async function fetchPaymentById (id) {
@@ -23,32 +24,32 @@ export async function fetchPaymentById (id) {
   if (!response) {
     return null
   }
-  return JSON.parse(response.payload)
+  return toViewModel(JSON.parse(response.payload))
 }
 
 export async function createPayment (paymentData) {
   const url = getUrlParams('admin/payments')
-  const response = await post(url, paymentData)
+  const apiModel = toApiModel(paymentData)
+  const response = await post(url, apiModel)
   if (!response) {
-    return null
+    throw new Error('Failed to create payment')
   }
-  return JSON.parse(response.payload)
+  return toViewModel(JSON.parse(response.payload))
 }
 
 export async function updatePayment (id, paymentData) {
   const backendUrl = buildBackendUrl(`/admin/payments/${id}`)
+  const apiModel = toApiModel(paymentData)
   const { res, payload } = await Wreck.put(backendUrl, {
-    payload: JSON.stringify(paymentData),
-    headers: {
-      'Content-Type': 'application/json'
-    }
+    payload: JSON.stringify(apiModel),
+    headers: { 'Content-Type': 'application/json' }
   })
 
   if (res.statusCode !== 200) {
     throw new Error('Failed to update payment')
   }
 
-  return JSON.parse(payload)
+  return toViewModel(JSON.parse(payload))
 }
 
 export async function deletePaymentById (id) {
@@ -88,9 +89,7 @@ export async function uploadPaymentsCsv (fileStream) {
 
   const { res, payload } = await Wreck.post(backendUrl, {
     payload: fileStream,
-    headers: {
-      'Content-Type': 'text/csv'
-    }
+    headers: { 'Content-Type': 'text/csv' }
   })
 
   if (res.statusCode !== 201) {

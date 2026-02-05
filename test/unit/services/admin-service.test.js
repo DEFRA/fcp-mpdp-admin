@@ -66,7 +66,9 @@ describe('admin-service', () => {
 
       const result = await fetchAdminPayments(1, 20, '')
 
-      expect(result).toEqual(mockData)
+      expect(result.count).toBe(100)
+      expect(result.rows[0].payeeName).toBe('Test 1')
+      expect(result.rows[1].payeeName).toBe('Test 2')
       expect(mockGet).toHaveBeenCalledWith(
         expect.stringContaining('admin/payments')
       )
@@ -115,7 +117,9 @@ describe('admin-service', () => {
 
       const result = await fetchPaymentById(1)
 
-      expect(result).toEqual(mockPayment)
+      expect(result.payeeName).toBe('Test Payee')
+      expect(result.partPostcode).toBe('SW1A')
+      expect(result.amount).toBe(1000)
       expect(mockGet).toHaveBeenCalledWith(
         expect.stringContaining('admin/payments/1')
       )
@@ -123,59 +127,72 @@ describe('admin-service', () => {
   })
 
   describe('createPayment', () => {
-    test('should return null if no response received', async () => {
+    test('should throw if no response received', async () => {
       const mockPost = vi.fn().mockResolvedValue(null)
       vi.spyOn(Wreck, 'post').mockImplementation(mockPost)
 
-      const result = await createPayment({})
-
-      expect(result).toBeNull()
+      await expect(createPayment({})).rejects.toThrow('Failed to create payment')
     })
 
-    test('should create a new payment', async () => {
+    test('should create a new payment with camelCase input and return mapped response', async () => {
       const paymentData = {
+        payeeName: 'Test Payee',
+        partPostcode: 'SW1A',
+        amount: 1000,
+        financialYear: '23/24'
+      }
+      const apiResponse = {
+        id: 1,
         payee_name: 'Test Payee',
         part_postcode: 'SW1A',
         amount: 1000,
         financial_year: '23/24'
       }
-      const createdPayment = { id: 1, ...paymentData }
 
       const mockPost = vi.fn().mockResolvedValue({
         res: { statusCode: 201 },
-        payload: JSON.stringify(createdPayment)
+        payload: JSON.stringify(apiResponse)
       })
       vi.spyOn(Wreck, 'post').mockImplementation(mockPost)
 
       const result = await createPayment(paymentData)
 
-      expect(result).toEqual(createdPayment)
+      expect(result.payeeName).toBe('Test Payee')
+      expect(result.partPostcode).toBe('SW1A')
       expect(mockPost).toHaveBeenCalledWith(
         expect.stringContaining('admin/payments'),
         expect.objectContaining({
-          payload: paymentData
+          payload: expect.objectContaining({
+            payee_name: 'Test Payee',
+            part_postcode: 'SW1A'
+          })
         })
       )
     })
   })
 
   describe('updatePayment', () => {
-    test('should update a payment', async () => {
+    test('should update a payment with camelCase input', async () => {
       const paymentData = {
+        payeeName: 'Updated Payee',
+        amount: 2000
+      }
+      const apiResponse = {
+        id: 1,
         payee_name: 'Updated Payee',
         amount: 2000
       }
-      const updatedPayment = { id: 1, ...paymentData }
 
       const mockPut = vi.fn().mockResolvedValue({
         res: { statusCode: 200 },
-        payload: Buffer.from(JSON.stringify(updatedPayment))
+        payload: Buffer.from(JSON.stringify(apiResponse))
       })
       vi.spyOn(Wreck, 'put').mockImplementation(mockPut)
 
       const result = await updatePayment(1, paymentData)
 
-      expect(result).toEqual(updatedPayment)
+      expect(result.payeeName).toBe('Updated Payee')
+      expect(result.amount).toBe(2000)
       expect(mockPut).toHaveBeenCalledWith(
         expect.stringContaining('/admin/payments/1'),
         expect.objectContaining({
