@@ -133,9 +133,11 @@ describe('user-agent protection', () => {
 
     server.route({
       method: 'GET',
-      path: '/test-no-truncation',      options: {
+      path: '/test-no-truncation',
+      options: {
         auth: false
-      },      handler: (request, h) => {
+      },
+      handler: (request, h) => {
         capturedUserAgent = request.headers['user-agent']
         return h.response('OK').code(httpConstants.HTTP_STATUS_OK)
       }
