@@ -1,8 +1,9 @@
 import { describe, beforeEach, afterEach, test, expect } from 'vitest'
 import http2 from 'node:http2'
-import { createServer } from '../../../../src/server.js'
+import '../helpers/setup-server-mocks.js'
 
 const { constants: httpConstants } = http2
+const { createServer } = await import('../../../../src/server.js')
 const MAX_USER_AGENT_LENGTH = 150
 
 describe('user-agent protection', () => {
@@ -101,6 +102,9 @@ describe('user-agent protection', () => {
     server.route({
       method: 'GET',
       path: '/test-truncation',
+      options: {
+        auth: false
+      },
       handler: (request, h) => {
         capturedUserAgent = request.headers['user-agent']
         return h.response('OK').code(httpConstants.HTTP_STATUS_OK)
@@ -129,8 +133,9 @@ describe('user-agent protection', () => {
 
     server.route({
       method: 'GET',
-      path: '/test-no-truncation',
-      handler: (request, h) => {
+      path: '/test-no-truncation',      options: {
+        auth: false
+      },      handler: (request, h) => {
         capturedUserAgent = request.headers['user-agent']
         return h.response('OK').code(httpConstants.HTTP_STATUS_OK)
       }

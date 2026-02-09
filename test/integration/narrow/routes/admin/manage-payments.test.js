@@ -1,11 +1,12 @@
 import { describe, beforeAll, afterAll, beforeEach, test, expect, vi } from 'vitest'
 import * as cheerio from 'cheerio'
 import http2 from 'node:http2'
-import { createServer } from '../../../../../src/server.js'
+import '../../helpers/setup-server-mocks.js'
 import { getOptions } from '../../../../utils/helpers.js'
 import getCrumbs from '../../../../helpers/get-crumbs.js'
 
 const { constants: httpConstants } = http2
+const { createServer } = await import('../../../../../src/server.js')
 
 const mockPayments = {
   count: 50,
@@ -177,7 +178,18 @@ describe('Admin manage payments route', () => {
   describe('POST /admin/payments/add', () => {
     test('should redirect on successful creation', async () => {
       const mockForCrumbs = () => {}
-      const { cookieCrumb, viewCrumb } = await getCrumbs(mockForCrumbs, server, '/admin/payments/add')
+      const { cookieCrumb, viewCrumb } = await getCrumbs(
+        mockForCrumbs,
+        server,
+        '/admin/payments/add',
+        {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
+        }
+      )
 
       const options = {
         method: 'POST',
@@ -192,6 +204,13 @@ describe('Admin manage payments route', () => {
         },
         headers: {
           cookie: `crumb=${cookieCrumb}`
+        },
+        auth: {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
         }
       }
 
@@ -204,7 +223,18 @@ describe('Admin manage payments route', () => {
 
     test('should return 400 with validation errors for missing required fields', async () => {
       const mockForCrumbs = () => {}
-      const { cookieCrumb, viewCrumb } = await getCrumbs(mockForCrumbs, server, '/admin/payments/add')
+      const { cookieCrumb, viewCrumb } = await getCrumbs(
+        mockForCrumbs,
+        server,
+        '/admin/payments/add',
+        {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
+        }
+      )
 
       const options = {
         method: 'POST',
@@ -215,6 +245,13 @@ describe('Admin manage payments route', () => {
         },
         headers: {
           cookie: `crumb=${cookieCrumb}`
+        },
+        auth: {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
         }
       }
 
@@ -253,7 +290,18 @@ describe('Admin manage payments route', () => {
   describe('POST /admin/payments/{id}/edit', () => {
     test('should redirect on successful update', async () => {
       const mockForCrumbs = () => {}
-      const { cookieCrumb, viewCrumb } = await getCrumbs(mockForCrumbs, server, '/admin/payments/1/edit')
+      const { cookieCrumb, viewCrumb } = await getCrumbs(
+        mockForCrumbs,
+        server,
+        '/admin/payments/1/edit',
+        {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
+        }
+      )
 
       const options = {
         method: 'POST',
@@ -268,6 +316,13 @@ describe('Admin manage payments route', () => {
         },
         headers: {
           cookie: `crumb=${cookieCrumb}`
+        },
+        auth: {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
         }
       }
 
@@ -307,7 +362,18 @@ describe('Admin manage payments route', () => {
   describe('POST /admin/payments/{id}/delete', () => {
     test('should redirect on successful deletion', async () => {
       const mockForCrumbs = () => {}
-      const { cookieCrumb, viewCrumb } = await getCrumbs(mockForCrumbs, server, '/admin/payments/1/delete')
+      const { cookieCrumb, viewCrumb } = await getCrumbs(
+        mockForCrumbs,
+        server,
+        '/admin/payments/1/delete',
+        {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
+        }
+      )
 
       const options = {
         method: 'POST',
@@ -317,6 +383,13 @@ describe('Admin manage payments route', () => {
         },
         headers: {
           cookie: `crumb=${cookieCrumb}`
+        },
+        auth: {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
         }
       }
 
@@ -396,7 +469,18 @@ describe('Admin manage payments route', () => {
   describe('POST /admin/payments/delete-by-year', () => {
     test('should display success page on successful deletion', async () => {
       const mockForCrumbs = () => {}
-      const { cookieCrumb, viewCrumb } = await getCrumbs(mockForCrumbs, server, '/admin/payments/delete-by-year')
+      const { cookieCrumb, viewCrumb } = await getCrumbs(
+        mockForCrumbs,
+        server,
+        '/admin/payments/delete-by-year',
+        {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
+        }
+      )
 
       const options = {
         method: 'POST',
@@ -408,6 +492,13 @@ describe('Admin manage payments route', () => {
         },
         headers: {
           cookie: `crumb=${cookieCrumb}`
+        },
+        auth: {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
         }
       }
 
@@ -421,7 +512,18 @@ describe('Admin manage payments route', () => {
 
     test('should return 400 without confirmation', async () => {
       const mockForCrumbs = () => {}
-      const { cookieCrumb, viewCrumb } = await getCrumbs(mockForCrumbs, server, '/admin/payments/delete-by-year')
+      const { cookieCrumb, viewCrumb } = await getCrumbs(
+        mockForCrumbs,
+        server,
+        '/admin/payments/delete-by-year',
+        {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
+        }
+      )
 
       const options = {
         method: 'POST',
@@ -432,6 +534,13 @@ describe('Admin manage payments route', () => {
         },
         headers: {
           cookie: `crumb=${cookieCrumb}`
+        },
+        auth: {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
         }
       }
 

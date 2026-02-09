@@ -1,7 +1,26 @@
 import { vi, describe, beforeAll, afterAll, test, expect } from 'vitest'
 import http2 from 'node:http2'
 import { catchAll } from '../../../../src/common/helpers/errors.js'
-import { createServer } from '../../../../src/server.js'
+
+const mockOidcConfig = {
+  authorization_endpoint: 'https://oidc.example.com/authorize',
+  token_endpoint: 'https://oidc.example.com/token',
+  end_session_endpoint: 'https://oidc.example.com/logout',
+  jwks_uri: 'https://oidc.example.com/jwks'
+}
+
+vi.mock('@hapi/catbox-redis', async () => {
+  const CatboxMemory = await import('@hapi/catbox-memory')
+  return CatboxMemory
+})
+
+vi.mock('../../../../src/auth/get-oidc-config.js', async () => {
+  return {
+    getOidcConfig: async () => (mockOidcConfig)
+  }
+})
+
+const { createServer } = await import('../../../../src/server.js')
 
 const { constants: httpConstants } = http2
 
@@ -68,8 +87,8 @@ describe('catchAll', () => {
     const result = catchAll(request, mockToolkit)
 
     expect(mockErrorLogger).not.toHaveBeenCalledWith(mockStack)
-    expect(mockToolkitView).toHaveBeenCalledWith('errors/500', {
-      pageTitle: 'Sorry, there is a problem with the service'
+    expect(mockToolkitView).toHaveBeenCalledWith('errors/403', {
+      pageTitle: 'Sorry, you are not authorised to perform that action'
     })
     expect(mockToolkitCode).toHaveBeenCalledWith(httpConstants.HTTP_STATUS_FORBIDDEN)
     expect(result).toBe(mockToolkit)

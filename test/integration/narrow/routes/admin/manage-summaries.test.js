@@ -1,4 +1,5 @@
 import { describe, test, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest'
+import '../../helpers/setup-server-mocks.js'
 import getCrumbs from '../../../../helpers/get-crumbs.js'
 
 // Set environment variables before any imports that need config
@@ -48,7 +49,14 @@ describe('Payment Summary Admin Routes', () => {
 
       const options = {
         method: 'GET',
-        url: '/admin/summary'
+        url: '/admin/summary',
+        auth: {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
+        }
       }
 
       const response = await server.inject(options)
@@ -65,7 +73,14 @@ describe('Payment Summary Admin Routes', () => {
 
       const options = {
         method: 'GET',
-        url: '/admin/summary'
+        url: '/admin/summary',
+        auth: {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
+        }
       }
 
       const response = await server.inject(options)
@@ -79,7 +94,14 @@ describe('Payment Summary Admin Routes', () => {
     test('should display add payment summary form', async () => {
       const options = {
         method: 'GET',
-        url: '/admin/summary/add'
+        url: '/admin/summary/add',
+        auth: {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
+        }
       }
 
       const response = await server.inject(options)
@@ -103,7 +125,18 @@ describe('Payment Summary Admin Routes', () => {
 
       paymentSummaryService.createPaymentSummary.mockResolvedValue(mockCreated)
 
-      const { cookieCrumb, viewCrumb } = await getCrumbs(() => {}, server, '/admin/summary/add')
+      const { cookieCrumb, viewCrumb } = await getCrumbs(
+        () => {},
+        server,
+        '/admin/summary/add',
+        {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
+        }
+      )
 
       const options = {
         method: 'POST',
@@ -116,6 +149,13 @@ describe('Payment Summary Admin Routes', () => {
         },
         headers: {
           cookie: `crumb=${cookieCrumb}`
+        },
+        auth: {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
         }
       }
 
@@ -131,7 +171,18 @@ describe('Payment Summary Admin Routes', () => {
     })
 
     test('should return 400 for missing required fields', async () => {
-      const { cookieCrumb, viewCrumb } = await getCrumbs(() => {}, server, '/admin/summary/add')
+      const { cookieCrumb, viewCrumb } = await getCrumbs(
+        () => {},
+        server,
+        '/admin/summary/add',
+        {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
+        }
+      )
 
       const options = {
         method: 'POST',
@@ -142,6 +193,13 @@ describe('Payment Summary Admin Routes', () => {
         },
         headers: {
           cookie: `crumb=${cookieCrumb}`
+        },
+        auth: {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
         }
       }
 
@@ -165,7 +223,14 @@ describe('Payment Summary Admin Routes', () => {
 
       const options = {
         method: 'GET',
-        url: '/admin/summary/edit/1'
+        url: '/admin/summary/edit/1',
+        auth: {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
+        }
       }
 
       const response = await server.inject(options)
@@ -199,7 +264,14 @@ describe('Payment Summary Admin Routes', () => {
       const { cookieCrumb, viewCrumb } = await getCrumbs(
         () => paymentSummaryService.fetchPaymentSummaryById.mockResolvedValue(mockSummary),
         server,
-        '/admin/summary/edit/1'
+        '/admin/summary/edit/1',
+        {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
+        }
       )
 
       const options = {
@@ -213,6 +285,13 @@ describe('Payment Summary Admin Routes', () => {
         },
         headers: {
           cookie: `crumb=${cookieCrumb}`
+        },
+        auth: {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
         }
       }
 
@@ -241,7 +320,14 @@ describe('Payment Summary Admin Routes', () => {
 
       const options = {
         method: 'GET',
-        url: '/admin/summary/delete/1'
+        url: '/admin/summary/delete/1',
+        auth: {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
+        }
       }
 
       const response = await server.inject(options)
@@ -270,7 +356,14 @@ describe('Payment Summary Admin Routes', () => {
       const { cookieCrumb, viewCrumb } = await getCrumbs(
         () => paymentSummaryService.fetchPaymentSummaryById.mockResolvedValue(mockSummary),
         server,
-        '/admin/summary/delete/1'
+        '/admin/summary/delete/1',
+        {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
+        }
       )
 
       const options = {
@@ -281,6 +374,13 @@ describe('Payment Summary Admin Routes', () => {
         },
         headers: {
           cookie: `crumb=${cookieCrumb}`
+        },
+        auth: {
+          strategy: 'session',
+          credentials: {
+            scope: ['MPDP.Admin'],
+            sessionId: 'test-session-id'
+          }
         }
       }
 

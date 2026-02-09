@@ -35,7 +35,7 @@ export async function context (request) {
     }
   }
 
-  if (!request.auth.isAuthenticated || !request.auth.credentials?.sessionId) {
+  if (!request.auth?.isAuthenticated || !request.auth?.credentials?.sessionId) {
     return defaultContext
   }
 

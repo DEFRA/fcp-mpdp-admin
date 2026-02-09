@@ -8,7 +8,14 @@ function getOptions (page, method = 'GET', params = {}, listParams = {}) {
 
   return {
     method,
-    url: `/${page}?${urlParams.toString()}`
+    url: `/${page}?${urlParams.toString()}`,
+    auth: {
+      strategy: 'session',
+      credentials: {
+        scope: ['MPDP.Admin'],
+        sessionId: 'test-session-id'
+      }
+    }
   }
 }
 

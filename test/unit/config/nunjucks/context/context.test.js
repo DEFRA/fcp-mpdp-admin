@@ -43,13 +43,13 @@ describe('Context and cache', () => {
         )
       })
 
-      beforeEach(() => {
+      beforeEach(async () => {
         mockReadFileSync.mockReturnValue(`{
         "application.js": "javascripts/application.js",
         "stylesheets/application.scss": "stylesheets/application.css"
       }`)
 
-        contextResult = contextImport.context(mockRequest)
+        contextResult = await contextImport.context(mockRequest)
       })
 
       test('Should provide expected context', () => {
@@ -59,7 +59,6 @@ describe('Context and cache', () => {
           getAssetPath: expect.any(Function),
           serviceName: 'Find farm and land payment data',
           serviceUrl: '/',
-          googleTagManagerKey: ''
         })
       })
 
@@ -80,7 +79,7 @@ describe('Context and cache', () => {
       })
 
       describe('With existing context', () => {
-        test('Should preserve existing context properties', () => {
+        test('Should preserve existing context properties', async () => {
           const mockRequestWithContext = {
             path: '/',
             response: {
@@ -93,7 +92,7 @@ describe('Context and cache', () => {
             }
           }
 
-          const result = contextImport.context(mockRequestWithContext)
+          const result = await contextImport.context(mockRequestWithContext)
 
           expect(result).toEqual({
             pageTitle: 'Custom Page Title',
@@ -102,8 +101,7 @@ describe('Context and cache', () => {
             breadcrumbs: [],
             getAssetPath: expect.any(Function),
             serviceName: 'Find farm and land payment data',
-            serviceUrl: '/',
-            googleTagManagerKey: ''
+            serviceUrl: '/'
           })
         })
       })
@@ -118,9 +116,9 @@ describe('Context and cache', () => {
         )
       })
 
-      beforeEach(() => {
+      beforeEach(async () => {
         mockReadFileSync.mockReturnValue(new Error('File not found'))
-        contextImport.context(mockRequest)
+        await contextImport.context(mockRequest)
       })
 
       test('Should log that the Webpack Manifest file is not available', () => {
@@ -151,13 +149,13 @@ describe('Context and cache', () => {
         )
       })
 
-      beforeEach(() => {
+      beforeEach(async () => {
         mockReadFileSync.mockReturnValue(`{
         "application.js": "javascripts/application.js",
         "stylesheets/application.scss": "stylesheets/application.css"
       }`)
 
-        contextResult = contextImport.context(mockRequest)
+        contextResult = await contextImport.context(mockRequest)
       })
 
       test('Should read file', () => {
@@ -175,7 +173,6 @@ describe('Context and cache', () => {
           getAssetPath: expect.any(Function),
           serviceName: 'Find farm and land payment data',
           serviceUrl: '/',
-          googleTagManagerKey: ''
         })
       })
     })

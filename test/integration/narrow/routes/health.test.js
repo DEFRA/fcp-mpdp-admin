@@ -1,5 +1,7 @@
 import { describe, beforeAll, afterAll, test, expect } from 'vitest'
-import { createServer } from '../../../../src/server.js'
+import '../helpers/setup-server-mocks.js'
+
+const { createServer } = await import('../../../../src/server.js')
 
 describe('Health route', () => {
   let server
