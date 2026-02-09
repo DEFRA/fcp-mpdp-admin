@@ -1,8 +1,27 @@
-import { describe, beforeEach, afterEach, test, expect } from 'vitest'
+import { describe, beforeEach, afterEach, test, expect, vi } from 'vitest'
 import http2 from 'node:http2'
-import { startServer } from '../../../../src/common/helpers/start-server.js'
 
 const { constants: httpConstants } = http2
+
+const mockOidcConfig = {
+  authorization_endpoint: 'https://oidc.example.com/authorize',
+  token_endpoint: 'https://oidc.example.com/token',
+  end_session_endpoint: 'https://oidc.example.com/logout',
+  jwks_uri: 'https://oidc.example.com/jwks'
+}
+
+vi.mock('@hapi/catbox-redis', async () => {
+  const CatboxMemory = await import('@hapi/catbox-memory')
+  return CatboxMemory
+})
+
+vi.mock('../../../../src/auth/get-oidc-config.js', async () => {
+  return {
+    getOidcConfig: async () => (mockOidcConfig)
+  }
+})
+
+const { startServer } = await import('../../../../src/common/helpers/start-server.js')
 
 describe('serveStaticFiles', () => {
   let server
@@ -13,7 +32,9 @@ describe('serveStaticFiles', () => {
     })
 
     afterEach(async () => {
-      await server.stop({ timeout: 0 })
+      if (server) {
+        await server.stop({ timeout: 0 })
+      }
     })
 
     test('Should serve favicon as expected', async () => {

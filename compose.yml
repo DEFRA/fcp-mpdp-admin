@@ -9,6 +9,7 @@ services:
     environment:
       MPDP_BACKEND_ENDPOINT: ${MPDP_BACKEND_ENDPOINT:-http://fcp-mpdp-backend:3001}
       ENTRA_WELL_KNOWN_URL: https://login.microsoftonline.com/${ENTRA_TENANT_ID}/v2.0/.well-known/openid-configuration
+      ENTRA_TENANT_ID: ${ENTRA_TENANT_ID}
       ENTRA_CLIENT_ID: ${ENTRA_CLIENT_ID}
       ENTRA_CLIENT_SECRET: ${ENTRA_CLIENT_SECRET}
       ENTRA_REDIRECT_URL: http://localhost:3003/auth/sign-in-oidc
