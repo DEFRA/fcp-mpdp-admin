@@ -1,0 +1,148 @@
+{% extends "layout.njk" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/pagination/macro.njk" import govukPagination %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% block pageTitle %}
+  {{ pageTitle }} - {{ serviceName }} - GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  {{ super() }}
+  {% if errorList %}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: errorList
+    }) }}
+  {% endif %}
+  <nav>
+    <a id="back-link" href="/" class="govuk-back-link">Back</a>
+  </nav>
+{% endblock %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+
+  {% if successParam === 'added' %}
+    {% set html %}
+      <p class="govuk-notification-banner__heading">Payment successfully added</p>
+    {% endset %}
+    {{ govukNotificationBanner({
+      type: "success",
+      html: html
+    }) }}
+  {% elif successParam === 'updated' %}
+    {% set html %}
+      <p class="govuk-notification-banner__heading">Payment successfully updated</p>
+    {% endset %}
+    {{ govukNotificationBanner({
+      type: "success",
+      html: html
+    }) }}
+  {% elif successParam === 'deleted' %}
+    {% set html %}
+      <p class="govuk-notification-banner__heading">Payment successfully deleted</p>
+    {% endset %}
+    {{ govukNotificationBanner({
+      type: "success",
+      html: html
+    }) }}
+  {% endif %}
+
+  <div class="govuk-button-group govuk-!-margin-bottom-6">
+    {{ govukButton({
+      text: "Add new payment",
+      href: "/admin/payments/add"
+    }) }}
+    {{ govukButton({
+      text: "Bulk upload from CSV",
+      href: "/admin/payments/bulk-upload",
+      classes: "govuk-button--secondary"
+    }) }}
+    {{ govukButton({
+      text: "Delete by financial year",
+      href: "/admin/payments/delete-by-year",
+      classes: "govuk-button--warning"
+    }) }}
+  </div>
+
+  <form method="get" action="/admin/payments">
+    <div class="govuk-form-group">
+      <label class="govuk-label govuk-label--s" for="searchString">
+        Search by payee name
+      </label>
+      <div class="form-inline">
+        <div class="container">
+          <input 
+            class="govuk-input" 
+            id="searchString" 
+            name="searchString" 
+            type="search" 
+            value="{{ searchString }}"
+            autocomplete="off"
+          />
+        </div>
+        <button 
+          id="search-button" 
+          class="govuk-button" 
+          data-module="govuk-button" 
+          type="submit"
+        >
+          Search
+        </button>
+      </div>
+    </div>
+    {% if searchString %}
+      <p class="govuk-body">
+        <a href="/admin/payments" class="govuk-link">Clear search and show all results</a>
+      </p>
+    {% endif %}
+  </form>
+
+  <p class="govuk-body">Showing {{ rows | length }} of {{ count }} total payments</p>
+
+  {% if rows | length > 0 %}
+    {% set tableRows = [] %}
+    {% for payment in rows %}
+      {% set tableRows = (tableRows.push([
+        { text: payment.payeeName },
+        { text: payment.partPostcode },
+        { text: payment.town or '-' },
+        { text: payment.scheme or '-' },
+        { text: payment.financialYear },
+        { text: '£' + (payment.amount | string) },
+        { html: '<a href="/admin/payments/' + payment.id + '/edit" class="govuk-link">Edit</a> | <a href="/admin/payments/' + payment.id + '/delete" class="govuk-link">Delete</a>' }
+      ]), tableRows) %}
+    {% endfor %}
+
+    {{ govukTable({
+      head: [
+        { text: "Payee Name" },
+        { text: "Postcode" },
+        { text: "Town" },
+        { text: "Scheme" },
+        { text: "Financial Year" },
+        { text: "Amount" },
+        { text: "Actions" }
+      ],
+      rows: tableRows
+    }) }}
+
+    {% if prevPage or nextPage %}
+      {{ govukPagination({
+        previous: {
+          href: "/admin/payments?page=" + (prevPage | string) + ("&searchString=" + searchString if searchString else "")
+        } if prevPage else none,
+        next: {
+          href: "/admin/payments?page=" + (nextPage | string) + ("&searchString=" + searchString if searchString else "")
+        } if nextPage else none
+      }) }}
+    {% endif %}
+  {% else %}
+    <p class="govuk-body">No payments found.</p>
+  {% endif %}
+{% endblock %}

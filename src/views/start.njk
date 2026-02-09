@@ -1,0 +1,24 @@
+{% extends "layout.njk" %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds govuk-prose-scope">
+      <div class="govuk-body" data-testid="app-page-body">
+        <h1>{{ serviceName }}</h1>
+
+        <p>Administer agricultural scheme payments for farmers and land managers in England</p>
+
+        <p>You can manage payments for the:</p>
+        <ul>
+          <li>Farm Resilience Fund</li>
+          <li>Farming Investment Fund</li>
+          <li>Landscape Recovery</li>
+          <li>Sustainable Farming Incentive</li>
+        </ul>
+
+        <a class="govuk-link" href="/admin/payments">Manage payments</a>
+        <a class="govuk-link" href="/admin/summary">Manage payment summary</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

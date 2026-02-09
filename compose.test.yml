@@ -1,0 +1,13 @@
+services:
+  fcp-mpdp-admin:
+    build:
+      target: development
+    command: npm test
+    environment:
+      ENTRA_WELL_KNOWN_URL: https://login.microsoftonline.com/test-tenant-id/v2.0/.well-known/openid-configuration
+      ENTRA_TENANT_ID: test-tenant-id
+      ENTRA_CLIENT_ID: test-client-id
+      ENTRA_CLIENT_SECRET: test-client-secret
+    volumes:
+      - ./test:/home/node/test
+      - ./coverage:/home/node/coverage

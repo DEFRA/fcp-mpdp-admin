@@ -1,0 +1,82 @@
+{% extends "layout.njk" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% block pageTitle %}
+  {% if errorList %}Error: {% endif %}{{ pageTitle }} - {{ serviceName }} - GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  {{ super() }}
+  {% if errorList %}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: errorList
+    }) }}
+  {% endif %}
+  <nav>
+    <a id="back-link" href="/admin/payments" class="govuk-back-link">Back</a>
+  </nav>
+{% endblock %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+
+  {{ govukWarningText({
+    text: "This action cannot be undone.",
+    iconFallbackText: "Warning"
+  }) }}
+
+  <h2 class="govuk-heading-m">Payment details</h2>
+
+  {{ govukSummaryList({
+    rows: [
+      {
+        key: { text: "ID" },
+        value: { text: payment.id }
+      },
+      {
+        key: { text: "Payee name" },
+        value: { text: payment.payeeName }
+      },
+      {
+        key: { text: "Part postcode" },
+        value: { text: payment.partPostcode }
+      },
+      {
+        key: { text: "Town" },
+        value: { text: payment.town or '-' }
+      },
+      {
+        key: { text: "County council" },
+        value: { text: payment.countyCouncil or '-' }
+      },
+      {
+        key: { text: "Scheme" },
+        value: { text: payment.scheme or '-' }
+      },
+      {
+        key: { text: "Financial year" },
+        value: { text: payment.financialYear }
+      },
+      {
+        key: { text: "Amount" },
+        value: { text: '£' + (payment.amount | string) }
+      }
+    ]
+  }) }}
+
+  <form method="post" action="/admin/payments/{{ payment.id }}/delete">
+    <input type="hidden" name="crumb" value="{{ crumb }}"/>
+    <div class="govuk-button-group">
+      {{ govukButton({
+        text: "Confirm deletion",
+        classes: "govuk-button--warning"
+      }) }}
+      <a class="govuk-link" href="/admin/payments">Cancel</a>
+    </div>
+  </form>
+{% endblock %}

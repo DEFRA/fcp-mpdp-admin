@@ -1,0 +1,19 @@
+{% extends "layout.njk" %}
+
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block pageTitle %}
+  {{ pageTitle }} - {{ serviceName }} - GOV.UK
+{% endblock %}
+
+{% block content %}
+  {{ govukPanel({
+    titleText: "Deletion complete",
+    html: result.paymentCount + " payment records and " + result.schemeCount + " scheme records for financial year " + financialYear + " have been deleted"
+  }) }}
+
+  <p class="govuk-body">
+    <a href="/admin/payments" class="govuk-link">Return to manage payments</a>
+  </p>
+{% endblock %}

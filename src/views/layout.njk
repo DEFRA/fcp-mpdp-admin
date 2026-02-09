@@ -1,0 +1,58 @@
+{% extends "govuk/template.njk" %}
+
+{% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
+
+{% set mainClasses = "app-main-wrapper" %}
+
+{% block head %}
+  <link href="{{ getAssetPath('stylesheets/application.scss') }}" rel="stylesheet">
+{% endblock %}
+
+{% block pageTitle %}
+  {% if pageTitle and pageTitle != serviceName %}{{ pageTitle }} - {% endif %}{{ serviceName }} - GOV.UK
+{% endblock %}
+
+{% block bodyStart %}
+{% endblock %}
+
+{% block header %}
+  {{ govukHeader({
+    homepageUrl: "https://www.gov.uk/",
+    classes: "app-header",
+    containerClasses: "govuk-width-container",
+    serviceName: serviceName,
+    serviceUrl: serviceUrl,
+    useTudorCrown: true
+  }) }}
+{% endblock %}
+
+
+{% block beforeContent %}
+  <aside>
+    {{ govukPhaseBanner({
+      tag: {
+        text: "Beta"
+      },
+      html: 'This is a new service. Help us improve it and <a class="govuk-link" href="https://defragroup.eu.qualtrics.com/jfe/form/SV_1FcBVO6IMkfHmbs" target="_blank" rel="noreferrer noopener">give your feedback (opens in new tab)</a>.'
+    }) }}
+  </aside>
+
+  {% if auth.isAuthenticated %}
+    <div class="gov-grid-row">
+      <div class="auth-info">
+        <p class="govuk-body govuk-!-margin-bottom-0">Signed in as <a href="/home" class="govuk-link">{{ auth.name }}</a></p>
+        <p class="govuk-body govuk-!-margin-bottom-0"><a href="/auth/sign-out" class="govuk-link">Sign out</a></p>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block content %}{% endblock %}
+
+{% block footer %}
+  {{ govukFooter() }}
+{% endblock %}
+
+{% block bodyEnd %}
+  <script type="module" nonce="{{ nonce }}" src="{{ getAssetPath('application.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "layout.njk" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
+
+{% block pageTitle %}
+  {% if errorList %}Error: {% endif %}{{ pageTitle }} - {{ serviceName }} - GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  {{ super() }}
+  {% if errorList %}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: errorList
+    }) }}
+  {% endif %}
+  <nav>
+    <a id="back-link" href="/admin/payments" class="govuk-back-link">Back</a>
+  </nav>
+{% endblock %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+
+  {% if successMessage %}
+    {% set html %}
+      <p class="govuk-notification-banner__heading">
+        {{ successMessage }}
+      </p>
+      {% if uploadResult.errors and (uploadResult.errors | length) > 0 %}
+        <p class="govuk-body">However, {{ uploadResult.errors | length }} row(s) had errors:</p>
+        <ul class="govuk-list govuk-list--bullet">
+          {% for error in uploadResult.errors %}
+            <li>Row {{ error.row }}: {{ error.error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endset %}
+    {{ govukNotificationBanner({
+      type: "success",
+      html: html
+    }) }}
+  {% endif %}
+
+  <p class="govuk-body">Upload a CSV file containing payment data. The data will be added to the existing payments in the database.</p>
+
+  {{ govukDetails({
+    summaryText: "CSV file format requirements",
+    html: "
+      <p class='govuk-body'>The CSV file must contain the following columns:</p>
+      <ul class='govuk-list govuk-list--bullet'>
+        <li>payee_name</li>
+        <li>part_postcode</li>
+        <li>town</li>
+        <li>parliamentary_constituency</li>
+        <li>county_council</li>
+        <li>scheme</li>
+        <li>amount</li>
+        <li>financial_year</li>
+        <li>payment_date (optional)</li>
+        <li>scheme_detail</li>
+        <li>activity_level</li>
+      </ul>
+      <p class='govuk-body'>The first row must be a header row with these column names.</p>
+    "
+  }) }}
+
+  <form method="post" action="/admin/payments/bulk-upload" enctype="multipart/form-data">
+    <input type="hidden" name="crumb" value="{{ crumb }}"/>
+    {{ govukFileUpload({
+      id: "file",
+      name: "file",
+      label: {
+        text: "Upload a CSV file",
+        classes: "govuk-label--s"
+      },
+      hint: {
+        text: "The file must be a CSV and no larger than 100MB"
+      },
+      attributes: {
+        accept: ".csv"
+      }
+    }) }}
+
+    <div class="govuk-button-group">
+      {{ govukButton({
+        text: "Upload file"
+      }) }}
+      <a class="govuk-link" href="/admin/payments">Cancel</a>
+    </div>
+  </form>
+{% endblock %}
