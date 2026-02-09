@@ -5,7 +5,10 @@ import { createPayment } from '../../services/admin-service.js'
 const { constants: httpConstants } = http2
 
 function parseDateFromComponents (day, month, year) {
-  if (!day || !month || !year) return null
+  if (!day || !month || !year) {
+    return null
+  }
+
   const paddedDay = String(day).padStart(2, '0')
   const paddedMonth = String(month).padStart(2, '0')
   return `${year}-${paddedMonth}-${paddedDay}`

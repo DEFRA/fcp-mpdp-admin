@@ -1,5 +1,7 @@
 export function toViewModel (payment) {
-  if (!payment) return null
+  if (!payment) {
+    return null
+  }
 
   return {
     id: payment.id,
