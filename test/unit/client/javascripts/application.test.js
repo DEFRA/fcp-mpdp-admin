@@ -4,7 +4,7 @@ import { initAll } from 'govuk-frontend'
 vi.mock('govuk-frontend', () => ({
   initAll: vi.fn()
 }))
-describe('Init client-side javascript', () => {
+describe('application', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     await vi.importActual('../../../../src/client/javascripts/application.js')

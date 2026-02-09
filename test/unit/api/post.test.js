@@ -16,7 +16,7 @@ vi.mock('../../../src/common/helpers/logging/logging.js', () => ({
 const { createLogger } = await import('../../../src/common/helpers/logging/logger.js')
 const mockLogger = createLogger()
 
-describe('Backend API: post', () => {
+describe('post', () => {
   const route = '/__TEST_ROUTE__'
 
   beforeEach(() => {

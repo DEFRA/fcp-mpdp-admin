@@ -16,7 +16,7 @@ vi.mock('../../../src/common/helpers/logging/logging.js', () => ({
 const { createLogger } = await import('../../../src/common/helpers/logging/logger.js')
 const mockLogger = createLogger()
 
-describe('Backend API: get', () => {
+describe('get', () => {
   const route = '/__TEST_ROUTE__'
 
   beforeEach(() => {
@@ -34,7 +34,7 @@ describe('Backend API: get', () => {
     vi.restoreAllMocks()
   })
 
-  test('service uses the env variable to connect to backend service', async () => {
+  test('should use env variable to connect to backend service', async () => {
     const mockGet = vi.fn()
     vi.spyOn(Wreck, 'get').mockImplementation(mockGet)
 
@@ -43,7 +43,7 @@ describe('Backend API: get', () => {
     expect(mockGet).toHaveBeenCalledWith(`${endpoint}${path}${route}`)
   })
 
-  test('get function handles error', async () => {
+  test('should handle error when request fails', async () => {
     const mockLoggerError = vi.fn()
     mockLogger.error = mockLoggerError
 

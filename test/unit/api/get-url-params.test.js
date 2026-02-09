@@ -1,8 +1,8 @@
 import { describe, test, expect } from 'vitest'
 import { getUrlParams } from '../../../src/api/get-url-params.js'
 
-describe('Backend API: getUrlParams', () => {
-  test('getUrlParams function returns correct value', () => {
+describe('getUrlParams', () => {
+  test('should return correct URL with query parameters', () => {
     const page = '__TEST_ROTUE__'
     const obj = {
       val: '__VALUE__',
