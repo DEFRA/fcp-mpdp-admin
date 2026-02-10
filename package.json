@@ -31,10 +31,7 @@
   },
   "author": "Defra DDTS",
   "contributors": [
-    "Rana Salem <rana.salem@defra.gov.uk>",
-    "John Watson <john.watson1@defra.gov.uk>",
-    "Jayne Elliott <jayne.elliott@defra.gov.uk>",
-    "Lawrence Sithole <Lawrence.Sithole@defra.gov.uk>"
+    "John Watson <john.watson1@defra.gov.uk>"
   ],
   "license": "OGL-UK-3.0",
   "dependencies": {
@@ -63,6 +60,7 @@
     "govuk-frontend": "5.10.2",
     "hapi-pino": "13.0.0",
     "hapi-pulse": "3.0.1",
+    "ioredis": "5.9.2",
     "joi": "18.0.1",
     "jwk-to-pem": "2.0.7",
     "node-fetch": "3.3.2",
@@ -93,7 +91,7 @@
     "terser-webpack-plugin": "5.3.14",
     "vitest": "3.2.4",
     "vitest-fetch-mock": "0.4.5",
-    "webpack": "5.99.9",
+    "webpack": "5.105.0",
     "webpack-assets-manifest": "6.2.1",
     "webpack-cli": "6.0.1"
   },
