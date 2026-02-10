@@ -20,6 +20,7 @@ import { setupProxy } from './common/helpers/proxy/setup-proxy.js'
 import { requestTracing } from './common/helpers/request-tracing.js'
 import { requestLogger } from './common/helpers/logging/request-logger.js'
 import { secureContext } from './common/helpers/secure-context/secure-context.js'
+import { buildRedisClient } from './common/helpers/redis-client.js'
 
 export async function createServer () {
   setupProxy()
@@ -53,23 +54,15 @@ export async function createServer () {
       strictHeader: false
     },
     cache: [{
-      name: config.get('cache.name'),
-      provider: {
-        constructor: CatboxRedis,
-        options: {
-          host: config.get('cache.host'),
-          port: config.get('cache.port'),
-          password: config.get('cache.password'),
-          tls: config.get('cache.tls')
-        }
-      }
+      name: 'redis',
+      engine: new CatboxRedis({ client: buildRedisClient(config.get('redis')) })
     }]
   })
 
   server.app.cache = server.cache({
-    cache: config.get('cache.name'),
-    segment: config.get('cache.segment'),
-    expiresIn: config.get('cache.ttl')
+    cache: 'redis',
+    segment: 'session',
+    expiresIn: config.get('redis.ttl')
   })
 
   server.validator(Joi)

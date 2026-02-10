@@ -11,8 +11,8 @@ export const session = {
     storeBlank: false,
     maxCookieSize: 0,
     cache: {
-      cache: config.get('cache.name'),
-      segment: `${config.get('cache.segment')}-temp`
+      cache: 'redis',
+      segment: 'session-temp'
     },
     cookieOptions: {
       password: config.get('cookie.password'),

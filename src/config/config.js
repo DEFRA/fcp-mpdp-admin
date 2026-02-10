@@ -215,39 +215,43 @@ export const config = convict({
       env: 'ENTRA_REFRESH_TOKENS'
     }
   },
-  cache: {
-    name: {
-      doc: 'The cache name.',
-      format: String,
-      default: 'redis'
-    },
+  redis: {
     host: {
       doc: 'The Redis cache host.',
       format: String,
       default: null,
       env: 'REDIS_HOST'
     },
-    port: {
-      doc: 'The Redis cache port.',
-      format: 'port',
-      default: 6379,
-      env: 'REDIS_PORT'
+    username: {
+      doc: 'The Redis cache username.',
+      format: String,
+      default: '',
+      env: 'REDIS_USERNAME'
     },
     password: {
       doc: 'The Redis cache password.',
-      format: String,
+      format: '*',
       default: process.env.NODE_ENV === 'production' ? null : undefined,
+      sensitive: true,
       env: 'REDIS_PASSWORD'
     },
-    tls: {
-      doc: 'True if the Redis cache is using TLS.',
-      format: Object,
-      default: process.env.NODE_ENV === 'production' ? {} : undefined
-    },
-    segment: {
-      doc: 'The cache segment.',
+    keyPrefix: {
+      doc: 'Redis cache key prefix name used to isolate the cached results across multiple clients',
       format: String,
-      default: 'session'
+      default: 'fcp-mpdp-admin:',
+      env: 'REDIS_KEY_PREFIX'
+    },
+    useSingleInstanceCache: {
+      doc: 'Connect to a single instance of redis instead of a cluster.',
+      format: Boolean,
+      default: !isProduction,
+      env: 'USE_SINGLE_INSTANCE_CACHE'
+    },
+    useTLS: {
+      doc: 'Connect to redis using TLS',
+      format: Boolean,
+      default: isProduction,
+      env: 'REDIS_TLS'
     },
     ttl: {
       doc: 'The cache TTL.',
@@ -255,7 +259,7 @@ export const config = convict({
       default: 1000 * 60 * 60 * 24,
       env: 'REDIS_TTL'
     }
-  }
+  },
 })
 
 config.validate({ allowed: 'strict' })
