@@ -41,6 +41,14 @@ vi.mock('../../../src/routes/admin/delete-by-year.js', () => ({
   deleteByYear: { method: 'POST', path: '/admin/payments/delete-by-year' }
 }))
 
+vi.mock('../../../src/routes/admin/delete-by-published-date.js', () => ({
+  deleteByPublishedDate: { method: 'POST', path: '/admin/payments/delete-by-published-date' }
+}))
+
+vi.mock('../../../src/routes/admin/bulk-set-published-date.js', () => ({
+  bulkSetPublishedDateRoutes: { method: 'POST', path: '/admin/payments/bulk-set-published-date' }
+}))
+
 vi.mock('../../../src/routes/admin/manage-summaries.js', () => ({
   manageSummariesRoute: { method: 'GET', path: '/admin/summary' }
 }))
@@ -136,6 +144,9 @@ describe('router', () => {
     )
     expect(mockServer.route).toHaveBeenCalledWith(
       expect.objectContaining({ path: '/admin/payments/delete-by-year' })
+    )
+    expect(mockServer.route).toHaveBeenCalledWith(
+      expect.objectContaining({ path: '/admin/payments/delete-by-published-date' })
     )
   })
 

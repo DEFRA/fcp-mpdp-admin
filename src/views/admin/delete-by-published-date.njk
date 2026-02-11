@@ -1,0 +1,88 @@
+{% extends "layout.njk" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% block pageTitle %}
+  {% if errorList %}Error: {% endif %}{{ pageTitle }} - {{ serviceName }} - GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  {{ super() }}
+  {% if errorList %}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: errorList
+    }) }}
+  {% endif %}
+  <nav>
+    <a id="back-link" href="/admin/payments" class="govuk-back-link">Back</a>
+  </nav>
+{% endblock %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+
+  {{ govukWarningText({
+    text: "This will permanently delete all payment records with a published date equal to or earlier than the selected date. This action cannot be undone.",
+    iconFallbackText: "Warning"
+  }) }}
+
+  <form method="post" action="/admin/payments/delete-by-published-date">
+    <input type="hidden" name="crumb" value="{{ crumb }}"/>
+
+    {{ govukDateInput({
+      id: "publishedDate",
+      fieldset: {
+        legend: {
+          text: "Delete payments published on or before",
+          classes: "govuk-fieldset__legend--m"
+        }
+      },
+      hint: {
+        text: "For example, 15 1 2024"
+      },
+      items: [
+        {
+          name: "publishedDateDay",
+          classes: "govuk-input--width-2",
+          label: "Day",
+          value: publishedDateDay
+        },
+        {
+          name: "publishedDateMonth",
+          classes: "govuk-input--width-2",
+          label: "Month",
+          value: publishedDateMonth
+        },
+        {
+          name: "publishedDateYear",
+          classes: "govuk-input--width-4",
+          label: "Year",
+          value: publishedDateYear
+        }
+      ]
+    }) }}
+
+    {{ govukCheckboxes({
+      name: "confirm",
+      items: [
+        {
+          value: "yes",
+          text: "I understand this action cannot be undone"
+        }
+      ]
+    }) }}
+
+    <div class="govuk-button-group">
+      {{ govukButton({
+        text: "Delete payments",
+        classes: "govuk-button--warning"
+      }) }}
+      <a class="govuk-link" href="/admin/payments">Cancel</a>
+    </div>
+  </form>
+{% endblock %}
