@@ -84,6 +84,17 @@ export async function deletePaymentsByYear (financialYear) {
   return JSON.parse(payload)
 }
 
+export async function deletePaymentsByPublishedDate (publishedDate) {
+  const backendUrl = buildBackendUrl(`/admin/payments/published-date/${publishedDate}`)
+  const { res, payload } = await Wreck.delete(backendUrl)
+
+  if (res.statusCode !== 200) {
+    throw new Error('Failed to delete payments by published date')
+  }
+
+  return JSON.parse(payload)
+}
+
 export async function uploadPaymentsCsv (fileStream) {
   const backendUrl = buildBackendUrl('/admin/payments/bulk-upload')
 

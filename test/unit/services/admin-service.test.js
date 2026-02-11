@@ -8,6 +8,7 @@ import {
   deletePaymentById,
   fetchFinancialYears,
   deletePaymentsByYear,
+  deletePaymentsByPublishedDate,
   uploadPaymentsCsv
 } from '../../../src/services/admin-service.js'
 import { config } from '../../../src/config/config.js'
@@ -323,6 +324,52 @@ describe('admin-service', () => {
       vi.spyOn(Wreck, 'delete').mockImplementation(mockDelete)
 
       await expect(deletePaymentsByYear('23/24')).rejects.toThrow('Failed to delete payments')
+    })
+  })
+
+  describe('deletePaymentsByPublishedDate', () => {
+    test('should delete payments by published date', async () => {
+      const mockResult = {
+        deleted: true,
+        paymentCount: 100
+      }
+
+      const mockDelete = vi.fn().mockResolvedValue({
+        res: { statusCode: 200 },
+        payload: Buffer.from(JSON.stringify(mockResult))
+      })
+      vi.spyOn(Wreck, 'delete').mockImplementation(mockDelete)
+
+      const result = await deletePaymentsByPublishedDate('2024-01-15')
+
+      expect(result).toEqual(mockResult)
+      expect(mockDelete).toHaveBeenCalledWith(
+        expect.stringContaining('/admin/payments/published-date/2024-01-15')
+      )
+    })
+
+    test('should handle different date formats', async () => {
+      const mockDelete = vi.fn().mockResolvedValue({
+        res: { statusCode: 200 },
+        payload: Buffer.from(JSON.stringify({ deleted: true, paymentCount: 50 }))
+      })
+      vi.spyOn(Wreck, 'delete').mockImplementation(mockDelete)
+
+      await deletePaymentsByPublishedDate('2023-12-31')
+
+      expect(mockDelete).toHaveBeenCalledWith(
+        expect.stringContaining('2023-12-31')
+      )
+    })
+
+    test('should throw error if deletion fails', async () => {
+      const mockDelete = vi.fn().mockResolvedValue({
+        res: { statusCode: 500 },
+        payload: Buffer.from('{}')
+      })
+      vi.spyOn(Wreck, 'delete').mockImplementation(mockDelete)
+
+      await expect(deletePaymentsByPublishedDate('2024-01-15')).rejects.toThrow('Failed to delete payments by published date')
     })
   })
 

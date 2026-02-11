@@ -9,6 +9,7 @@ import { editPayment } from '../routes/admin/edit-payment.js'
 import { deletePayment } from '../routes/admin/delete-payment.js'
 import { bulkUpload } from '../routes/admin/bulk-upload.js'
 import { deleteByYear } from '../routes/admin/delete-by-year.js'
+import { deleteByPublishedDate } from '../routes/admin/delete-by-published-date.js'
 import { bulkSetPublishedDateRoutes } from '../routes/admin/bulk-set-published-date.js'
 import { manageSummariesRoute } from '../routes/admin/manage-summaries.js'
 import { addSummaryRoute } from '../routes/admin/add-summary.js'
@@ -29,6 +30,7 @@ export const router = {
       await server.route(deletePayment)
       await server.route(bulkUpload)
       await server.route(deleteByYear)
+      await server.route(deleteByPublishedDate)
       await server.route(bulkSetPublishedDateRoutes)
       await server.route(manageSummariesRoute)
       await server.route(addSummaryRoute)
