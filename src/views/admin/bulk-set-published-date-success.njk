@@ -1,0 +1,23 @@
+{% extends "layout.njk" %}
+
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block pageTitle %}
+  {{ pageTitle }} - {{ serviceName }} - GOV.UK
+{% endblock %}
+
+{% block content %}
+  {{ govukPanel({
+    titleText: "Published date updated",
+    html: result.paymentCount + " payment records for financial year " + financialYear + " have been updated"
+  }) }}
+
+  <p class="govuk-body">
+    The published date has been set to {{ publishedDate }}.
+  </p>
+
+  <p class="govuk-body">
+    <a href="/admin/payments" class="govuk-link">Return to manage payments</a>
+  </p>
+{% endblock %}

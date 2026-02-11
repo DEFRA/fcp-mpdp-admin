@@ -98,3 +98,19 @@ export async function uploadPaymentsCsv (fileStream) {
 
   return JSON.parse(payload)
 }
+
+export async function bulkSetPublishedDate (financialYear, publishedDate) {
+  const encodedYear = encodeURIComponent(financialYear)
+  const backendUrl = buildBackendUrl(`/admin/payments/year/${encodedYear}/published-date`)
+
+  const { res, payload } = await Wreck.put(backendUrl, {
+    payload: JSON.stringify({ published_date: publishedDate }),
+    headers: { 'Content-Type': 'application/json' }
+  })
+
+  if (res.statusCode !== 200) {
+    throw new Error('Failed to set published date')
+  }
+
+  return JSON.parse(payload)
+}
