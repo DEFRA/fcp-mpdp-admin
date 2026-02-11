@@ -53,6 +53,10 @@ vi.mock('../../../../../src/services/admin-service.js', () => {
       success: true,
       imported: 10,
       errors: []
+    })),
+    bulkSetPublishedDate: vi.fn(async () => ({
+      updated: true,
+      paymentCount: 100
     }))
   }
 })
@@ -106,6 +110,7 @@ describe('Admin manage payments route', () => {
 
       expect($('a[href="/admin/payments/add"]').length).toBeGreaterThan(0)
       expect($('a[href="/admin/payments/bulk-upload"]').length).toBeGreaterThan(0)
+      expect($('a[href="/admin/payments/bulk-set-published-date"]').length).toBeGreaterThan(0)
       expect($('a[href="/admin/payments/delete-by-year"]').length).toBeGreaterThan(0)
     })
 

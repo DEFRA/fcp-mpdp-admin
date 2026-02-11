@@ -1,0 +1,78 @@
+{% extends "layout.njk" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% block pageTitle %}
+  {% if errorList %}Error: {% endif %}{{ pageTitle }} - {{ serviceName }} - GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+  {{ super() }}
+  {% if errorList %}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: errorList
+    }) }}
+  {% endif %}
+  <nav>
+    <a id="back-link" href="/admin/payments" class="govuk-back-link">Back</a>
+  </nav>
+{% endblock %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+
+  <p class="govuk-body">
+    This will set the published date for all payment records in the selected financial year. 
+    This updates when the payments are marked as publicly visible.
+  </p>
+
+  <form method="post" action="/admin/payments/bulk-set-published-date">
+    <input type="hidden" name="crumb" value="{{ crumb }}"/>
+    
+    {% set yearItems = [] %}
+    {% for year in years %}
+      {% set yearItems = (yearItems.push({
+        value: year,
+        text: year
+      }), yearItems) %}
+    {% endfor %}
+
+    {{ govukRadios({
+      name: "financialYear",
+      fieldset: {
+        legend: {
+          text: "Select financial year",
+          classes: "govuk-fieldset__legend--m"
+        }
+      },
+      items: yearItems,
+      value: financialYear
+    }) }}
+
+    {{ govukDateInput({
+      id: "publishedDate",
+      namePrefix: "publishedDate",
+      fieldset: {
+        legend: {
+          text: "Published date",
+          classes: "govuk-fieldset__legend--m"
+        }
+      },
+      hint: {
+        text: "For example, 15 1 2024"
+      }
+    }) }}
+
+    <div class="govuk-button-group">
+      {{ govukButton({
+        text: "Set published date"
+      }) }}
+      <a class="govuk-link" href="/admin/payments">Cancel</a>
+    </div>
+  </form>
+{% endblock %}
