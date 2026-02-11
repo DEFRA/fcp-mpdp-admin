@@ -93,19 +93,29 @@ describe('Bulk set published date routes', () => {
 
   describe('POST /admin/payments/bulk-set-published-date', () => {
     test('should successfully set published date and redirect to success page', async () => {
-      const crumbs = await getCrumbs(server)
+      const { cookieCrumb, viewCrumb } = await getCrumbs(
+        () => {},
+        server,
+        '/admin/payments/bulk-set-published-date',
+        {
+          strategy: 'jwt',
+          credentials: {
+            scope: ['MPDP.Admin']
+          }
+        }
+      )
       const options = {
         method: 'POST',
         url: '/admin/payments/bulk-set-published-date',
         payload: {
-          crumb: crumbs,
+          crumb: viewCrumb,
           financialYear: '23/24',
           'publishedDate-day': 15,
           'publishedDate-month': 1,
           'publishedDate-year': 2024
         },
         headers: {
-          cookie: `crumb=${crumbs}`
+          cookie: `crumb=${cookieCrumb}`
         },
         auth: {
           strategy: 'jwt',
@@ -124,19 +134,29 @@ describe('Bulk set published date routes', () => {
     })
 
     test('should display success message with correct details', async () => {
-      const crumbs = await getCrumbs(server)
+      const { cookieCrumb, viewCrumb } = await getCrumbs(
+        () => {},
+        server,
+        '/admin/payments/bulk-set-published-date',
+        {
+          strategy: 'jwt',
+          credentials: {
+            scope: ['MPDP.Admin']
+          }
+        }
+      )
       const options = {
         method: 'POST',
         url: '/admin/payments/bulk-set-published-date',
         payload: {
-          crumb: crumbs,
+          crumb: viewCrumb,
           financialYear: '23/24',
           'publishedDate-day': 15,
           'publishedDate-month': 1,
           'publishedDate-year': 2024
         },
         headers: {
-          cookie: `crumb=${crumbs}`
+          cookie: `crumb=${cookieCrumb}`
         },
         auth: {
           strategy: 'jwt',
@@ -154,18 +174,28 @@ describe('Bulk set published date routes', () => {
     })
 
     test('should return 400 for missing financial year', async () => {
-      const crumbs = await getCrumbs(server)
+      const { cookieCrumb, viewCrumb } = await getCrumbs(
+        () => {},
+        server,
+        '/admin/payments/bulk-set-published-date',
+        {
+          strategy: 'jwt',
+          credentials: {
+            scope: ['MPDP.Admin']
+          }
+        }
+      )
       const options = {
         method: 'POST',
         url: '/admin/payments/bulk-set-published-date',
         payload: {
-          crumb: crumbs,
+          crumb: viewCrumb,
           'publishedDate-day': 15,
           'publishedDate-month': 1,
           'publishedDate-year': 2024
         },
         headers: {
-          cookie: `crumb=${crumbs}`
+          cookie: `crumb=${cookieCrumb}`
         },
         auth: {
           strategy: 'jwt',
@@ -183,16 +213,26 @@ describe('Bulk set published date routes', () => {
     })
 
     test('should return 400 for missing published date', async () => {
-      const crumbs = await getCrumbs(server)
+      const { cookieCrumb, viewCrumb } = await getCrumbs(
+        () => {},
+        server,
+        '/admin/payments/bulk-set-published-date',
+        {
+          strategy: 'jwt',
+          credentials: {
+            scope: ['MPDP.Admin']
+          }
+        }
+      )
       const options = {
         method: 'POST',
         url: '/admin/payments/bulk-set-published-date',
         payload: {
-          crumb: crumbs,
+          crumb: viewCrumb,
           financialYear: '23/24'
         },
         headers: {
-          cookie: `crumb=${crumbs}`
+          cookie: `crumb=${cookieCrumb}`
         },
         auth: {
           strategy: 'jwt',
@@ -210,19 +250,29 @@ describe('Bulk set published date routes', () => {
     })
 
     test('should return 400 for invalid date', async () => {
-      const crumbs = await getCrumbs(server)
+      const { cookieCrumb, viewCrumb } = await getCrumbs(
+        () => {},
+        server,
+        '/admin/payments/bulk-set-published-date',
+        {
+          strategy: 'jwt',
+          credentials: {
+            scope: ['MPDP.Admin']
+          }
+        }
+      )
       const options = {
         method: 'POST',
         url: '/admin/payments/bulk-set-published-date',
         payload: {
-          crumb: crumbs,
+          crumb: viewCrumb,
           financialYear: '23/24',
           'publishedDate-day': 32,
           'publishedDate-month': 1,
           'publishedDate-year': 2024
         },
         headers: {
-          cookie: `crumb=${crumbs}`
+          cookie: `crumb=${cookieCrumb}`
         },
         auth: {
           strategy: 'jwt',
@@ -240,15 +290,25 @@ describe('Bulk set published date routes', () => {
     })
 
     test('should display error summary on validation failure', async () => {
-      const crumbs = await getCrumbs(server)
+      const { cookieCrumb, viewCrumb } = await getCrumbs(
+        () => {},
+        server,
+        '/admin/payments/bulk-set-published-date',
+        {
+          strategy: 'jwt',
+          credentials: {
+            scope: ['MPDP.Admin']
+          }
+        }
+      )
       const options = {
         method: 'POST',
         url: '/admin/payments/bulk-set-published-date',
         payload: {
-          crumb: crumbs
+          crumb: viewCrumb
         },
         headers: {
-          cookie: `crumb=${crumbs}`
+          cookie: `crumb=${cookieCrumb}`
         },
         auth: {
           strategy: 'jwt',
