@@ -36,13 +36,17 @@ ENV TZ="Europe/London"
 # CDP PLATFORM HEALTHCHECK REQUIREMENT
 USER root
 RUN apk add --no-cache curl
-USER node
 
-COPY --from=production_build /home/node/package*.json ./
-COPY --from=production_build /home/node/src ./src/
-COPY --from=production_build /home/node/.public/ ./.public/
+COPY --from=production_build --chown=root:root /home/node/package*.json ./
+COPY --from=production_build --chown=root:root /home/node/src ./src/
+COPY --from=production_build --chown=root:root /home/node/.public/ ./.public/
 
 RUN npm ci --omit=dev
+
+# Remove write permissions
+RUN chmod -R a-w /home/node
+
+USER node
 
 ARG PORT
 ENV PORT=${PORT}
