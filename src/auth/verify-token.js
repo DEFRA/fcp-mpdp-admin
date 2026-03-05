@@ -24,8 +24,6 @@ async function verifyToken (token) {
   const pem = jwkToPem(jwk)
 
   Jwt.token.verify(decoded, { key: pem, algorithm: 'RS256' })
-
-  console.log('valid')
 }
 
 export { verifyToken }
