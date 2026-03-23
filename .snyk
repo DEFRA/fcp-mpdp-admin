@@ -19,6 +19,6 @@ ignore:
   SNYK-JS-ELLIPTIC-14908844:
     - '*':
         reason: No fix available
-        expires: 2026-03-07T18:02:42.855Z
+        expires: 2026-06-07T18:02:42.855Z
         created: 2026-02-05T18:02:42.857Z
 patch: {}
