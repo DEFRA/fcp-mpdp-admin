@@ -10,7 +10,6 @@ import { session } from './plugins/session.js'
 import { contentSecurityPolicy } from './plugins/content-security-policy.js'
 import { headers } from './plugins/headers.js'
 import { router } from './plugins/router.js'
-import { userAgentProtection } from './plugins/user-agent-protection.js'
 import { crumb } from './plugins/crumb.js'
 import { config } from './config/config.js'
 import { pulse } from './common/helpers/pulse.js'
@@ -68,7 +67,6 @@ export async function createServer () {
   server.validator(Joi)
 
   await server.register([
-    userAgentProtection, // Must be registered before Scooter to intercept malicious User-Agents
     Scooter,
     Bell,
     Cookie,
