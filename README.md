@@ -6,6 +6,7 @@
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-mpdp-admin&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-mpdp-admin)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-mpdp-admin&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-mpdp-admin)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-mpdp-admin&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-mpdp-admin)
+[![Dependabot](https://badgen.net/github/dependabot/DEFRA/fcp-mpdp-admin)](https://github.com/DEFRA/fcp-mpdp-admin/security/dependabot)
 
 Frontend service for the Making Payment Data Public (MPDP) service.
 x
