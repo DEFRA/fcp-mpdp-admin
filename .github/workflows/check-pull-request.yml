@@ -1,8 +1,6 @@
 name: Check Pull Request
 
 on:
-  schedule:
-    - cron: '0 7 * * 1'
   pull_request:
     branches:
       - main
@@ -11,6 +9,9 @@ on:
       - reopened
       - synchronize
       - ready_for_review
+
+permissions:
+  contents: read
 
 jobs:
   pr-validator:
@@ -40,9 +41,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Snyk Scan
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
         with:
-          args: --severity-threshold=medium
+          fail-on-severity: moderate
