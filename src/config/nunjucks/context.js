@@ -25,7 +25,7 @@ export async function context (request) {
 
   const defaultContext = {
     ...ctx,
-    assetPath: `${assetPath}/assets/rebrand`,
+    assetPath: `${assetPath}/assets`,
     serviceName: config.get('serviceName'),
     serviceUrl: '/',
     breadcrumbs: [],

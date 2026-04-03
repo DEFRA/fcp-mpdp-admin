@@ -1,42 +1,47 @@
 {% extends "govuk/template.njk" %}
 
 {% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
+{% from "govuk/components/skip-link/macro.njk" import govukSkipLink %}
 
 {% set mainClasses = "app-main-wrapper" %}
+
+{% block pageTitle %}
+  {% if pageTitle %}
+    {{ pageTitle }} | {{ serviceName }}
+  {% else %}
+    {{ serviceName }}
+  {% endif %}
+{% endblock %}
+
+{% block headIcons %}
+  {{ super() }}
+{% endblock %}
 
 {% block head %}
   <link href="{{ getAssetPath('stylesheets/application.scss') }}" rel="stylesheet">
 {% endblock %}
 
-{% block pageTitle %}
-  {% if pageTitle and pageTitle != serviceName %}{{ pageTitle }} - {% endif %}{{ serviceName }} - GOV.UK
-{% endblock %}
-
 {% block bodyStart %}
 {% endblock %}
 
-{% block header %}
-  {{ govukHeader({
-    homepageUrl: "https://www.gov.uk/",
-    classes: "app-header",
-    containerClasses: "govuk-width-container",
-    serviceName: serviceName,
-    serviceUrl: serviceUrl,
-    useTudorCrown: true
+{% block govukSkipLink %}
+  {{ govukSkipLink({
+    href: "#main-content",
+    text: "Skip to main content"
   }) }}
 {% endblock %}
 
+{% block govukServiceNavigation %}
+  {{ govukServiceNavigation({
+    serviceName: serviceName,
+    serviceUrl: serviceUrl
+  }) }}
+{% endblock %}
 
-{% block beforeContent %}
-  <aside>
-    {{ govukPhaseBanner({
-      tag: {
-        text: "Beta"
-      },
-      html: 'This is a new service. Help us improve it and <a class="govuk-link" href="https://defragroup.eu.qualtrics.com/jfe/form/SV_1FcBVO6IMkfHmbs" target="_blank" rel="noreferrer noopener">give your feedback (opens in new tab)</a>.'
-    }) }}
-  </aside>
+{% block headerEnd %}
+{% endblock %}
 
+{% block containerStart %}
   {% if auth.isAuthenticated %}
     <div class="gov-grid-row">
       <div class="auth-info">
@@ -49,9 +54,9 @@
 
 {% block content %}{% endblock %}
 
-{% block footer %}
+{% block govukFooter %}
   {{ govukFooter() }}
-{% endblock %}
+{% endblock govukFooter %}
 
 {% block bodyEnd %}
   <script type="module" nonce="{{ nonce }}" src="{{ getAssetPath('application.js') }}"></script>

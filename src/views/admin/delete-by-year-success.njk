@@ -3,10 +3,6 @@
 {% from "govuk/components/panel/macro.njk" import govukPanel %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 
-{% block pageTitle %}
-  {{ pageTitle }} - {{ serviceName }} - GOV.UK
-{% endblock %}
-
 {% block content %}
   {{ govukPanel({
     titleText: "Deletion complete",

@@ -7,10 +7,6 @@
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
-{% block pageTitle %}
-  {{ pageTitle }} - {{ serviceName }} - GOV.UK
-{% endblock %}
-
 {% block beforeContent %}
   {{ super() }}
   {% if errorList %}
