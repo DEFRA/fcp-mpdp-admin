@@ -151,6 +151,14 @@ export default {
         {
           from: path.join(govukFrontendPath, 'dist/govuk/assets'),
           to: 'assets'
+        },
+        {
+          from: 'images/brand.png',
+          to: 'assets/images/brand.png'
+        },
+        {
+          from: 'images/favicon.png',
+          to: 'assets/images/favicon.png'
         }
       ]
     })
