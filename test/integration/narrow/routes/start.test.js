@@ -5,7 +5,6 @@ import '../helpers/setup-server-mocks.js'
 import { getOptions } from '../../../utils/helpers.js'
 import { expectPageTitle } from '../../../utils/page-title-expect.js'
 import { expectHeader } from '../../../utils/header-expect.js'
-import { expectPhaseBanner } from '../../../utils/phase-banner-expect.js'
 import { expectPageHeading } from '../../../utils/page-heading-expect.js'
 import { expectFooter } from '../../../utils/footer-expect.js'
 
@@ -40,7 +39,6 @@ describe('Start route', () => {
   test('Should render expected content', () => {
     expectPageTitle($, '')
     expectHeader($)
-    expectPhaseBanner($)
     expectPageHeading($, 'Find farm and land payment data')
     expectFooter($)
   })

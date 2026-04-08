@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   pr-validator:
@@ -19,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Create Coverage Directory
         run: mkdir -p -m 777 coverage
@@ -31,12 +32,12 @@ jobs:
       - name: Test Docker Image Build
         run: |
           set +e
-          docker build --no-cache --tag cdp-node-frontend-template .
+          docker build --no-cache --tag fcp-mpdp-admin .
           exit $?
 
       - name: SonarQube Cloud scan
         if: github.actor != 'dependabot[bot]'
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -45,3 +46,4 @@ jobs:
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: moderate
+          comment-summary-in-pr: always

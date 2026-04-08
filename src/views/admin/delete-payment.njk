@@ -5,11 +5,7 @@
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
-{% block pageTitle %}
-  {% if errorList %}Error: {% endif %}{{ pageTitle }} - {{ serviceName }} - GOV.UK
-{% endblock %}
-
-{% block beforeContent %}
+{% block containerStart %}
   {{ super() }}
   {% if errorList %}
     {{ govukErrorSummary({
