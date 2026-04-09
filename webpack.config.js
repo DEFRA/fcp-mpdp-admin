@@ -153,12 +153,8 @@ export default {
           to: 'assets'
         },
         {
-          from: 'images/brand.png',
-          to: 'assets/images/brand.png'
-        },
-        {
-          from: 'images/favicon.png',
-          to: 'assets/images/favicon.png'
+          from: 'images',
+          to: 'assets/images'
         }
       ]
     })
