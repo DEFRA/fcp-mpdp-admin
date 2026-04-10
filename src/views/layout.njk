@@ -35,8 +35,7 @@
   {% if auth.isAuthenticated %}
     <div class="gov-grid-row">
       <div class="auth-info">
-        <p class="govuk-body govuk-!-margin-bottom-0">Signed in as <a href="/home" class="govuk-link">{{ auth.name }}</a>
-        </p>
+        <p class="govuk-body govuk-!-margin-bottom-0">Signed in as {{ auth.name }}</p>
         <p class="govuk-body govuk-!-margin-bottom-0">
           <a href="/auth/sign-out" class="govuk-link">Sign out</a>
         </p>
