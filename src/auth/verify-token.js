@@ -1,6 +1,6 @@
-import Wreck from '@hapi/wreck'
+import { createPublicKey } from 'node:crypto'
 import Jwt from '@hapi/jwt'
-import jwkToPem from 'jwk-to-pem'
+import Wreck from '@hapi/wreck'
 import { getOidcConfig } from './get-oidc-config.js'
 
 async function verifyToken (token) {
@@ -21,7 +21,7 @@ async function verifyToken (token) {
     throw new Error(`No matching JWK for kid ${header.kid}`)
   }
 
-  const pem = jwkToPem(jwk)
+  const pem = createPublicKey({ key: jwk, format: 'jwk' }).export({ type: 'spki', format: 'pem' })
 
   Jwt.token.verify(decoded, { key: pem, algorithm: 'RS256' })
 }
