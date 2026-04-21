@@ -1,0 +1,46 @@
+{% extends "layout.njk" %}
+
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+
+{% block containerStart %}
+  {{ super() }}
+  {{ govukBackLink({
+    text: "Back",
+    href: "/"
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+
+  {{ govukButton({
+    text: "Add payment summary entry",
+    href: "/admin/payment-summary/add"
+  }) }}
+
+  {% if records | length > 0 %}
+    {% set tableRows = [] %}
+    {% for record in records %}
+      {% set tableRows = (tableRows.push([
+        { text: record.financialYear },
+        { text: record.scheme },
+        { text: '£' + (record.totalAmount | string) },
+        { html: '<a href="/admin/payment-summary/edit/' + record.id + '" class="govuk-link">Edit</a> | <a href="/admin/payment-summary/delete/' + record.id + '" class="govuk-link">Delete</a>' }
+      ]), tableRows) %}
+    {% endfor %}
+
+    {{ govukTable({
+      head: [
+        { text: "Financial year" },
+        { text: "Scheme" },
+        { text: "Total amount" },
+        { text: "Actions" }
+      ],
+      rows: tableRows
+    }) }}
+  {% else %}
+    <p class="govuk-body">No payment summary records found.</p>
+  {% endif %}
+{% endblock %}

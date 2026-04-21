@@ -13,7 +13,9 @@
     The published date has been set to {{ publishedDate }}.
   </p>
 
-  <p class="govuk-body">
-    <a href="/admin/payments" class="govuk-link">Return to manage payments</a>
-  </p>
+  {{ govukButton({
+    text: "Return to manage payments",
+    href: "/admin/payments",
+    classes: "govuk-button--secondary"
+  }) }}
 {% endblock %}

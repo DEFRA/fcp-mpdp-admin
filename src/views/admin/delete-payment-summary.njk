@@ -1,0 +1,55 @@
+{% extends "layout.njk" %}
+
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+
+{% block containerStart %}
+  {{ super() }}
+  {{ govukBackLink({
+    text: "Back",
+    href: "/admin/payment-summary"
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+
+      {{ govukWarningText({
+        text: "You are about to delete this payment summary entry. This action cannot be undone.",
+        iconFallbackText: "Warning"
+      }) }}
+
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: { text: "Financial year" },
+            value: { text: summary.financialYear }
+          },
+          {
+            key: { text: "Scheme" },
+            value: { text: summary.scheme }
+          },
+          {
+            key: { text: "Total amount" },
+            value: { text: '£' + (summary.totalAmount | string) }
+          }
+        ]
+      }) }}
+
+      <form method="POST" action="/admin/payment-summary/delete/{{ summary.id }}">
+        <input type="hidden" name="crumb" value="{{ crumb }}">
+        <div class="govuk-button-group">
+          {{ govukButton({
+            text: "Confirm deletion",
+            classes: "govuk-button--warning"
+          }) }}
+          <a class="govuk-link" href="/admin/payment-summary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

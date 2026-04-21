@@ -4,20 +4,26 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds govuk-prose-scope">
       <div class="govuk-body" data-testid="app-page-body">
+
+        <span class="govuk-caption-xl">Data management</span>
         <h1>{{ serviceName }}</h1>
 
-        <p>Administer agricultural scheme payments for farmers and land managers in England</p>
+        <p class="govuk-body">
+          Manage data published in the 
+          <a href="https://find-farm-and-land-payment-data.defra.gov.uk/">Find farm and land payment data</a>
+         service.
+        </p>
 
-        <p>You can manage payments for the:</p>
-        <ul>
-          <li>Farm Resilience Fund</li>
-          <li>Farming Investment Fund</li>
-          <li>Landscape Recovery</li>
-          <li>Sustainable Farming Incentive</li>
-        </ul>
+        <p class="govuk-body">
+          To manage payments and the payment summary, you must be in the MPDP.Admin user role.
+        </p>
 
-        <a class="govuk-link" href="/admin/payments">Manage payments</a>
-        <a class="govuk-link" href="/admin/summary">Manage payment summary</a>
+        <h3>Payments</h3>
+
+        <p><a class="govuk-link" href="/admin/payments">Manage payments</a></p>
+
+        <h3>Payment summary</h3>
+        <p><a class="govuk-link" href="/admin/payment-summary">Manage payment summary</a></p>
       </div>
     </div>
   </div>

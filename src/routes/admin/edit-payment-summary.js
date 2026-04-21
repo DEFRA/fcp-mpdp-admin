@@ -1,10 +1,10 @@
 import Joi from 'joi'
 import { fetchPaymentSummaryById, updatePaymentSummary } from '../../services/payment-summary-service.js'
 
-const editSummaryRoute = [
+const editPaymentSummaryRoute = [
   {
     method: 'GET',
-    path: '/admin/summary/edit/{id}',
+    path: '/admin/payment-summary/edit/{id}',
     options: {
       auth: { scope: ['MPDP.Admin'] }
     },
@@ -12,7 +12,7 @@ const editSummaryRoute = [
       const { id } = request.params
       const summary = await fetchPaymentSummaryById(id)
 
-      return h.view('admin/edit-summary', {
+      return h.view('admin/edit-payment-summary', {
         pageTitle: 'Edit payment summary',
         summary
       })
@@ -20,7 +20,7 @@ const editSummaryRoute = [
   },
   {
     method: 'POST',
-    path: '/admin/summary/edit/{id}',
+    path: '/admin/payment-summary/edit/{id}',
     options: {
       auth: { scope: ['MPDP.Admin'] },
       validate: {
@@ -33,7 +33,7 @@ const editSummaryRoute = [
           const { id } = request.params
           const summary = await fetchPaymentSummaryById(id)
 
-          return h.view('admin/edit-summary', {
+          return h.view('admin/edit-payment-summary', {
             pageTitle: 'Edit payment summary',
             summary,
             errorMessage: error.message
@@ -48,12 +48,12 @@ const editSummaryRoute = [
       await updatePaymentSummary(id, {
         financialYear,
         scheme,
-        totalAmount: parseFloat(totalAmount)
+        totalAmount: Number.parseFloat(totalAmount)
       })
 
-      return h.redirect('/admin/summary')
+      return h.redirect('/admin/payment-summary')
     }
   }
 ]
 
-export { editSummaryRoute }
+export { editPaymentSummaryRoute }

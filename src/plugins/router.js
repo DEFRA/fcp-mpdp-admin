@@ -11,10 +11,10 @@ import { bulkUpload } from '../routes/admin/bulk-upload.js'
 import { deleteByYear } from '../routes/admin/delete-by-year.js'
 import { deleteByPublishedDate } from '../routes/admin/delete-by-published-date.js'
 import { bulkSetPublishedDateRoutes } from '../routes/admin/bulk-set-published-date.js'
-import { manageSummariesRoute } from '../routes/admin/manage-summaries.js'
-import { addSummaryRoute } from '../routes/admin/add-summary.js'
-import { editSummaryRoute } from '../routes/admin/edit-summary.js'
-import { deleteSummaryRoute } from '../routes/admin/delete-summary.js'
+import { managePaymentSummaryRoute } from '../routes/admin/manage-payment-summary.js'
+import { addPaymentSummaryRoute } from '../routes/admin/add-payment-summary.js'
+import { editPaymentSummaryRoute } from '../routes/admin/edit-payment-summary.js'
+import { deletePaymentSummaryRoute } from '../routes/admin/delete-payment-summary.js'
 
 export const router = {
   plugin: {
@@ -32,10 +32,10 @@ export const router = {
       await server.route(deleteByYear)
       await server.route(deleteByPublishedDate)
       await server.route(bulkSetPublishedDateRoutes)
-      await server.route(manageSummariesRoute)
-      await server.route(addSummaryRoute)
-      await server.route(editSummaryRoute)
-      await server.route(deleteSummaryRoute)
+      await server.route(managePaymentSummaryRoute)
+      await server.route(addPaymentSummaryRoute)
+      await server.route(editPaymentSummaryRoute)
+      await server.route(deletePaymentSummaryRoute)
       await server.register([serveStaticFiles])
     }
   }

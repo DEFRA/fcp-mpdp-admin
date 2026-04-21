@@ -9,7 +9,9 @@
     html: result.paymentCount + " payment records with published date on or before " + publishedDate + " have been deleted"
   }) }}
 
-  <p class="govuk-body">
-    <a href="/admin/payments" class="govuk-link">Return to manage payments</a>
-  </p>
+  {{ govukButton({
+    text: "Return to manage payments",
+    href: "/admin/payments",
+    classes: "govuk-button--secondary"
+  }) }}
 {% endblock %}

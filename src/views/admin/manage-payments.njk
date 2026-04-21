@@ -1,5 +1,6 @@
 {% extends "layout.njk" %}
 
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/table/macro.njk" import govukTable %}
@@ -15,9 +16,10 @@
       errorList: errorList
     }) }}
   {% endif %}
-  <nav>
-    <a id="back-link" href="/" class="govuk-back-link">Back</a>
-  </nav>
+  {{ govukBackLink({
+    text: "Back",
+    href: "/"
+  }) }}
 {% endblock %}
 
 {% block content %}
@@ -49,6 +51,7 @@
     }) }}
   {% endif %}
 
+  <h2 class="govuk-heading-s">Add or update payments</h2>
   <div class="govuk-button-group govuk-!-margin-bottom-6">
     {{ govukButton({
       text: "Add new payment",
@@ -59,11 +62,19 @@
       href: "/admin/payments/bulk-upload",
       classes: "govuk-button--secondary"
     }) }}
+  </div>
+
+  <h2 class="govuk-heading-s">Manage published dates</h2>
+  <div class="govuk-button-group govuk-!-margin-bottom-6">
     {{ govukButton({
       text: "Bulk set published date",
       href: "/admin/payments/bulk-set-published-date",
       classes: "govuk-button--secondary"
     }) }}
+  </div>
+
+  <h2 class="govuk-heading-s">Delete payments</h2>
+  <div class="govuk-button-group govuk-!-margin-bottom-6">
     {{ govukButton({
       text: "Delete by financial year",
       href: "/admin/payments/delete-by-year",
@@ -77,29 +88,26 @@
   </div>
 
   <form method="get" action="/admin/payments">
-    <div class="govuk-form-group">
-      <label class="govuk-label govuk-label--s" for="searchString">
-        Search by payee name
-      </label>
-      <div class="form-inline">
-        <div class="container">
-          <input 
-            class="govuk-input" 
-            id="searchString" 
-            name="searchString" 
-            type="search" 
-            value="{{ searchString }}"
-            autocomplete="off"
-          />
-        </div>
-        <button 
-          id="search-button" 
-          class="govuk-button" 
-          data-module="govuk-button" 
-          type="submit"
-        >
-          Search
-        </button>
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-half">
+        {{ govukInput({
+          label: {
+            text: "Search by payee name",
+            classes: "govuk-label--s"
+          },
+          id: "searchString",
+          name: "searchString",
+          type: "search",
+          value: searchString,
+          attributes: { autocomplete: "off" }
+        }) }}
+      </div>
+      <div class="govuk-grid-column-one-quarter">
+        {{ govukButton({
+          text: "Search",
+          classes: "govuk-!-margin-top-6",
+          attributes: { id: "search-button", type: "submit" }
+        }) }}
       </div>
     </div>
     {% if searchString %}
