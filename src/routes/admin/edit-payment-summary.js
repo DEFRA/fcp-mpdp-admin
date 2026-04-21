@@ -48,7 +48,7 @@ const editPaymentSummaryRoute = [
       await updatePaymentSummary(id, {
         financialYear,
         scheme,
-        totalAmount: parseFloat(totalAmount)
+        totalAmount: Number.parseFloat(totalAmount)
       })
 
       return h.redirect('/admin/payment-summary')
