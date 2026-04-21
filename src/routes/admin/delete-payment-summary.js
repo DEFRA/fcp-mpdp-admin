@@ -1,10 +1,10 @@
 import Joi from 'joi'
 import { fetchPaymentSummaryById, deletePaymentSummaryById } from '../../services/payment-summary-service.js'
 
-const deleteSummaryRoute = [
+const deletePaymentSummaryRoute = [
   {
     method: 'GET',
-    path: '/admin/summary/delete/{id}',
+    path: '/admin/payment-summary/delete/{id}',
     options: {
       auth: { scope: ['MPDP.Admin'] }
     },
@@ -12,7 +12,7 @@ const deleteSummaryRoute = [
       const { id } = request.params
       const summary = await fetchPaymentSummaryById(id)
 
-      return h.view('admin/delete-summary', {
+      return h.view('admin/delete-payment-summary', {
         pageTitle: 'Delete payment summary',
         summary
       })
@@ -20,20 +20,20 @@ const deleteSummaryRoute = [
   },
   {
     method: 'POST',
-    path: '/admin/summary/delete/{id}',
+    path: '/admin/payment-summary/delete/{id}',
     options: {
       auth: { scope: ['MPDP.Admin'] },
       validate: {
-        payload: Joi.object({}),
+        payload: Joi.object({})
       }
     },
     handler: async (request, h) => {
       const { id } = request.params
       await deletePaymentSummaryById(id)
 
-      return h.redirect('/admin/summary')
+      return h.redirect('/admin/payment-summary')
     }
   }
 ]
 
-export { deleteSummaryRoute }
+export { deletePaymentSummaryRoute }

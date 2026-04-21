@@ -1,19 +1,19 @@
 import { fetchPaymentSummaries } from '../../services/payment-summary-service.js'
 
-const manageSummariesRoute = {
+const managePaymentSummaryRoute = {
   method: 'GET',
-  path: '/admin/summary',
+  path: '/admin/payment-summary',
   options: {
     auth: { scope: ['MPDP.Admin'] }
   },
   handler: async (_request, h) => {
-    const summaries = await fetchPaymentSummaries()
+    const records = await fetchPaymentSummaries()
 
-    return h.view('admin/manage-summaries', {
+    return h.view('admin/manage-payment-summary', {
       pageTitle: 'Payment summary',
-      summaries
+      records
     })
   }
 }
 
-export { manageSummariesRoute }
+export { managePaymentSummaryRoute }
