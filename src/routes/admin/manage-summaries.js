@@ -10,7 +10,7 @@ const manageSummariesRoute = {
     const summaries = await fetchPaymentSummaries()
 
     return h.view('admin/manage-summaries', {
-      pageTitle: 'Manage payment summaries',
+      pageTitle: 'Payment summary',
       summaries
     })
   }

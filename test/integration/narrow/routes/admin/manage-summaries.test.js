@@ -62,7 +62,7 @@ describe('Payment Summary Admin Routes', () => {
       const response = await server.inject(options)
 
       expect(response.statusCode).toBe(200)
-      expect(response.payload).toContain('Manage payment summaries')
+      expect(response.payload).toContain('Payment summary')
       expect(response.payload).toContain('2023')
       expect(response.payload).toContain('SFI')
       expect(paymentSummaryService.fetchPaymentSummaries).toHaveBeenCalledTimes(1)
