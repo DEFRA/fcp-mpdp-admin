@@ -49,20 +49,20 @@ vi.mock('../../../src/routes/admin/bulk-set-published-date.js', () => ({
   bulkSetPublishedDateRoutes: { method: 'POST', path: '/admin/payments/bulk-set-published-date' }
 }))
 
-vi.mock('../../../src/routes/admin/manage-summaries.js', () => ({
-  manageSummariesRoute: { method: 'GET', path: '/admin/summary' }
+vi.mock('../../../src/routes/admin/manage-payment-summary.js', () => ({
+  managePaymentSummaryRoute: { method: 'GET', path: '/admin/payment-summary' }
 }))
 
-vi.mock('../../../src/routes/admin/add-summary.js', () => ({
-  addSummaryRoute: { method: 'POST', path: '/admin/summary/add' }
+vi.mock('../../../src/routes/admin/add-payment-summary.js', () => ({
+  addPaymentSummaryRoute: { method: 'POST', path: '/admin/payment-summary/add' }
 }))
 
-vi.mock('../../../src/routes/admin/edit-summary.js', () => ({
-  editSummaryRoute: { method: 'POST', path: '/admin/summary/edit' }
+vi.mock('../../../src/routes/admin/edit-payment-summary.js', () => ({
+  editPaymentSummaryRoute: { method: 'POST', path: '/admin/payment-summary/edit' }
 }))
 
-vi.mock('../../../src/routes/admin/delete-summary.js', () => ({
-  deleteSummaryRoute: { method: 'POST', path: '/admin/summary/delete' }
+vi.mock('../../../src/routes/admin/delete-payment-summary.js', () => ({
+  deletePaymentSummaryRoute: { method: 'POST', path: '/admin/payment-summary/delete' }
 }))
 
 const { router } = await import('../../../src/plugins/router.js')
@@ -150,20 +150,20 @@ describe('router', () => {
     )
   })
 
-  test('should register admin summary routes', async () => {
+  test('should register admin payment summary routes', async () => {
     await router.plugin.register(mockServer)
 
     expect(mockServer.route).toHaveBeenCalledWith(
-      expect.objectContaining({ path: '/admin/summary' })
+      expect.objectContaining({ path: '/admin/payment-summary' })
     )
     expect(mockServer.route).toHaveBeenCalledWith(
-      expect.objectContaining({ path: '/admin/summary/add' })
+      expect.objectContaining({ path: '/admin/payment-summary/add' })
     )
     expect(mockServer.route).toHaveBeenCalledWith(
-      expect.objectContaining({ path: '/admin/summary/edit' })
+      expect.objectContaining({ path: '/admin/payment-summary/edit' })
     )
     expect(mockServer.route).toHaveBeenCalledWith(
-      expect.objectContaining({ path: '/admin/summary/delete' })
+      expect.objectContaining({ path: '/admin/payment-summary/delete' })
     )
   })
 

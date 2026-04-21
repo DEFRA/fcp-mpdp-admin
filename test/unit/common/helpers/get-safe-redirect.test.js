@@ -64,7 +64,7 @@ describe('get-safe-redirect', () => {
     })
 
     test('should return / for backslash at start', () => {
-      const result = getSafeRedirect('\\admin\\payments')
+      const result = getSafeRedirect(String.raw`\admin\payments`)
       expect(result).toBe('/')
     })
   })

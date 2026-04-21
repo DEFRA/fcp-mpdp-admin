@@ -38,7 +38,7 @@ describe('Payment Summary Admin Routes', () => {
     vi.clearAllMocks()
   })
 
-  describe('GET /admin/summary', () => {
+  describe('GET /admin/payment-summary', () => {
     test('should display payment summaries page with data', async () => {
       const mockSummaries = [
         { id: 1, financialYear: '2023', scheme: 'SFI', totalAmount: 10000 },
@@ -49,7 +49,7 @@ describe('Payment Summary Admin Routes', () => {
 
       const options = {
         method: 'GET',
-        url: '/admin/summary',
+        url: '/admin/payment-summary',
         auth: {
           strategy: 'session',
           credentials: {
@@ -73,7 +73,7 @@ describe('Payment Summary Admin Routes', () => {
 
       const options = {
         method: 'GET',
-        url: '/admin/summary',
+        url: '/admin/payment-summary',
         auth: {
           strategy: 'session',
           credentials: {
@@ -86,15 +86,15 @@ describe('Payment Summary Admin Routes', () => {
       const response = await server.inject(options)
 
       expect(response.statusCode).toBe(200)
-      expect(response.payload).toContain('No payment summaries found')
+      expect(response.payload).toContain('No payment summary records found')
     })
   })
 
-  describe('GET /admin/summary/add', () => {
+  describe('GET /admin/payment-summary/add', () => {
     test('should display add payment summary form', async () => {
       const options = {
         method: 'GET',
-        url: '/admin/summary/add',
+        url: '/admin/payment-summary/add',
         auth: {
           strategy: 'session',
           credentials: {
@@ -114,7 +114,7 @@ describe('Payment Summary Admin Routes', () => {
     })
   })
 
-  describe('POST /admin/summary/add', () => {
+  describe('POST /admin/payment-summary/add', () => {
     test('should create payment summary with valid data', async () => {
       const mockCreated = {
         id: 1,
@@ -128,7 +128,7 @@ describe('Payment Summary Admin Routes', () => {
       const { cookieCrumb, viewCrumb } = await getCrumbs(
         () => {},
         server,
-        '/admin/summary/add',
+        '/admin/payment-summary/add',
         {
           strategy: 'session',
           credentials: {
@@ -140,7 +140,7 @@ describe('Payment Summary Admin Routes', () => {
 
       const options = {
         method: 'POST',
-        url: '/admin/summary/add',
+        url: '/admin/payment-summary/add',
         payload: {
           financialYear: '2024',
           scheme: 'SFI',
@@ -162,7 +162,7 @@ describe('Payment Summary Admin Routes', () => {
       const response = await server.inject(options)
 
       expect(response.statusCode).toBe(302)
-      expect(response.headers.location).toBe('/admin/summary')
+      expect(response.headers.location).toBe('/admin/payment-summary')
       expect(paymentSummaryService.createPaymentSummary).toHaveBeenCalledWith({
         financialYear: '2024',
         scheme: 'SFI',
@@ -174,7 +174,7 @@ describe('Payment Summary Admin Routes', () => {
       const { cookieCrumb, viewCrumb } = await getCrumbs(
         () => {},
         server,
-        '/admin/summary/add',
+        '/admin/payment-summary/add',
         {
           strategy: 'session',
           credentials: {
@@ -186,7 +186,7 @@ describe('Payment Summary Admin Routes', () => {
 
       const options = {
         method: 'POST',
-        url: '/admin/summary/add',
+        url: '/admin/payment-summary/add',
         payload: {
           financialYear: '2024',
           crumb: viewCrumb
@@ -210,7 +210,7 @@ describe('Payment Summary Admin Routes', () => {
     })
   })
 
-  describe('GET /admin/summary/edit/{id}', () => {
+  describe('GET /admin/payment-summary/edit/{id}', () => {
     test('should display edit payment summary form', async () => {
       const mockSummary = {
         id: 1,
@@ -223,7 +223,7 @@ describe('Payment Summary Admin Routes', () => {
 
       const options = {
         method: 'GET',
-        url: '/admin/summary/edit/1',
+        url: '/admin/payment-summary/edit/1',
         auth: {
           strategy: 'session',
           credentials: {
@@ -244,7 +244,7 @@ describe('Payment Summary Admin Routes', () => {
     })
   })
 
-  describe('POST /admin/summary/edit/{id}', () => {
+  describe('POST /admin/payment-summary/edit/{id}', () => {
     test('should update payment summary with valid data', async () => {
       const mockSummary = {
         id: 1,
@@ -264,7 +264,7 @@ describe('Payment Summary Admin Routes', () => {
       const { cookieCrumb, viewCrumb } = await getCrumbs(
         () => paymentSummaryService.fetchPaymentSummaryById.mockResolvedValue(mockSummary),
         server,
-        '/admin/summary/edit/1',
+        '/admin/payment-summary/edit/1',
         {
           strategy: 'session',
           credentials: {
@@ -276,7 +276,7 @@ describe('Payment Summary Admin Routes', () => {
 
       const options = {
         method: 'POST',
-        url: '/admin/summary/edit/1',
+        url: '/admin/payment-summary/edit/1',
         payload: {
           financialYear: '2023',
           scheme: 'SFI',
@@ -298,7 +298,7 @@ describe('Payment Summary Admin Routes', () => {
       const response = await server.inject(options)
 
       expect(response.statusCode).toBe(302)
-      expect(response.headers.location).toBe('/admin/summary')
+      expect(response.headers.location).toBe('/admin/payment-summary')
       expect(paymentSummaryService.updatePaymentSummary).toHaveBeenCalledWith('1', {
         financialYear: '2023',
         scheme: 'SFI',
@@ -307,7 +307,7 @@ describe('Payment Summary Admin Routes', () => {
     })
   })
 
-  describe('GET /admin/summary/delete/{id}', () => {
+  describe('GET /admin/payment-summary/delete/{id}', () => {
     test('should display delete confirmation page', async () => {
       const mockSummary = {
         id: 1,
@@ -320,7 +320,7 @@ describe('Payment Summary Admin Routes', () => {
 
       const options = {
         method: 'GET',
-        url: '/admin/summary/delete/1',
+        url: '/admin/payment-summary/delete/1',
         auth: {
           strategy: 'session',
           credentials: {
@@ -341,7 +341,7 @@ describe('Payment Summary Admin Routes', () => {
     })
   })
 
-  describe('POST /admin/summary/delete/{id}', () => {
+  describe('POST /admin/payment-summary/delete/{id}', () => {
     test('should delete payment summary', async () => {
       const mockSummary = {
         id: 1,
@@ -356,7 +356,7 @@ describe('Payment Summary Admin Routes', () => {
       const { cookieCrumb, viewCrumb } = await getCrumbs(
         () => paymentSummaryService.fetchPaymentSummaryById.mockResolvedValue(mockSummary),
         server,
-        '/admin/summary/delete/1',
+        '/admin/payment-summary/delete/1',
         {
           strategy: 'session',
           credentials: {
@@ -368,7 +368,7 @@ describe('Payment Summary Admin Routes', () => {
 
       const options = {
         method: 'POST',
-        url: '/admin/summary/delete/1',
+        url: '/admin/payment-summary/delete/1',
         payload: {
           crumb: viewCrumb
         },
@@ -387,7 +387,7 @@ describe('Payment Summary Admin Routes', () => {
       const response = await server.inject(options)
 
       expect(response.statusCode).toBe(302)
-      expect(response.headers.location).toBe('/admin/summary')
+      expect(response.headers.location).toBe('/admin/payment-summary')
       expect(paymentSummaryService.deletePaymentSummaryById).toHaveBeenCalledWith('1')
     })
   })
