@@ -3,7 +3,21 @@ import { uploadPaymentsCsv } from '../../services/admin-service.js'
 
 const { constants: httpConstants } = http2
 
+const CSV_TEMPLATE_HEADERS = 'payee_name,part_postcode,town,parliamentary_constituency,county_council,scheme,amount,financial_year,payment_date,scheme_detail,activity_level\n'
+
 export const bulkUpload = [
+  {
+    method: 'GET',
+    path: '/admin/payments/bulk-upload/template',
+    options: {
+      auth: { scope: ['MPDP.Admin'] }
+    },
+    handler: function (_request, h) {
+      return h.response(CSV_TEMPLATE_HEADERS)
+        .type('text/csv')
+        .header('Content-Disposition', 'attachment; filename="fcp-mpdp-upload-template.csv"')
+    }
+  },
   {
     method: 'GET',
     path: '/admin/payments/bulk-upload',
