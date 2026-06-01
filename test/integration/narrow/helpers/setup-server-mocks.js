@@ -18,4 +18,9 @@ vi.mock('../../../../src/auth/get-oidc-config.js', async () => {
   }
 })
 
+vi.mock('../../../../src/auth/cognito.js', () => ({
+  initCognitoTokenCache: vi.fn().mockResolvedValue(undefined),
+  getCachedCognitoToken: vi.fn().mockReturnValue('mock-cognito-token')
+}))
+
 export { mockOidcConfig }

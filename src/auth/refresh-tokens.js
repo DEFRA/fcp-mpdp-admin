@@ -1,13 +1,23 @@
 import Wreck from '@hapi/wreck'
+import { getCachedCognitoToken } from './cognito.js'
 import { getOidcConfig } from './get-oidc-config.js'
 import { config } from '../config/config.js'
 
 async function refreshTokens (refreshToken) {
   const { token_endpoint: url } = await getOidcConfig()
 
+  const clientCredentialParams = config.get('cognito.enabled')
+    ? [
+        'client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+        `client_assertion=${getCachedCognitoToken()}`
+      ]
+    : [
+        `client_secret=${config.get('entra.clientSecret')}`
+      ]
+
   const query = [
     `client_id=${config.get('entra.clientId')}`,
-    `client_secret=${config.get('entra.clientSecret')}`,
+    ...clientCredentialParams,
     'grant_type=refresh_token',
     `scope=${config.get('entra.clientId')}/.default offline_access`,
     `refresh_token=${refreshToken}`,

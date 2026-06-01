@@ -21,6 +21,11 @@ vi.mock('../../../src/config/config.js', () => ({
   }
 }))
 
+const mockGetCachedCognitoToken = vi.fn().mockReturnValue('mock-cognito-assertion-token')
+vi.mock('../../../src/auth/cognito.js', () => ({
+  getCachedCognitoToken: mockGetCachedCognitoToken
+}))
+
 const { refreshTokens } = await import('../../../src/auth/refresh-tokens.js')
 
 const refreshToken = 'DEFRA_ID_REFRESH_TOKEN'
@@ -32,6 +37,8 @@ describe('refreshTokens', () => {
     mockWreckPost.mockResolvedValue({ payload: mockTokenPayload })
     mockConfigGet.mockImplementation((key) => {
       switch (key) {
+        case 'cognito.enabled':
+          return false
         case 'entra.clientId':
           return 'mockClientId'
         case 'entra.clientSecret':
@@ -110,5 +117,51 @@ describe('refreshTokens', () => {
   test('should throw an error if the api request fails', async () => {
     mockWreckPost.mockRejectedValue(new Error('Unable to get token'))
     await expect(refreshTokens(refreshToken)).rejects.toThrow()
+  })
+})
+
+describe('refreshTokens - cognito enabled', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockGetOidcConfig.mockResolvedValue(mockOidcConfig)
+    mockWreckPost.mockResolvedValue({ payload: mockTokenPayload })
+    mockConfigGet.mockImplementation((key) => {
+      switch (key) {
+        case 'cognito.enabled':
+          return true
+        case 'entra.clientId':
+          return 'mockClientId'
+        case 'entra.redirectUrl':
+          return 'https://mock-redirect-url.com'
+        default:
+          return 'defaultConfigValue'
+      }
+    })
+  })
+
+  test('should include client_assertion_type in query string', async () => {
+    await refreshTokens(refreshToken)
+    const url = new URL(mockWreckPost.mock.calls[0][0])
+    expect(url.searchParams.get('client_assertion_type'))
+      .toBe('urn:ietf:params:oauth:client-assertion-type:jwt-bearer')
+  })
+
+  test('should include client_assertion from cached Cognito token in query string', async () => {
+    await refreshTokens(refreshToken)
+    const url = new URL(mockWreckPost.mock.calls[0][0])
+    expect(url.searchParams.get('client_assertion')).toBe('mock-cognito-assertion-token')
+  })
+
+  test('should not include client_secret in query string', async () => {
+    await refreshTokens(refreshToken)
+    const url = new URL(mockWreckPost.mock.calls[0][0])
+    expect(url.searchParams.get('client_secret')).toBeNull()
+  })
+
+  test('should still include client_id and grant_type in query string', async () => {
+    await refreshTokens(refreshToken)
+    const url = new URL(mockWreckPost.mock.calls[0][0])
+    expect(url.searchParams.get('client_id')).toBe('mockClientId')
+    expect(url.searchParams.get('grant_type')).toBe('refresh_token')
   })
 })

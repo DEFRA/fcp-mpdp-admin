@@ -10,6 +10,13 @@ vi.mock('../../../src/config/config.js', () => ({
   }
 }))
 
+const mockGetCachedCognitoToken = vi.fn().mockReturnValue('mock-cognito-token')
+const mockInitCognitoTokenCache = vi.fn().mockResolvedValue(undefined)
+vi.mock('../../../src/auth/cognito.js', () => ({
+  getCachedCognitoToken: mockGetCachedCognitoToken,
+  initCognitoTokenCache: mockInitCognitoTokenCache
+}))
+
 const { getOidcConfig } = await import('../../../src/auth/get-oidc-config.js')
 const { config } = await import('../../../src/config/config.js')
 const { auth } = await import('../../../src/plugins/auth.js')
@@ -27,6 +34,7 @@ describe('auth', () => {
     getOidcConfig.mockResolvedValue(mockOidcConfig)
     config.get.mockImplementation((key) => {
       const configMap = {
+        'cognito.enabled': false,
         'entra.clientId': 'test-client-id',
         'entra.clientSecret': 'test-client-secret',
         'cookie.password': 'password-must-be-at-least-32-characters-long',
@@ -130,5 +138,98 @@ describe('auth', () => {
     expect(bellOptions.clientSecret).toBe('test-client-secret')
     expect(config.get).toHaveBeenCalledWith('entra.clientId')
     expect(config.get).toHaveBeenCalledWith('entra.clientSecret')
+  })
+})
+
+describe('auth - cognito enabled', () => {
+  const mockOidcConfig = {
+    authorization_endpoint: 'https://login.microsoftonline.com/authorize',
+    token_endpoint: 'https://login.microsoftonline.com/token',
+    end_session_endpoint: 'https://login.microsoftonline.com/logout',
+    jwks_uri: 'https://login.microsoftonline.com/jwks'
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    getOidcConfig.mockResolvedValue(mockOidcConfig)
+    config.get.mockImplementation((key) => {
+      const configMap = {
+        'cognito.enabled': true,
+        'entra.clientId': 'test-client-id',
+        'cookie.password': 'password-must-be-at-least-32-characters-long',
+        'cookie.secure': true,
+        'cache.name': 'session',
+        'cache.segment': 'test-cache'
+      }
+      return configMap[key]
+    })
+  })
+
+  test('should initialise the Cognito token cache during registration', async () => {
+    const mockServer = {
+      auth: {
+        strategy: vi.fn(),
+        default: vi.fn()
+      }
+    }
+
+    await auth.plugin.register(mockServer)
+
+    expect(mockInitCognitoTokenCache).toHaveBeenCalledTimes(1)
+  })
+
+  test('should configure Bell with clientSecret as empty object', async () => {
+    const mockServer = {
+      auth: {
+        strategy: vi.fn(),
+        default: vi.fn()
+      }
+    }
+
+    await auth.plugin.register(mockServer)
+
+    const bellOptions = mockServer.auth.strategy.mock.calls.find(
+      call => call[0] === 'entra'
+    )[2]
+
+    expect(bellOptions.clientSecret).toEqual({})
+  })
+
+  test('should configure Bell with a tokenParams function that returns client_assertion', async () => {
+    const mockServer = {
+      auth: {
+        strategy: vi.fn(),
+        default: vi.fn()
+      }
+    }
+
+    await auth.plugin.register(mockServer)
+
+    const bellOptions = mockServer.auth.strategy.mock.calls.find(
+      call => call[0] === 'entra'
+    )[2]
+
+    expect(typeof bellOptions.tokenParams).toBe('function')
+    const params = bellOptions.tokenParams({})
+    expect(params.client_assertion_type).toBe('urn:ietf:params:oauth:client-assertion-type:jwt-bearer')
+    expect(params.client_assertion).toBe('mock-cognito-token')
+  })
+
+  test('should not include client_secret in Bell tokenParams', async () => {
+    const mockServer = {
+      auth: {
+        strategy: vi.fn(),
+        default: vi.fn()
+      }
+    }
+
+    await auth.plugin.register(mockServer)
+
+    const bellOptions = mockServer.auth.strategy.mock.calls.find(
+      call => call[0] === 'entra'
+    )[2]
+
+    const params = bellOptions.tokenParams({})
+    expect(params.client_secret).toBeUndefined()
   })
 })

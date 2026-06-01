@@ -215,6 +215,21 @@ export const config = convict({
       env: 'ENTRA_REFRESH_TOKENS'
     }
   },
+  cognito: {
+    enabled: {
+      doc: 'Use AWS Cognito federated credentials instead of a client secret for Entra authentication.',
+      format: Boolean,
+      default: false,
+      env: 'COGNITO_ENABLED'
+    },
+    identityPoolId: {
+      doc: 'The AWS Cognito identity pool ID used to obtain federated tokens for Entra authentication.',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'COGNITO_IDENTITY_POOL_ID'
+    }
+  },
   redis: {
     host: {
       doc: 'The Redis cache host.',
