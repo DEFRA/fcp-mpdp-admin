@@ -11,7 +11,7 @@ const logger = createLogger()
 // fresh token is already present, avoiding an unnecessary STS call.
 
 const REDIS_TOKEN_KEY = 'federated-credentials-token'
-// Refresh 2 minutes before expiry — appropriate for tokens ≤ 850s
+// Refresh 2 minutes before expiry
 const REFRESH_BUFFER_MS = 2 * 60 * 1000
 
 let cachedToken = null
