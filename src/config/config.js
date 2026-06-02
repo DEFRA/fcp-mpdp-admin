@@ -230,8 +230,12 @@ export const config = convict({
       env: 'FEDERATED_AUDIENCE'
     },
     tokenDurationSeconds: {
-      doc: 'Lifetime of the STS identity token in seconds. Must be less than 900.',
-      format: Number,
+      doc: 'Lifetime of the STS identity token in seconds. Must be greater than 0 and less than 900.',
+      format: (val) => {
+        if (typeof val !== 'number' || val <= 0 || val >= 900) {
+          throw new Error('tokenDurationSeconds must be > 0 and < 900')
+        }
+      },
       default: 850,
       env: 'FEDERATED_TOKEN_DURATION_SECONDS'
     }

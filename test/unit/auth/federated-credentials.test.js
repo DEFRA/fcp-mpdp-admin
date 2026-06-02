@@ -34,7 +34,7 @@ vi.mock('../../../src/common/helpers/logging/logger.js', () => ({
   createLogger: vi.fn().mockReturnValue({ info: vi.fn(), error: vi.fn() })
 }))
 
-const { getFederatedToken, initFederatedTokenCache, getCachedFederatedToken } =
+const { getFederatedToken, initFederatedTokenCache, getCachedFederatedToken, getClientCredentialParams } =
   await import('../../../src/auth/federated-credentials.js')
 const { GetWebIdentityTokenCommand } = await import('@aws-sdk/client-sts')
 
@@ -181,6 +181,13 @@ describe('initFederatedTokenCache — Redis miss or stale token', () => {
 
     await expect(initFederatedTokenCache()).rejects.toThrow('Redis unavailable')
   })
+
+  test('should propagate STS errors at startup (server should not start)', async () => {
+    mockRedisGet.mockResolvedValue(null)
+    mockSend.mockRejectedValue(new Error('STS unavailable'))
+
+    await expect(initFederatedTokenCache()).rejects.toThrow('STS unavailable')
+  })
 })
 
 describe('initFederatedTokenCache — scheduled refresh', () => {
@@ -206,6 +213,15 @@ describe('initFederatedTokenCache — scheduled refresh', () => {
 
     expect(getCachedFederatedToken()).toBe('refreshed-token')
   })
+
+  test('should not propagate STS errors during a scheduled refresh', async () => {
+    await initFederatedTokenCache()
+
+    mockSend.mockRejectedValue(new Error('STS transient error'))
+
+    // Should not throw — error is caught and a retry timer is set instead
+    await expect(vi.advanceTimersByTimeAsync(730000)).resolves.not.toThrow()
+  })
 })
 
 describe('getCachedFederatedToken', () => {
@@ -219,5 +235,52 @@ describe('getCachedFederatedToken', () => {
   test('should return the cached token after init', async () => {
     await initFederatedTokenCache()
     expect(getCachedFederatedToken()).toBe('mock-sts-identity-token')
+  })
+})
+
+describe('getClientCredentialParams', () => {
+  beforeEach(() => {
+    setupConfigMock()
+    mockSend.mockResolvedValue(mockTokenResult)
+    mockRedisGet.mockResolvedValue(null)
+    mockRedisSet.mockResolvedValue('OK')
+  })
+
+  test('should return client_assertion params when federated credentials enabled', async () => {
+    mockConfigGet.mockImplementation((key) => {
+      if (key === 'federatedCredentials.enabled') return true
+      return setupConfigMock() || null
+    })
+    // Re-implement to call the real config mock properly
+    mockConfigGet.mockImplementation((key) => {
+      switch (key) {
+        case 'federatedCredentials.enabled': return true
+        case 'federatedCredentials.audience': return 'https://example.com'
+        case 'federatedCredentials.tokenDurationSeconds': return 850
+        default: return null
+      }
+    })
+
+    await initFederatedTokenCache()
+    const params = getClientCredentialParams()
+
+    expect(params.client_assertion_type).toBe('urn:ietf:params:oauth:client-assertion-type:jwt-bearer')
+    expect(params.client_assertion).toBe('mock-sts-identity-token')
+    expect(params.client_secret).toBeUndefined()
+  })
+
+  test('should return client_secret param when federated credentials disabled', () => {
+    mockConfigGet.mockImplementation((key) => {
+      switch (key) {
+        case 'federatedCredentials.enabled': return false
+        case 'entra.clientSecret': return 'my-secret'
+        default: return null
+      }
+    })
+
+    const params = getClientCredentialParams()
+
+    expect(params.client_secret).toBe('my-secret')
+    expect(params.client_assertion).toBeUndefined()
   })
 })

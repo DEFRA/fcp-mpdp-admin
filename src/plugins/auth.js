@@ -1,5 +1,5 @@
 import Jwt from '@hapi/jwt'
-import { getCachedFederatedToken, initFederatedTokenCache } from '../auth/federated-credentials.js'
+import { getClientCredentialParams, initFederatedTokenCache } from '../auth/federated-credentials.js'
 import { getOidcConfig } from '../auth/get-oidc-config.js'
 import { refreshTokens } from '../auth/refresh-tokens.js'
 import { getSafeRedirect } from '../common/helpers/get-safe-redirect.js'
@@ -53,10 +53,7 @@ function getBellOptions (oidcConfig) {
     ...(config.get('federatedCredentials.enabled')
       ? {
           clientSecret: {},
-          tokenParams: (_request) => ({
-            client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-            client_assertion: getCachedFederatedToken()
-          })
+          tokenParams: (_request) => getClientCredentialParams()
         }
       : { clientSecret: config.get('entra.clientSecret') }
     ),

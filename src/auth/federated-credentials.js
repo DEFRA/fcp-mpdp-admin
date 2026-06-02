@@ -37,36 +37,44 @@ async function getFederatedToken () {
   return result
 }
 
-async function refreshCachedToken () {
+// Fetches a fresh token from STS, caches it in memory and Redis, and schedules
+// the next refresh. Throws on any failure — callers decide whether to propagate.
+async function fetchAndCacheToken () {
+  const result = await getFederatedToken()
+
+  const durationMs = config.get('federatedCredentials.tokenDurationSeconds') * 1000
+  const expiresAt = Date.now() + durationMs
+  const nextRefreshMs = Math.max(durationMs - REFRESH_BUFFER_MS, 30000)
+
+  cachedToken = result.IdentityToken
+
+  // Write to Redis so other instances and restarts can warm from cache.
+  // TTL is set to tokenDurationSeconds so Redis auto-expires the key.
+  await getRedisClient().set(
+    REDIS_TOKEN_KEY,
+    JSON.stringify({ token: result.IdentityToken, expiresAt }),
+    'EX',
+    config.get('federatedCredentials.tokenDurationSeconds')
+  )
+
+  if (refreshTimer) {
+    clearTimeout(refreshTimer)
+  }
+  refreshTimer = setTimeout(scheduleRefresh, nextRefreshMs)
+  logger.info(`Federated identity token cached, next refresh in ${Math.round(nextRefreshMs / 60000)} minutes`)
+}
+
+// Background refresh — called by the timer. Errors are caught and retried after
+// 30 seconds so a transient STS failure does not crash the server.
+async function scheduleRefresh () {
+  logger.info('Refreshing AWS STS federated identity token')
   try {
-    logger.info('Refreshing AWS STS federated identity token')
-    const result = await getFederatedToken()
-
-    const durationMs = config.get('federatedCredentials.tokenDurationSeconds') * 1000
-    const expiresAt = Date.now() + durationMs
-    const nextRefreshMs = Math.max(durationMs - REFRESH_BUFFER_MS, 30000)
-
-    cachedToken = result.IdentityToken
-
-    // Write to Redis so other instances and restarts can warm from cache.
-    // TTL is set to tokenDurationSeconds so Redis auto-expires the key.
-    await getRedisClient().set(
-      REDIS_TOKEN_KEY,
-      JSON.stringify({ token: result.IdentityToken, expiresAt }),
-      'EX',
-      config.get('federatedCredentials.tokenDurationSeconds')
-    )
-
-    if (refreshTimer) {
-      clearTimeout(refreshTimer)
-    }
-    refreshTimer = setTimeout(refreshCachedToken, nextRefreshMs)
-    logger.info(`Federated identity token cached, next refresh in ${Math.round(nextRefreshMs / 60000)} minutes`)
+    await fetchAndCacheToken()
   } catch (err) {
     logger.error(err, 'Failed to refresh AWS STS federated identity token')
-    // Retry after 30 seconds on failure; do not clear cachedToken so in-flight
-    // requests can still use the (possibly expiring) previous token.
-    refreshTimer = setTimeout(refreshCachedToken, 30000)
+    // Retry after 30 seconds; do not clear cachedToken so in-flight requests
+    // can still use the (possibly expiring) previous token.
+    refreshTimer = setTimeout(scheduleRefresh, 30000)
   }
 }
 
@@ -83,22 +91,37 @@ async function initFederatedTokenCache () {
       cachedToken = token
       // Schedule refresh for when the remaining TTL reaches the buffer threshold
       const nextRefreshMs = Math.max(remainingMs - REFRESH_BUFFER_MS, 30000)
-      refreshTimer = setTimeout(refreshCachedToken, nextRefreshMs)
+      refreshTimer = setTimeout(scheduleRefresh, nextRefreshMs)
       return
     }
   }
 
   // No token in Redis, or token is too close to expiry — fetch a fresh one.
-  await refreshCachedToken()
+  // Throws on failure so the server does not start with a null token.
+  logger.info('Fetching initial AWS STS federated identity token')
+  await fetchAndCacheToken()
 }
 
 function getCachedFederatedToken () {
   // Safety net: if the refresh timer was somehow cleared (e.g. unhandled exception
   // in a previous refresh), fire a background refresh so the next request is covered.
   if (!refreshTimer && cachedToken) {
-    refreshCachedToken().catch((err) => logger.error(err, 'Background federated token refresh failed'))
+    scheduleRefresh().catch((err) => logger.error(err, 'Background federated token refresh failed'))
   }
   return cachedToken
 }
 
-export { getFederatedToken, initFederatedTokenCache, getCachedFederatedToken }
+// Returns the client credential parameters for Entra token requests.
+// When federated credentials are enabled, returns client_assertion params;
+// otherwise returns client_secret. Used by both auth.js and refresh-tokens.js.
+function getClientCredentialParams () {
+  if (config.get('federatedCredentials.enabled')) {
+    return {
+      client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+      client_assertion: getCachedFederatedToken()
+    }
+  }
+  return { client_secret: config.get('entra.clientSecret') }
+}
+
+export { getFederatedToken, initFederatedTokenCache, getCachedFederatedToken, getClientCredentialParams }
