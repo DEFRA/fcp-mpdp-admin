@@ -1,5 +1,5 @@
 import Jwt from '@hapi/jwt'
-import { getCachedCognitoToken, initCognitoTokenCache } from '../auth/cognito.js'
+import { getCachedFederatedToken, initFederatedTokenCache } from '../auth/federated-credentials.js'
 import { getOidcConfig } from '../auth/get-oidc-config.js'
 import { refreshTokens } from '../auth/refresh-tokens.js'
 import { getSafeRedirect } from '../common/helpers/get-safe-redirect.js'
@@ -11,10 +11,10 @@ export const auth = {
     register: async (server) => {
       const oidcConfig = await getOidcConfig()
 
-      if (config.get('cognito.enabled')) {
-        // Pre-populate the in-memory Cognito token cache so the synchronous
-        // Bell tokenParams function can access it during the token exchange.
-        await initCognitoTokenCache()
+      if (config.get('federatedCredentials.enabled')) {
+        // Pre-populate the in-memory token cache so the synchronous Bell
+        // tokenParams function can access it during the token exchange.
+        await initFederatedTokenCache()
       }
 
       // Bell is a third-party plugin that provides a common interface for OAuth 2.0 authentication
@@ -46,16 +46,16 @@ function getBellOptions (oidcConfig) {
       profile: (credentials, _params, _get) => getProfile(credentials, _params, _get)
     },
     clientId: config.get('entra.clientId'),
-    // When Cognito federated credentials are enabled, we use client_assertion instead of
+    // When federated credentials are enabled, we use client_assertion instead of
     // client_secret for the token exchange. Bell adds client_secret when clientSecret is a
     // string, but skips it when clientSecret is an object — allowing us to inject the
     // assertion via tokenParams instead. See: hapijs/bell lib/oauth.js lines 257-267.
-    ...(config.get('cognito.enabled')
+    ...(config.get('federatedCredentials.enabled')
       ? {
           clientSecret: {},
           tokenParams: (_request) => ({
             client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-            client_assertion: getCachedCognitoToken()
+            client_assertion: getCachedFederatedToken()
           })
         }
       : { clientSecret: config.get('entra.clientSecret') }

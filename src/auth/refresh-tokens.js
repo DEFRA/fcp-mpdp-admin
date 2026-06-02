@@ -1,15 +1,15 @@
 import Wreck from '@hapi/wreck'
-import { getCachedCognitoToken } from './cognito.js'
+import { getCachedFederatedToken } from './federated-credentials.js'
 import { getOidcConfig } from './get-oidc-config.js'
 import { config } from '../config/config.js'
 
 async function refreshTokens (refreshToken) {
   const { token_endpoint: url } = await getOidcConfig()
 
-  const clientCredentialParams = config.get('cognito.enabled')
+  const clientCredentialParams = config.get('federatedCredentials.enabled')
     ? [
         'client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-        `client_assertion=${getCachedCognitoToken()}`
+        `client_assertion=${getCachedFederatedToken()}`
       ]
     : [
         `client_secret=${config.get('entra.clientSecret')}`

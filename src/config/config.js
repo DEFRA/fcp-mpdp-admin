@@ -215,19 +215,25 @@ export const config = convict({
       env: 'ENTRA_REFRESH_TOKENS'
     }
   },
-  cognito: {
+  federatedCredentials: {
     enabled: {
-      doc: 'Use AWS Cognito federated credentials instead of a client secret for Entra authentication.',
+      doc: 'Use AWS STS federated credentials instead of a client secret for Entra authentication.',
       format: Boolean,
       default: false,
-      env: 'COGNITO_ENABLED'
+      env: 'FEDERATED_CREDENTIALS_ENABLED'
     },
-    identityPoolId: {
-      doc: 'The AWS Cognito identity pool ID used to obtain federated tokens for Entra authentication.',
+    audience: {
+      doc: 'The audience value used when requesting a federated identity token from AWS STS.',
       format: String,
       nullable: true,
       default: null,
-      env: 'COGNITO_IDENTITY_POOL_ID'
+      env: 'FEDERATED_AUDIENCE'
+    },
+    tokenDurationSeconds: {
+      doc: 'Lifetime of the STS identity token in seconds. Must be less than 900.',
+      format: Number,
+      default: 850,
+      env: 'FEDERATED_TOKEN_DURATION_SECONDS'
     }
   },
   redis: {

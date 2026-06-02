@@ -21,9 +21,9 @@ vi.mock('../../../src/config/config.js', () => ({
   }
 }))
 
-const mockGetCachedCognitoToken = vi.fn().mockReturnValue('mock-cognito-assertion-token')
-vi.mock('../../../src/auth/cognito.js', () => ({
-  getCachedCognitoToken: mockGetCachedCognitoToken
+const mockGetCachedFederatedToken = vi.fn().mockReturnValue('mock-federated-assertion-token')
+vi.mock('../../../src/auth/federated-credentials.js', () => ({
+  getCachedFederatedToken: mockGetCachedFederatedToken
 }))
 
 const { refreshTokens } = await import('../../../src/auth/refresh-tokens.js')
@@ -37,7 +37,7 @@ describe('refreshTokens', () => {
     mockWreckPost.mockResolvedValue({ payload: mockTokenPayload })
     mockConfigGet.mockImplementation((key) => {
       switch (key) {
-        case 'cognito.enabled':
+        case 'federatedCredentials.enabled':
           return false
         case 'entra.clientId':
           return 'mockClientId'
@@ -120,14 +120,14 @@ describe('refreshTokens', () => {
   })
 })
 
-describe('refreshTokens - cognito enabled', () => {
+describe('refreshTokens - federated credentials enabled', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetOidcConfig.mockResolvedValue(mockOidcConfig)
     mockWreckPost.mockResolvedValue({ payload: mockTokenPayload })
     mockConfigGet.mockImplementation((key) => {
       switch (key) {
-        case 'cognito.enabled':
+        case 'federatedCredentials.enabled':
           return true
         case 'entra.clientId':
           return 'mockClientId'
@@ -146,10 +146,10 @@ describe('refreshTokens - cognito enabled', () => {
       .toBe('urn:ietf:params:oauth:client-assertion-type:jwt-bearer')
   })
 
-  test('should include client_assertion from cached Cognito token in query string', async () => {
+  test('should include client_assertion from cached federated token in query string', async () => {
     await refreshTokens(refreshToken)
     const url = new URL(mockWreckPost.mock.calls[0][0])
-    expect(url.searchParams.get('client_assertion')).toBe('mock-cognito-assertion-token')
+    expect(url.searchParams.get('client_assertion')).toBe('mock-federated-assertion-token')
   })
 
   test('should not include client_secret in query string', async () => {

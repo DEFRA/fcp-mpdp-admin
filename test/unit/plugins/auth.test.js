@@ -10,11 +10,11 @@ vi.mock('../../../src/config/config.js', () => ({
   }
 }))
 
-const mockGetCachedCognitoToken = vi.fn().mockReturnValue('mock-cognito-token')
-const mockInitCognitoTokenCache = vi.fn().mockResolvedValue(undefined)
-vi.mock('../../../src/auth/cognito.js', () => ({
-  getCachedCognitoToken: mockGetCachedCognitoToken,
-  initCognitoTokenCache: mockInitCognitoTokenCache
+const mockGetCachedFederatedToken = vi.fn().mockReturnValue('mock-federated-token')
+const mockInitFederatedTokenCache = vi.fn().mockResolvedValue(undefined)
+vi.mock('../../../src/auth/federated-credentials.js', () => ({
+  getCachedFederatedToken: mockGetCachedFederatedToken,
+  initFederatedTokenCache: mockInitFederatedTokenCache
 }))
 
 const { getOidcConfig } = await import('../../../src/auth/get-oidc-config.js')
@@ -34,7 +34,7 @@ describe('auth', () => {
     getOidcConfig.mockResolvedValue(mockOidcConfig)
     config.get.mockImplementation((key) => {
       const configMap = {
-        'cognito.enabled': false,
+        'federatedCredentials.enabled': false,
         'entra.clientId': 'test-client-id',
         'entra.clientSecret': 'test-client-secret',
         'cookie.password': 'password-must-be-at-least-32-characters-long',
@@ -141,7 +141,7 @@ describe('auth', () => {
   })
 })
 
-describe('auth - cognito enabled', () => {
+describe('auth - federated credentials enabled', () => {
   const mockOidcConfig = {
     authorization_endpoint: 'https://login.microsoftonline.com/authorize',
     token_endpoint: 'https://login.microsoftonline.com/token',
@@ -154,7 +154,7 @@ describe('auth - cognito enabled', () => {
     getOidcConfig.mockResolvedValue(mockOidcConfig)
     config.get.mockImplementation((key) => {
       const configMap = {
-        'cognito.enabled': true,
+        'federatedCredentials.enabled': true,
         'entra.clientId': 'test-client-id',
         'cookie.password': 'password-must-be-at-least-32-characters-long',
         'cookie.secure': true,
@@ -165,7 +165,7 @@ describe('auth - cognito enabled', () => {
     })
   })
 
-  test('should initialise the Cognito token cache during registration', async () => {
+  test('should initialise the federated token cache during registration', async () => {
     const mockServer = {
       auth: {
         strategy: vi.fn(),
@@ -175,7 +175,7 @@ describe('auth - cognito enabled', () => {
 
     await auth.plugin.register(mockServer)
 
-    expect(mockInitCognitoTokenCache).toHaveBeenCalledTimes(1)
+    expect(mockInitFederatedTokenCache).toHaveBeenCalledTimes(1)
   })
 
   test('should configure Bell with clientSecret as empty object', async () => {
@@ -212,7 +212,7 @@ describe('auth - cognito enabled', () => {
     expect(typeof bellOptions.tokenParams).toBe('function')
     const params = bellOptions.tokenParams({})
     expect(params.client_assertion_type).toBe('urn:ietf:params:oauth:client-assertion-type:jwt-bearer')
-    expect(params.client_assertion).toBe('mock-cognito-token')
+    expect(params.client_assertion).toBe('mock-federated-token')
   })
 
   test('should not include client_secret in Bell tokenParams', async () => {
