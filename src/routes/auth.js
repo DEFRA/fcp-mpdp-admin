@@ -23,7 +23,14 @@ export const auth = [{
     // This should only occur if the user tries to access the sign-in page directly and not part of the sign-in flow
     // eg if the user has bookmarked the Entra sign-in page or they have signed out and tried to go back in the browser
     if (!request.auth.isAuthenticated) {
-      request.logger.error(request.auth.error, 'Bell authentication failed')
+      const bellError = request.auth.error
+      const errorData = bellError?.data
+      const entraResponse = Buffer.isBuffer(errorData) ? errorData.toString() : errorData
+
+      request.logger.error({
+        err: bellError,
+        event: { outcome: 'failure', reason: entraResponse }
+      }, 'Bell authentication failed')
       return h.view('errors/unauthorised')
     }
 
