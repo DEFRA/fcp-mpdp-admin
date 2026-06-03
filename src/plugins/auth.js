@@ -1,4 +1,5 @@
 import Jwt from '@hapi/jwt'
+import { getClientCredentialParams, initFederatedTokenCache } from '../auth/federated-credentials.js'
 import { getOidcConfig } from '../auth/get-oidc-config.js'
 import { refreshTokens } from '../auth/refresh-tokens.js'
 import { getSafeRedirect } from '../common/helpers/get-safe-redirect.js'
@@ -9,6 +10,12 @@ export const auth = {
     name: 'auth',
     register: async (server) => {
       const oidcConfig = await getOidcConfig()
+
+      if (config.get('federatedCredentials.enabled')) {
+        // Pre-populate the in-memory token cache so the synchronous Bell
+        // tokenParams function can access it during the token exchange.
+        await initFederatedTokenCache()
+      }
 
       // Bell is a third-party plugin that provides a common interface for OAuth 2.0 authentication
       // Used to authenticate users with Entra and a pre-requisite for the Cookie authentication strategy
@@ -39,7 +46,17 @@ function getBellOptions (oidcConfig) {
       profile: (credentials, _params, _get) => getProfile(credentials, _params, _get)
     },
     clientId: config.get('entra.clientId'),
-    clientSecret: config.get('entra.clientSecret'),
+    // When federated credentials are enabled, we use client_assertion instead of
+    // client_secret for the token exchange. Bell adds client_secret when clientSecret is a
+    // string, but skips it when clientSecret is an object — allowing us to inject the
+    // assertion via tokenParams instead.
+    ...(config.get('federatedCredentials.enabled')
+      ? {
+          clientSecret: {},
+          tokenParams: (_request) => getClientCredentialParams()
+        }
+      : { clientSecret: config.get('entra.clientSecret') }
+    ),
     password: config.get('cookie.password'),
     isSecure: config.get('cookie.secure'),
     forceHttps: config.get('cookie.secure'),

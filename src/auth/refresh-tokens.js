@@ -1,20 +1,22 @@
 import Wreck from '@hapi/wreck'
+import { getClientCredentialParams } from './federated-credentials.js'
 import { getOidcConfig } from './get-oidc-config.js'
 import { config } from '../config/config.js'
 
 async function refreshTokens (refreshToken) {
   const { token_endpoint: url } = await getOidcConfig()
 
-  const query = [
-    `client_id=${config.get('entra.clientId')}`,
-    `client_secret=${config.get('entra.clientSecret')}`,
-    'grant_type=refresh_token',
-    `scope=${config.get('entra.clientId')}/.default offline_access`,
-    `refresh_token=${refreshToken}`,
-    `redirect_uri=${config.get('entra.redirectUrl')}`
-  ].join('&')
+  const clientId = config.get('entra.clientId')
+  const params = new URLSearchParams({
+    client_id: clientId,
+    ...getClientCredentialParams(),
+    grant_type: 'refresh_token',
+    scope: `${clientId}/.default offline_access`,
+    refresh_token: refreshToken,
+    redirect_uri: config.get('entra.redirectUrl')
+  })
 
-  const { payload } = await Wreck.post(`${url}?${query}`, {
+  const { payload } = await Wreck.post(`${url}?${params.toString()}`, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
     },

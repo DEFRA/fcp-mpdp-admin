@@ -21,27 +21,34 @@ vi.mock('../../../src/config/config.js', () => ({
   }
 }))
 
+const mockGetCachedFederatedToken = vi.fn().mockReturnValue('mock-federated-assertion-token')
+const mockGetClientCredentialParams = vi.fn()
+vi.mock('../../../src/auth/federated-credentials.js', () => ({
+  getCachedFederatedToken: mockGetCachedFederatedToken,
+  getClientCredentialParams: mockGetClientCredentialParams
+}))
+
 const { refreshTokens } = await import('../../../src/auth/refresh-tokens.js')
 
 const refreshToken = 'DEFRA_ID_REFRESH_TOKEN'
+
+function setupConfigMock (overrides = {}) {
+  const defaults = {
+    'federatedCredentials.enabled': false,
+    'entra.clientId': 'mockClientId',
+    'entra.clientSecret': 'mockClientSecret',
+    'entra.redirectUrl': 'https://mock-redirect-url.com'
+  }
+  mockConfigGet.mockImplementation((key) => ({ ...defaults, ...overrides })[key] ?? 'defaultConfigValue')
+}
 
 describe('refreshTokens', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetOidcConfig.mockResolvedValue(mockOidcConfig)
     mockWreckPost.mockResolvedValue({ payload: mockTokenPayload })
-    mockConfigGet.mockImplementation((key) => {
-      switch (key) {
-        case 'entra.clientId':
-          return 'mockClientId'
-        case 'entra.clientSecret':
-          return 'mockClientSecret'
-        case 'entra.redirectUrl':
-          return 'https://mock-redirect-url.com'
-        default:
-          return 'defaultConfigValue'
-      }
-    })
+    setupConfigMock()
+    mockGetClientCredentialParams.mockReturnValue({ client_secret: 'mockClientSecret' })
   })
 
   test('should get oidc config', async () => {
@@ -54,9 +61,9 @@ describe('refreshTokens', () => {
     expect(mockConfigGet).toHaveBeenCalledWith('entra.clientId')
   })
 
-  test('should get client secret from config', async () => {
+  test('should get client credential params', async () => {
     await refreshTokens(refreshToken)
-    expect(mockConfigGet).toHaveBeenCalledWith('entra.clientSecret')
+    expect(mockGetClientCredentialParams).toHaveBeenCalled()
   })
 
   test('should get redirect url from config', async () => {
@@ -110,5 +117,44 @@ describe('refreshTokens', () => {
   test('should throw an error if the api request fails', async () => {
     mockWreckPost.mockRejectedValue(new Error('Unable to get token'))
     await expect(refreshTokens(refreshToken)).rejects.toThrow()
+  })
+})
+
+describe('refreshTokens - federated credentials enabled', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockGetOidcConfig.mockResolvedValue(mockOidcConfig)
+    mockWreckPost.mockResolvedValue({ payload: mockTokenPayload })
+    setupConfigMock({ 'federatedCredentials.enabled': true })
+    mockGetClientCredentialParams.mockReturnValue({
+      client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+      client_assertion: 'mock-federated-assertion-token'
+    })
+  })
+
+  test('should include client_assertion_type in query string', async () => {
+    await refreshTokens(refreshToken)
+    const url = new URL(mockWreckPost.mock.calls[0][0])
+    expect(url.searchParams.get('client_assertion_type'))
+      .toBe('urn:ietf:params:oauth:client-assertion-type:jwt-bearer')
+  })
+
+  test('should include client_assertion from cached federated token in query string', async () => {
+    await refreshTokens(refreshToken)
+    const url = new URL(mockWreckPost.mock.calls[0][0])
+    expect(url.searchParams.get('client_assertion')).toBe('mock-federated-assertion-token')
+  })
+
+  test('should not include client_secret in query string', async () => {
+    await refreshTokens(refreshToken)
+    const url = new URL(mockWreckPost.mock.calls[0][0])
+    expect(url.searchParams.get('client_secret')).toBeNull()
+  })
+
+  test('should still include client_id and grant_type in query string', async () => {
+    await refreshTokens(refreshToken)
+    const url = new URL(mockWreckPost.mock.calls[0][0])
+    expect(url.searchParams.get('client_id')).toBe('mockClientId')
+    expect(url.searchParams.get('grant_type')).toBe('refresh_token')
   })
 })
