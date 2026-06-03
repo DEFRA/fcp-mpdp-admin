@@ -49,7 +49,7 @@ function getBellOptions (oidcConfig) {
     // When federated credentials are enabled, we use client_assertion instead of
     // client_secret for the token exchange. Bell adds client_secret when clientSecret is a
     // string, but skips it when clientSecret is an object — allowing us to inject the
-    // assertion via tokenParams instead. See: hapijs/bell lib/oauth.js lines 257-267.
+    // assertion via tokenParams instead.
     ...(config.get('federatedCredentials.enabled')
       ? {
           clientSecret: {},

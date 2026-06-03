@@ -5,10 +5,9 @@ import { config } from '../config/config.js'
 
 const logger = createLogger()
 
-// AWS STS tokens are short-lived (≤ 900s). We cache the token in Redis (shared
-// across all instances) and also in memory (required for Bell's synchronous
-// tokenParams callback). On startup, we warm the in-memory cache from Redis if a
-// fresh token is already present, avoiding an unnecessary STS call.
+// AWS STS tokens are short-lived (≤ 900s). We cache the token in Redis and also in memory
+// (required for Bell's synchronous tokenParams callback).
+// On startup, we warm the in-memory cache from Redis if a token is present.
 
 const REDIS_TOKEN_KEY = 'federated-credentials-token'
 // Refresh 2 minutes before expiry
@@ -61,10 +60,9 @@ async function fetchAndCacheToken () {
     clearTimeout(refreshTimer)
   }
   refreshTimer = setTimeout(scheduleRefresh, nextRefreshMs)
-  logger.info(`Federated identity token cached, next refresh in ${Math.round(nextRefreshMs / 60000)} minutes`)
 }
 
-// Background refresh — called by the timer. Errors are caught and retried after
+// Background refresh called by the timer. Errors are caught and retried after
 // 30 seconds so a transient STS failure does not crash the server.
 async function scheduleRefresh () {
   logger.info('Refreshing AWS STS federated identity token')
@@ -79,7 +77,6 @@ async function scheduleRefresh () {
 }
 
 async function initFederatedTokenCache () {
-  // Propagates on Redis failure — server should not start without a working cache.
   const raw = await getRedisClient().get(REDIS_TOKEN_KEY)
 
   if (raw) {
@@ -96,8 +93,7 @@ async function initFederatedTokenCache () {
     }
   }
 
-  // No token in Redis, or token is too close to expiry — fetch a fresh one.
-  // Throws on failure so the server does not start with a null token.
+  // No token in Redis, or token is too close to expiry - fetch a fresh one.
   logger.info('Fetching initial AWS STS federated identity token')
   await fetchAndCacheToken()
 }
