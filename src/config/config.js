@@ -226,7 +226,7 @@ export const config = convict({
       doc: 'The audience value used when requesting a federated identity token from AWS STS.',
       format: String,
       nullable: true,
-      default: null,
+      default: 'api://AzureADTokenExchange',
       env: 'FEDERATED_AUDIENCE'
     },
     tokenDurationSeconds: {
