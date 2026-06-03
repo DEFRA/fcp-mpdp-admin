@@ -52,7 +52,7 @@ const { getFederatedToken, initFederatedTokenCache, getCachedFederatedToken, get
 const { GetWebIdentityTokenCommand } = await import('@aws-sdk/client-sts')
 
 const mockTokenResult = {
-  IdentityToken: 'mock-sts-identity-token',
+  WebIdentityToken: 'mock-sts-identity-token',
   Expiration: new Date(Date.now() + 850000)
 }
 
@@ -92,6 +92,13 @@ describe('getFederatedToken', () => {
     await getFederatedToken()
     expect(GetWebIdentityTokenCommand).toHaveBeenCalledWith(
       expect.objectContaining({ DurationSeconds: 850 })
+    )
+  })
+
+  test('should call STS with RS256 signing algorithm', async () => {
+    await getFederatedToken()
+    expect(GetWebIdentityTokenCommand).toHaveBeenCalledWith(
+      expect.objectContaining({ SigningAlgorithm: 'RS256' })
     )
   })
 
@@ -135,7 +142,7 @@ describe('initFederatedTokenCache — Redis hit (fresh token)', () => {
 
     await initFederatedTokenCache()
 
-    mockSend.mockResolvedValue({ IdentityToken: 'refreshed-token', Expiration: new Date(Date.now() + 850000) })
+    mockSend.mockResolvedValue({ WebIdentityToken: 'refreshed-token', Expiration: new Date(Date.now() + 850000) })
 
     // Remaining - 2min buffer = 800000 - 120000 = 680000ms
     await vi.advanceTimersByTimeAsync(680000)
@@ -219,7 +226,7 @@ describe('initFederatedTokenCache — scheduled refresh', () => {
   test('should refresh the in-memory token when the timer fires', async () => {
     await initFederatedTokenCache()
 
-    mockSend.mockResolvedValue({ IdentityToken: 'refreshed-token', Expiration: new Date() })
+    mockSend.mockResolvedValue({ WebIdentityToken: 'refreshed-token', Expiration: new Date() })
 
     // 850s - 120s buffer = 730s = 730000ms
     await vi.advanceTimersByTimeAsync(730000)
