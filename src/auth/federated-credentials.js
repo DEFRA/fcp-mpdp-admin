@@ -9,6 +9,9 @@ const logger = createLogger()
 // (required for Bell's synchronous tokenParams callback).
 // On startup, we warm the in-memory cache from Redis if a token is present.
 
+const AUDIENCE = config.get('federatedCredentials.audience')
+const TOKEN_DURATION_SECONDS = config.get('federatedCredentials.tokenDurationSeconds')
+
 const REDIS_TOKEN_KEY = 'federated-credentials-token'
 // Refresh 2 minutes before expiry
 const REFRESH_BUFFER_MS = 2 * 60 * 1000
@@ -28,8 +31,8 @@ async function getFederatedToken () {
   const client = new STSClient()
 
   const command = new GetWebIdentityTokenCommand({
-    Audience: [config.get('federatedCredentials.audience')],
-    DurationSeconds: config.get('federatedCredentials.tokenDurationSeconds')
+    Audience: [AUDIENCE],
+    DurationSeconds: TOKEN_DURATION_SECONDS
   })
 
   const result = await client.send(command)
@@ -41,7 +44,7 @@ async function getFederatedToken () {
 async function fetchAndCacheToken () {
   const result = await getFederatedToken()
 
-  const durationMs = config.get('federatedCredentials.tokenDurationSeconds') * 1000
+  const durationMs = TOKEN_DURATION_SECONDS * 1000
   const expiresAt = Date.now() + durationMs
   const nextRefreshMs = Math.max(durationMs - REFRESH_BUFFER_MS, 30000)
 
@@ -53,7 +56,7 @@ async function fetchAndCacheToken () {
     REDIS_TOKEN_KEY,
     JSON.stringify({ token: result.IdentityToken, expiresAt }),
     'EX',
-    config.get('federatedCredentials.tokenDurationSeconds')
+    TOKEN_DURATION_SECONDS
   )
 
   if (refreshTimer) {
