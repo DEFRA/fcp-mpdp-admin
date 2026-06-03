@@ -2,10 +2,24 @@ import { vi, describe, beforeEach, afterEach, test, expect } from 'vitest'
 
 // vi.hoisted ensures these spies are available inside vi.mock factories,
 // which are hoisted above variable declarations.
-const { mockSend, mockRedisGet, mockRedisSet } = vi.hoisted(() => ({
+const { mockSend, mockRedisGet, mockRedisSet, mockConfigGet } = vi.hoisted(() => ({
   mockSend: vi.fn(),
   mockRedisGet: vi.fn(),
-  mockRedisSet: vi.fn()
+  mockRedisSet: vi.fn(),
+  mockConfigGet: vi.fn().mockImplementation((key) => {
+    switch (key) {
+      case 'federatedCredentials.audience': return 'https://example.com'
+      case 'federatedCredentials.tokenDurationSeconds': return 850
+      case 'redis': return {
+        host: 'localhost',
+        username: '',
+        keyPrefix: 'test:',
+        useSingleInstanceCache: true,
+        useTLS: false
+      }
+      default: return null
+    }
+  })
 }))
 
 // Use regular functions (not arrow functions) so they can be used with `new`.
@@ -25,7 +39,6 @@ vi.mock('../../../src/common/helpers/redis-client.js', () => ({
   })
 }))
 
-const mockConfigGet = vi.fn()
 vi.mock('../../../src/config/config.js', () => ({
   config: { get: mockConfigGet }
 }))
