@@ -32,7 +32,8 @@ async function getFederatedToken () {
 
   const command = new GetWebIdentityTokenCommand({
     Audience: [AUDIENCE],
-    DurationSeconds: TOKEN_DURATION_SECONDS
+    DurationSeconds: TOKEN_DURATION_SECONDS,
+    SigningAlgorithm: 'RS256'
   })
 
   const result = await client.send(command)
@@ -48,13 +49,13 @@ async function fetchAndCacheToken () {
   const expiresAt = Date.now() + durationMs
   const nextRefreshMs = Math.max(durationMs - REFRESH_BUFFER_MS, 30000)
 
-  cachedToken = result.IdentityToken
+  cachedToken = result.WebIdentityToken
 
   // Write to Redis so other instances and restarts can warm from cache.
   // TTL is set to tokenDurationSeconds so Redis auto-expires the key.
   await getRedisClient().set(
     REDIS_TOKEN_KEY,
-    JSON.stringify({ token: result.IdentityToken, expiresAt }),
+    JSON.stringify({ token: result.WebIdentityToken, expiresAt }),
     'EX',
     TOKEN_DURATION_SECONDS
   )
