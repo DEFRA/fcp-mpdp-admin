@@ -3,6 +3,10 @@ import Wreck from '@hapi/wreck'
 import { config } from '../../../src/config/config.js'
 import { post } from '../../../src/api/post.js'
 
+vi.mock('../../../src/api/get-backend-auth-headers.js', () => ({
+  getBackendAuthHeaders: vi.fn().mockReturnValue({})
+}))
+
 const endpoint = 'https://__TEST_ENDPOINT__'
 process.env.MPDP_BACKEND_ENDPOINT = endpoint
 const path = process.env.MPDP_BACKEND_PATH
@@ -40,7 +44,7 @@ describe('post', () => {
 
     await post(route, {})
 
-    expect(mockPost).toHaveBeenCalledWith(`${endpoint}${path}${route}`, { payload: {} })
+    expect(mockPost).toHaveBeenCalledWith(`${endpoint}${path}${route}`, { payload: {}, headers: {} })
   })
 
   test('post function handles error', async () => {
@@ -52,7 +56,7 @@ describe('post', () => {
 
     await expect(post(route, {})).rejects.toThrow('Test error')
 
-    expect(mockPost).toHaveBeenCalledWith(`${endpoint}${path}${route}`, { payload: {} })
+    expect(mockPost).toHaveBeenCalledWith(`${endpoint}${path}${route}`, { payload: {}, headers: {} })
     expect(mockLoggerError).toHaveBeenCalled()
   })
 })

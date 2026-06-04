@@ -285,6 +285,26 @@ export const config = convict({
       env: 'REDIS_TTL'
     }
   },
+  serviceToServiceAuth: {
+    enabled: {
+      doc: 'Enable service-to-service JWT authentication when calling the backend',
+      format: Boolean,
+      default: false,
+      env: 'SERVICE_AUTH_ENABLED'
+    },
+    audience: {
+      doc: 'JWT audience for service-to-service authentication',
+      format: String,
+      default: 'fcp-mpdp-backend',
+      env: 'SERVICE_AUTH_AUDIENCE'
+    },
+    tokenDurationSeconds: {
+      doc: 'Duration in seconds for the service-to-service JWT token',
+      format: Number,
+      default: 300,
+      env: 'SERVICE_AUTH_TOKEN_DURATION'
+    }
+  },
 })
 
 config.validate({ allowed: 'strict' })

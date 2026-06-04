@@ -15,6 +15,9 @@ vi.mock('../../../src/api/get.js')
 vi.mock('../../../src/api/post.js')
 vi.mock('../../../src/api/build-backend-url.js')
 vi.mock('@hapi/wreck')
+vi.mock('../../../src/api/get-backend-auth-headers.js', () => ({
+  getBackendAuthHeaders: vi.fn().mockReturnValue({})
+}))
 
 describe('Payment Summary Service', () => {
   beforeEach(() => {
@@ -143,7 +146,7 @@ describe('Payment Summary Service', () => {
       const result = await deletePaymentSummaryById(1)
 
       expect(buildBackendUrl.buildBackendUrl).toHaveBeenCalledWith('/admin/summary/1')
-      expect(Wreck.delete).toHaveBeenCalledWith('http://backend/admin/summary/1')
+      expect(Wreck.delete).toHaveBeenCalledWith('http://backend/admin/summary/1', { headers: {} })
       expect(result).toBe(true)
     })
   })

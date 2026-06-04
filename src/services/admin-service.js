@@ -3,6 +3,7 @@ import { get } from '../api/get.js'
 import { post } from '../api/post.js'
 import Wreck from '@hapi/wreck'
 import { buildBackendUrl } from '../api/build-backend-url.js'
+import { getBackendAuthHeaders } from '../api/get-backend-auth-headers.js'
 import { toViewModel, toApiModel, paymentsToViewModel } from './mappers/payment-mapper.js'
 
 export async function fetchAdminPayments (page = 1, limit = 20, searchString = '') {
@@ -42,7 +43,7 @@ export async function updatePayment (id, paymentData) {
   const apiModel = toApiModel(paymentData)
   const { res, payload } = await Wreck.put(backendUrl, {
     payload: JSON.stringify(apiModel),
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json', ...getBackendAuthHeaders() }
   })
 
   if (res.statusCode !== 200) {
@@ -54,7 +55,7 @@ export async function updatePayment (id, paymentData) {
 
 export async function deletePaymentById (id) {
   const backendUrl = buildBackendUrl(`/admin/payments/${id}`)
-  const { res, payload } = await Wreck.delete(backendUrl)
+  const { res, payload } = await Wreck.delete(backendUrl, { headers: getBackendAuthHeaders() })
 
   if (res.statusCode !== 200) {
     throw new Error('Failed to delete payment')
@@ -75,7 +76,7 @@ export async function fetchFinancialYears () {
 export async function deletePaymentsByYear (financialYear) {
   const encodedYear = encodeURIComponent(financialYear)
   const backendUrl = buildBackendUrl(`/admin/payments/year/${encodedYear}`)
-  const { res, payload } = await Wreck.delete(backendUrl)
+  const { res, payload } = await Wreck.delete(backendUrl, { headers: getBackendAuthHeaders() })
 
   if (res.statusCode !== 200) {
     throw new Error('Failed to delete payments')
@@ -86,7 +87,7 @@ export async function deletePaymentsByYear (financialYear) {
 
 export async function deletePaymentsByPublishedDate (publishedDate) {
   const backendUrl = buildBackendUrl(`/admin/payments/published-date/${publishedDate}`)
-  const { res, payload } = await Wreck.delete(backendUrl)
+  const { res, payload } = await Wreck.delete(backendUrl, { headers: getBackendAuthHeaders() })
 
   if (res.statusCode !== 200) {
     throw new Error('Failed to delete payments by published date')
@@ -100,7 +101,7 @@ export async function uploadPaymentsCsv (fileStream) {
 
   const { res, payload } = await Wreck.post(backendUrl, {
     payload: fileStream,
-    headers: { 'Content-Type': 'text/csv' }
+    headers: { 'Content-Type': 'text/csv', ...getBackendAuthHeaders() }
   })
 
   if (res.statusCode !== 201) {
@@ -116,7 +117,7 @@ export async function bulkSetPublishedDate (financialYear, publishedDate) {
 
   const { res, payload } = await Wreck.put(backendUrl, {
     payload: JSON.stringify({ published_date: publishedDate }),
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json', ...getBackendAuthHeaders() }
   })
 
   if (res.statusCode !== 200) {

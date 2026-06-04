@@ -2,6 +2,7 @@ import { get } from '../api/get.js'
 import { post } from '../api/post.js'
 import Wreck from '@hapi/wreck'
 import { buildBackendUrl } from '../api/build-backend-url.js'
+import { getBackendAuthHeaders } from '../api/get-backend-auth-headers.js'
 import { toViewModel, toApiModel, summariesToViewModel } from './mappers/payment-summary-mapper.js'
 
 async function fetchPaymentSummaries () {
@@ -31,7 +32,7 @@ async function updatePaymentSummary (id, summary) {
   const apiModel = toApiModel(summary)
   const { res, payload } = await Wreck.put(backendUrl, {
     payload: JSON.stringify(apiModel),
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json', ...getBackendAuthHeaders() }
   })
 
   if (res.statusCode !== 200) {
@@ -43,7 +44,7 @@ async function updatePaymentSummary (id, summary) {
 
 async function deletePaymentSummaryById (id) {
   const backendUrl = buildBackendUrl(`/admin/summary/${id}`)
-  const { res } = await Wreck.delete(backendUrl)
+  const { res } = await Wreck.delete(backendUrl, { headers: getBackendAuthHeaders() })
 
   if (res.statusCode !== 204 && res.statusCode !== 200) {
     throw new Error('Failed to delete payment summary')
