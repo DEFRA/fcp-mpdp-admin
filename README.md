@@ -78,6 +78,22 @@ To update dependencies use [npm-check-updates](https://github.com/raineorshine/n
 ncu --interactive --format group
 ```
 
+## Service-to-service authentication
+
+This service optionally attaches a short-lived JWT to every outbound request to the backend API. This is disabled by default and intended to be enabled in deployed environments when the backend has `SERVICE_AUTH_ENABLED=true`.
+
+When enabled, the service obtains a JWT from the AWS STS `GetWebIdentityToken` API on startup, caches it in memory, and refreshes it automatically before it expires. The token is attached as a `Bearer` header on all backend requests.
+
+The AWS SDK reads the `AWS_ROLE_ARN` and `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` environment variables automatically - these are injected by ECS and do not need to be set manually.
+
+### Environment variables
+
+| Variable | Required when enabled | Description |
+|---|---|---|
+| `SERVICE_AUTH_ENABLED` | ✅ | Set to `true` to enable. Default: `false` |
+| `SERVICE_AUTH_AUDIENCE` | optional | JWT audience sent in the token request - must match the backend's expected audience. Default: `fcp-mpdp-backend` |
+| `SERVICE_AUTH_TOKEN_DURATION` | optional | Token lifetime in seconds (max 900). Default: `300` |
+
 ## SonarQube Cloud
 
 Instructions for setting up SonarQube Cloud can be found in [sonar-project.properties](./sonar-project.properties).

@@ -1,8 +1,13 @@
+import http2 from 'node:http2'
 import { get } from '../api/get.js'
 import { post } from '../api/post.js'
 import Wreck from '@hapi/wreck'
 import { buildBackendUrl } from '../api/build-backend-url.js'
+import { getBackendAuthHeaders } from '../api/get-backend-auth-headers.js'
 import { toViewModel, toApiModel, summariesToViewModel } from './mappers/payment-summary-mapper.js'
+
+const { constants: http2Constants } = http2
+const { HTTP_STATUS_OK, HTTP_STATUS_NO_CONTENT } = http2Constants
 
 async function fetchPaymentSummaries () {
   const response = await get('/admin/summary')
@@ -31,10 +36,10 @@ async function updatePaymentSummary (id, summary) {
   const apiModel = toApiModel(summary)
   const { res, payload } = await Wreck.put(backendUrl, {
     payload: JSON.stringify(apiModel),
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json', ...await getBackendAuthHeaders() }
   })
 
-  if (res.statusCode !== 200) {
+  if (res.statusCode !== HTTP_STATUS_OK) {
     throw new Error('Failed to update payment summary')
   }
 
@@ -43,9 +48,9 @@ async function updatePaymentSummary (id, summary) {
 
 async function deletePaymentSummaryById (id) {
   const backendUrl = buildBackendUrl(`/admin/summary/${id}`)
-  const { res } = await Wreck.delete(backendUrl)
+  const { res } = await Wreck.delete(backendUrl, { headers: await getBackendAuthHeaders() })
 
-  if (res.statusCode !== 204 && res.statusCode !== 200) {
+  if (res.statusCode !== HTTP_STATUS_NO_CONTENT && res.statusCode !== HTTP_STATUS_OK) {
     throw new Error('Failed to delete payment summary')
   }
 

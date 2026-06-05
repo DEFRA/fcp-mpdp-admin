@@ -20,6 +20,7 @@ import { requestTracing } from './common/helpers/request-tracing.js'
 import { requestLogger } from './common/helpers/logging/request-logger.js'
 import { secureContext } from './common/helpers/secure-context/secure-context.js'
 import { buildRedisClient } from './common/helpers/redis-client.js'
+import { serviceToken } from './plugins/service-token.js'
 
 export async function createServer () {
   setupProxy()
@@ -76,6 +77,7 @@ export async function createServer () {
     requestTracing,
     secureContext,
     pulse,
+    serviceToken,
     nunjucksConfig,
     contentSecurityPolicy,
     headers,

@@ -13,6 +13,10 @@ import {
 } from '../../../src/services/admin-service.js'
 import { config } from '../../../src/config/config.js'
 
+vi.mock('../../../src/api/get-backend-auth-headers.js', () => ({
+  getBackendAuthHeaders: vi.fn().mockReturnValue({})
+}))
+
 const endpoint = 'https://__TEST_ENDPOINT__'
 process.env.MPDP_BACKEND_ENDPOINT = endpoint
 const path = process.env.MPDP_BACKEND_PATH
@@ -71,7 +75,8 @@ describe('admin-service', () => {
       expect(result.rows[0].payeeName).toBe('Test 1')
       expect(result.rows[1].payeeName).toBe('Test 2')
       expect(mockGet).toHaveBeenCalledWith(
-        expect.stringContaining('admin/payments')
+        expect.stringContaining('admin/payments'),
+        expect.anything()
       )
     })
 
@@ -87,7 +92,8 @@ describe('admin-service', () => {
       await fetchAdminPayments(1, 20, 'test search')
 
       expect(mockGet).toHaveBeenCalledWith(
-        expect.stringContaining('searchString=test')
+        expect.stringContaining('searchString=test'),
+        expect.anything()
       )
     })
   })
@@ -122,7 +128,8 @@ describe('admin-service', () => {
       expect(result.partPostcode).toBe('SW1A')
       expect(result.amount).toBe(1000)
       expect(mockGet).toHaveBeenCalledWith(
-        expect.stringContaining('admin/payments/1')
+        expect.stringContaining('admin/payments/1'),
+        expect.anything()
       )
     })
   })
@@ -237,7 +244,8 @@ describe('admin-service', () => {
 
       expect(result).toEqual({ deleted: true })
       expect(mockDelete).toHaveBeenCalledWith(
-        expect.stringContaining('/admin/payments/1')
+        expect.stringContaining('/admin/payments/1'),
+        expect.anything()
       )
     })
 
@@ -275,7 +283,8 @@ describe('admin-service', () => {
 
       expect(result).toEqual(mockYears)
       expect(mockGet).toHaveBeenCalledWith(
-        expect.stringContaining('admin/financial-years')
+        expect.stringContaining('admin/financial-years'),
+        expect.anything()
       )
     })
   })
@@ -298,7 +307,8 @@ describe('admin-service', () => {
 
       expect(result).toEqual(mockResult)
       expect(mockDelete).toHaveBeenCalledWith(
-        expect.stringContaining('/admin/payments/year/23%2F24')
+        expect.stringContaining('/admin/payments/year/23%2F24'),
+        expect.anything()
       )
     })
 
@@ -312,7 +322,8 @@ describe('admin-service', () => {
       await deletePaymentsByYear('22/23')
 
       expect(mockDelete).toHaveBeenCalledWith(
-        expect.stringContaining('22%2F23')
+        expect.stringContaining('22%2F23'),
+        expect.anything()
       )
     })
 
@@ -344,7 +355,8 @@ describe('admin-service', () => {
 
       expect(result).toEqual(mockResult)
       expect(mockDelete).toHaveBeenCalledWith(
-        expect.stringContaining('/admin/payments/published-date/2024-01-15')
+        expect.stringContaining('/admin/payments/published-date/2024-01-15'),
+        expect.anything()
       )
     })
 
@@ -358,7 +370,8 @@ describe('admin-service', () => {
       await deletePaymentsByPublishedDate('2023-12-31')
 
       expect(mockDelete).toHaveBeenCalledWith(
-        expect.stringContaining('2023-12-31')
+        expect.stringContaining('2023-12-31'),
+        expect.anything()
       )
     })
 
