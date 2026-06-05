@@ -1,3 +1,4 @@
+import http2 from 'node:http2'
 import { getUrlParams } from '../api/get-url-params.js'
 import { get } from '../api/get.js'
 import { post } from '../api/post.js'
@@ -5,6 +6,9 @@ import Wreck from '@hapi/wreck'
 import { buildBackendUrl } from '../api/build-backend-url.js'
 import { getBackendAuthHeaders } from '../api/get-backend-auth-headers.js'
 import { toViewModel, toApiModel, paymentsToViewModel } from './mappers/payment-mapper.js'
+
+const { constants: http2Constants } = http2
+const { HTTP_STATUS_OK, HTTP_STATUS_CREATED } = http2Constants
 
 export async function fetchAdminPayments (page = 1, limit = 20, searchString = '') {
   const url = getUrlParams('admin/payments', {
@@ -46,7 +50,7 @@ export async function updatePayment (id, paymentData) {
     headers: { 'Content-Type': 'application/json', ...await getBackendAuthHeaders() }
   })
 
-  if (res.statusCode !== 200) {
+  if (res.statusCode !== HTTP_STATUS_OK) {
     throw new Error('Failed to update payment')
   }
 
@@ -57,7 +61,7 @@ export async function deletePaymentById (id) {
   const backendUrl = buildBackendUrl(`/admin/payments/${id}`)
   const { res, payload } = await Wreck.delete(backendUrl, { headers: await getBackendAuthHeaders() })
 
-  if (res.statusCode !== 200) {
+  if (res.statusCode !== HTTP_STATUS_OK) {
     throw new Error('Failed to delete payment')
   }
 
@@ -78,7 +82,7 @@ export async function deletePaymentsByYear (financialYear) {
   const backendUrl = buildBackendUrl(`/admin/payments/year/${encodedYear}`)
   const { res, payload } = await Wreck.delete(backendUrl, { headers: await getBackendAuthHeaders() })
 
-  if (res.statusCode !== 200) {
+  if (res.statusCode !== HTTP_STATUS_OK) {
     throw new Error('Failed to delete payments')
   }
 
@@ -89,7 +93,7 @@ export async function deletePaymentsByPublishedDate (publishedDate) {
   const backendUrl = buildBackendUrl(`/admin/payments/published-date/${publishedDate}`)
   const { res, payload } = await Wreck.delete(backendUrl, { headers: await getBackendAuthHeaders() })
 
-  if (res.statusCode !== 200) {
+  if (res.statusCode !== HTTP_STATUS_OK) {
     throw new Error('Failed to delete payments by published date')
   }
 
@@ -104,7 +108,7 @@ export async function uploadPaymentsCsv (fileStream) {
     headers: { 'Content-Type': 'text/csv', ...await getBackendAuthHeaders() }
   })
 
-  if (res.statusCode !== 201) {
+  if (res.statusCode !== HTTP_STATUS_CREATED) {
     throw new Error('Failed to upload CSV')
   }
 
@@ -120,7 +124,7 @@ export async function bulkSetPublishedDate (financialYear, publishedDate) {
     headers: { 'Content-Type': 'application/json', ...await getBackendAuthHeaders() }
   })
 
-  if (res.statusCode !== 200) {
+  if (res.statusCode !== HTTP_STATUS_OK) {
     throw new Error('Failed to set published date')
   }
 
