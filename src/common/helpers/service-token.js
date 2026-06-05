@@ -4,7 +4,7 @@ import { config } from '../../config/config.js'
 
 const logger = createLogger()
 
-const EXPIRY_BUFFER_MS = 30 * 1000
+const EXPIRY_BUFFER_MS = 30000
 
 let cached = { token: null, expiresAt: 0 }
 
