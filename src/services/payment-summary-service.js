@@ -32,7 +32,7 @@ async function updatePaymentSummary (id, summary) {
   const apiModel = toApiModel(summary)
   const { res, payload } = await Wreck.put(backendUrl, {
     payload: JSON.stringify(apiModel),
-    headers: { 'Content-Type': 'application/json', ...getBackendAuthHeaders() }
+    headers: { 'Content-Type': 'application/json', ...await getBackendAuthHeaders() }
   })
 
   if (res.statusCode !== 200) {
@@ -44,7 +44,7 @@ async function updatePaymentSummary (id, summary) {
 
 async function deletePaymentSummaryById (id) {
   const backendUrl = buildBackendUrl(`/admin/summary/${id}`)
-  const { res } = await Wreck.delete(backendUrl, { headers: getBackendAuthHeaders() })
+  const { res } = await Wreck.delete(backendUrl, { headers: await getBackendAuthHeaders() })
 
   if (res.statusCode !== 204 && res.statusCode !== 200) {
     throw new Error('Failed to delete payment summary')
