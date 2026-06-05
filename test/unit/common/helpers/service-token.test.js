@@ -34,35 +34,50 @@ describe('service-token helper', () => {
     vi.resetModules()
   })
 
-  test('getServiceToken returns null before initialisation', async () => {
+  test('fetches and returns a token on first call', async () => {
     const { getServiceToken } = await import('../../../../src/common/helpers/service-token.js')
-    expect(getServiceToken()).toBeNull()
+    const token = await getServiceToken()
+    expect(token).toBe('mock-token-123')
   })
 
-  test('initServiceTokenCache fetches a token from STS and caches it', async () => {
-    const { initServiceTokenCache, getServiceToken } = await import('../../../../src/common/helpers/service-token.js')
+  test('returns cached token on second call without fetching again', async () => {
+    const { STSClient } = await import('@aws-sdk/client-sts')
+    const sendSpy = vi.spyOn(STSClient.prototype, 'send')
+    const { getServiceToken } = await import('../../../../src/common/helpers/service-token.js')
 
-    await initServiceTokenCache()
+    await getServiceToken()
+    await getServiceToken()
 
-    expect(getServiceToken()).toBe('mock-token-123')
+    expect(sendSpy).toHaveBeenCalledTimes(1)
   })
 
-  test('initServiceTokenCache schedules a refresh timer', async () => {
-    const setTimeoutSpy = vi.spyOn(global, 'setTimeout')
-    const { initServiceTokenCache } = await import('../../../../src/common/helpers/service-token.js')
+  test('re-fetches token when it has expired', async () => {
+    const { STSClient } = await import('@aws-sdk/client-sts')
+    const sendSpy = vi.spyOn(STSClient.prototype, 'send')
+    const { getServiceToken } = await import('../../../../src/common/helpers/service-token.js')
 
-    await initServiceTokenCache()
+    await getServiceToken()
 
-    expect(setTimeoutSpy).toHaveBeenCalled()
+    // advance time past token expiry (300s duration - 30s buffer)
+    vi.advanceTimersByTime(271 * 1000)
+
+    await getServiceToken()
+
+    expect(sendSpy).toHaveBeenCalledTimes(2)
   })
 
-  test('initServiceTokenCache clears existing timer before scheduling new one', async () => {
-    const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout')
-    const { initServiceTokenCache } = await import('../../../../src/common/helpers/service-token.js')
+  test('does not re-fetch token before it has expired', async () => {
+    const { STSClient } = await import('@aws-sdk/client-sts')
+    const sendSpy = vi.spyOn(STSClient.prototype, 'send')
+    const { getServiceToken } = await import('../../../../src/common/helpers/service-token.js')
 
-    await initServiceTokenCache()
-    await initServiceTokenCache()
+    await getServiceToken()
 
-    expect(clearTimeoutSpy).toHaveBeenCalled()
+    // advance time but stay within the valid window
+    vi.advanceTimersByTime(60 * 1000)
+
+    await getServiceToken()
+
+    expect(sendSpy).toHaveBeenCalledTimes(1)
   })
 })

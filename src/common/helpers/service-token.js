@@ -4,10 +4,9 @@ import { config } from '../../config/config.js'
 
 const logger = createLogger()
 
-const REFRESH_BUFFER_MS = 2 * 60 * 1000
+const EXPIRY_BUFFER_MS = 30 * 1000
 
-let cachedToken = null
-let refreshTimer = null
+let cached = { token: null, expiresAt: 0 }
 
 async function fetchToken () {
   const audience = config.get('serviceAuth.audience')
@@ -21,37 +20,16 @@ async function fetchToken () {
   })
 
   const result = await client.send(command)
-  return { token: result.WebIdentityToken, durationMs: tokenDurationSeconds * 1000 }
-}
-
-async function fetchAndCacheToken () {
-  const { token, durationMs } = await fetchToken()
-
-  cachedToken = token
-
-  const nextRefreshMs = Math.max(durationMs - REFRESH_BUFFER_MS, 30000)
-
-  if (refreshTimer) {
-    clearTimeout(refreshTimer)
-  }
-  refreshTimer = setTimeout(scheduleRefresh, nextRefreshMs)
-}
-
-async function scheduleRefresh () {
-  logger.info('Refreshing service-to-service JWT token')
-  try {
-    await fetchAndCacheToken()
-  } catch (err) {
-    logger.error(err, 'Failed to refresh service-to-service JWT token')
-    refreshTimer = setTimeout(scheduleRefresh, 30000)
+  return {
+    token: result.WebIdentityToken,
+    expiresAt: Date.now() + tokenDurationSeconds * 1000 - EXPIRY_BUFFER_MS
   }
 }
 
-export async function initServiceTokenCache () {
-  logger.info('Initialising service-to-service JWT token cache')
-  await fetchAndCacheToken()
-}
-
-export function getServiceToken () {
-  return cachedToken
+export async function getServiceToken () {
+  if (!cached.token || Date.now() >= cached.expiresAt) {
+    logger.info('Fetching service-to-service JWT token')
+    cached = await fetchToken()
+  }
+  return cached.token
 }

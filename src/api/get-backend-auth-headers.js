@@ -1,11 +1,11 @@
 import { config } from '../config/config.js'
 import { getServiceToken } from '../common/helpers/service-token.js'
 
-export function getBackendAuthHeaders () {
+export async function getBackendAuthHeaders () {
   if (!config.get('serviceAuth.enabled')) {
     return {}
   }
-  const token = getServiceToken()
+  const token = await getServiceToken()
   if (!token) {
     return {}
   }

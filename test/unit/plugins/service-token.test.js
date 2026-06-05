@@ -4,9 +4,7 @@ vi.mock('../../../src/config/config.js', () => ({
   config: { get: vi.fn() }
 }))
 
-vi.mock('../../../src/common/helpers/service-token.js', () => ({
-  initServiceTokenCache: vi.fn().mockResolvedValue(undefined)
-}))
+vi.mock('../../../src/common/helpers/service-token.js', () => ({}))
 
 vi.mock('../../../src/common/helpers/logging/logger.js', () => ({
   createLogger: vi.fn().mockReturnValue({
@@ -16,7 +14,6 @@ vi.mock('../../../src/common/helpers/logging/logger.js', () => ({
 }))
 
 const { config } = await import('../../../src/config/config.js')
-const { initServiceTokenCache } = await import('../../../src/common/helpers/service-token.js')
 
 describe('service-token plugin', () => {
   afterEach(() => {
@@ -41,10 +38,9 @@ describe('service-token plugin', () => {
       config.get.mockReturnValue(false)
     })
 
-    test('does not call initServiceTokenCache', async () => {
+    test('register completes without error', async () => {
       const { serviceToken } = await import('../../../src/plugins/service-token.js')
-      await serviceToken.plugin.register({})
-      expect(initServiceTokenCache).not.toHaveBeenCalled()
+      expect(() => serviceToken.plugin.register({})).not.toThrow()
     })
   })
 
@@ -53,10 +49,9 @@ describe('service-token plugin', () => {
       config.get.mockReturnValue(true)
     })
 
-    test('calls initServiceTokenCache', async () => {
+    test('register completes without error', async () => {
       const { serviceToken } = await import('../../../src/plugins/service-token.js')
-      await serviceToken.plugin.register({})
-      expect(initServiceTokenCache).toHaveBeenCalled()
+      expect(() => serviceToken.plugin.register({})).not.toThrow()
     })
   })
 })

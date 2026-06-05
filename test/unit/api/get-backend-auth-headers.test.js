@@ -23,13 +23,13 @@ describe('getBackendAuthHeaders', () => {
 
     test('returns empty headers object', async () => {
       const { getBackendAuthHeaders } = await import('../../../src/api/get-backend-auth-headers.js')
-      const headers = getBackendAuthHeaders()
+      const headers = await getBackendAuthHeaders()
       expect(headers).toEqual({})
     })
 
     test('does not call getServiceToken', async () => {
       const { getBackendAuthHeaders } = await import('../../../src/api/get-backend-auth-headers.js')
-      getBackendAuthHeaders()
+      await getBackendAuthHeaders()
       expect(getServiceToken).not.toHaveBeenCalled()
     })
   })
@@ -40,16 +40,16 @@ describe('getBackendAuthHeaders', () => {
     })
 
     test('returns empty headers when no token is cached', async () => {
-      getServiceToken.mockReturnValue(null)
+      getServiceToken.mockResolvedValue(null)
       const { getBackendAuthHeaders } = await import('../../../src/api/get-backend-auth-headers.js')
-      const headers = getBackendAuthHeaders()
+      const headers = await getBackendAuthHeaders()
       expect(headers).toEqual({})
     })
 
-    test('returns bearer authorization header when token is cached', async () => {
-      getServiceToken.mockReturnValue('my-test-token')
+    test('returns bearer authorization header when token is available', async () => {
+      getServiceToken.mockResolvedValue('my-test-token')
       const { getBackendAuthHeaders } = await import('../../../src/api/get-backend-auth-headers.js')
-      const headers = getBackendAuthHeaders()
+      const headers = await getBackendAuthHeaders()
       expect(headers).toEqual({ authorization: 'Bearer my-test-token' })
     })
   })
