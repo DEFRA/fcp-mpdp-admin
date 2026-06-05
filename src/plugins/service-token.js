@@ -8,7 +8,7 @@ const serviceToken = {
   plugin: {
     name: 'service-token',
     register: async (_server) => {
-      if (!config.get('serviceToServiceAuth.enabled')) {
+      if (!config.get('serviceAuth.enabled')) {
         logger.info('Service-to-service authentication is disabled')
         return
       }

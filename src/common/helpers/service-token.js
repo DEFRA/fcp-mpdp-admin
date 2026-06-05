@@ -10,8 +10,8 @@ let cachedToken = null
 let refreshTimer = null
 
 async function fetchToken () {
-  const audience = config.get('serviceToServiceAuth.audience')
-  const tokenDurationSeconds = config.get('serviceToServiceAuth.tokenDurationSeconds')
+  const audience = config.get('serviceAuth.audience')
+  const tokenDurationSeconds = config.get('serviceAuth.tokenDurationSeconds')
 
   const client = new STSClient()
   const command = new GetWebIdentityTokenCommand({

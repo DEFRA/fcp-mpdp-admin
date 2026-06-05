@@ -285,7 +285,7 @@ export const config = convict({
       env: 'REDIS_TTL'
     }
   },
-  serviceToServiceAuth: {
+  serviceAuth: {
     enabled: {
       doc: 'Enable service-to-service JWT authentication when calling the backend',
       format: Boolean,

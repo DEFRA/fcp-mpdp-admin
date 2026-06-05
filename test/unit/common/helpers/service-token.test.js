@@ -24,8 +24,8 @@ describe('service-token helper', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     config.get.mockImplementation((key) => {
-      if (key === 'serviceToServiceAuth.audience') return 'fcp-mpdp-backend'
-      if (key === 'serviceToServiceAuth.tokenDurationSeconds') return 300
+      if (key === 'serviceAuth.audience') return 'fcp-mpdp-backend'
+      if (key === 'serviceAuth.tokenDurationSeconds') return 300
     })
   })
 

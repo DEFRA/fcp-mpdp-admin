@@ -2,7 +2,7 @@ import { config } from '../config/config.js'
 import { getServiceToken } from '../common/helpers/service-token.js'
 
 export function getBackendAuthHeaders () {
-  if (!config.get('serviceToServiceAuth.enabled')) {
+  if (!config.get('serviceAuth.enabled')) {
     return {}
   }
   const token = getServiceToken()
