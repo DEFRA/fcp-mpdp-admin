@@ -1,0 +1,7 @@
+services:
+  fcp-mpdp-admin:
+    command: npx vitest --inspect-brk=0.0.0.0:9229 --no-file-parallelism
+    environment:
+      TZ: UTC
+    ports:
+      - '9002:9229'
