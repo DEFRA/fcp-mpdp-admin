@@ -17,7 +17,7 @@
       "type": "node",
       "request": "attach",
       "address": "localhost",
-      "port": 9002,
+      "port": 9012,
       "localRoot": "${workspaceFolder}",
       "remoteRoot": "/home/node",
       "restart": true,
