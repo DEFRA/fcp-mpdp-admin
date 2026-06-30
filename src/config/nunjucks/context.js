@@ -10,16 +10,29 @@ const manifestPath = path.join(
   '.public/assets-manifest.json'
 )
 
-let webpackManifest
+let assetManifest
+
+function buildAssetMap (manifest) {
+  const map = {}
+  for (const chunk of Object.values(manifest)) {
+    if (chunk.isEntry) {
+      map['application.js'] = chunk.file
+      if (chunk.css?.[0]) {
+        map['stylesheets/application.css'] = chunk.css[0]
+      }
+    }
+  }
+  return map
+}
 
 export async function context (request) {
   const ctx = request.response.source?.context || {}
 
-  if (!webpackManifest) {
+  if (!assetManifest) {
     try {
-      webpackManifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
+      assetManifest = buildAssetMap(JSON.parse(readFileSync(manifestPath, 'utf-8')))
     } catch (err) {
-      logger.error(`Webpack ${path.basename(manifestPath)} not found`)
+      logger.error(`Vite ${path.basename(manifestPath)} not found`)
     }
   }
 
@@ -30,8 +43,8 @@ export async function context (request) {
     serviceUrl: '/',
     breadcrumbs: [],
     getAssetPath (asset) {
-      const webpackAssetPath = webpackManifest?.[asset]
-      return `${assetPath}/${webpackAssetPath ?? asset}`
+      const viteAssetPath = assetManifest?.[asset]
+      return `${assetPath}/${viteAssetPath ?? asset}`
     }
   }
 

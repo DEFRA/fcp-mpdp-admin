@@ -9,7 +9,7 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "build:frontend": "NODE_ENV=production webpack",
+    "build:frontend": "vite build",
     "dev": "npm run frontend:watch & npm run server:watch",
     "dev:debug": "npm run frontend:watch & npm run server:debug",
     "docker:build": "docker compose build",
@@ -17,7 +17,7 @@
     "docker:test": "npm run lint && mkdir -p coverage 2>/dev/null || true && docker compose -p fcp-mpdp-admin-test down -v && docker compose -f compose.yml -f compose.test.yml -p fcp-mpdp-admin-test run --build --rm fcp-mpdp-admin",
     "docker:test:watch": "docker compose -p fcp-mpdp-admin-test down -v && docker compose -f compose.yml -f compose.test.yml -f compose.test.watch.yml -p fcp-mpdp-admin-test run --build --rm fcp-mpdp-admin",
     "docker:test:debug": "docker compose -p fcp-mpdp-admin-test down -v && docker compose -f compose.yml -f compose.test.yml -f compose.test.debug.yml -p fcp-mpdp-admin-test up --build",
-    "frontend:watch": "NODE_ENV=development webpack --watch",
+    "frontend:watch": "vite build --mode development --watch",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "postversion": "git add package.json package-lock.json && git commit -m $npm_package_version",
@@ -53,8 +53,6 @@
     "blankie": "5.0.0",
     "convict": "6.2.5",
     "convict-format-with-validator": "6.2.0",
-    "cssnano": "7.0.7",
-    "cssnano-preset-default": "7.0.7",
     "date-fns": "4.1.0",
     "global-agent": "3.0.0",
     "govuk-frontend": "6.1.0",
@@ -71,25 +69,16 @@
   },
   "devDependencies": {
     "@vitest/coverage-v8": "4.1.3",
-    "autoprefixer": "10.4.21",
     "cheerio": "1.1.0",
-    "clean-webpack-plugin": "4.0.0",
-    "copy-webpack-plugin": "14.0.0",
     "eslint": "9.29.0",
     "jsdom": "26.1.0",
     "neostandard": "0.12.1",
-    "postcss-load-config": "6.0.1",
-    "postcss-loader": "8.1.1",
     "sass": "1.89.2",
-    "sass-loader": "16.0.5",
-    "source-map-loader": "5.0.0",
     "stylelint": "16.21.0",
     "stylelint-config-gds": "2.0.0",
-    "terser-webpack-plugin": "5.4.0",
+    "vite": "8.1.0",
+    "vite-plugin-static-copy": "4.1.1",
     "vitest": "4.1.3",
-    "vitest-fetch-mock": "0.4.5",
-    "webpack": "5.105.0",
-    "webpack-assets-manifest": "6.2.1",
-    "webpack-cli": "6.0.1"
+    "vitest-fetch-mock": "0.4.5"
   }
 }
