@@ -1,5 +1,7 @@
 services:
   fcp-mpdp-admin:
+    profiles:
+      - app
     build:
       context: .
       target: development

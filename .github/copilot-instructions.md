@@ -128,17 +128,13 @@ export const adminRoute = {
 
 ## Development Workflow
 
-### Local Development (Standalone)
+### Local Development
 ```bash
-npm install
-npm run docker:build
-npm run docker:dev           # Runs on port 3003 (different than public frontend)
+nvm use && npm install     # First-time setup
+cp .env.example .env       # Copy and fill in ENTRA_* credentials
+npm run services:up        # Start Redis session cache container
+npm run dev                # Host-native hot reload on port 3003
 ```
-
-**Note:** Authentication uses Microsoft Entra ID (an OIDC provider) and requires environment configuration:
-- `ENTRA_WELL_KNOWN_URL` - Entra OIDC well-known/discovery endpoint
-- `ENTRA_CLIENT_ID` - OAuth client ID
-- `ENTRA_CLIENT_SECRET` - OAuth client secret (or use AWS STS federated credentials via `FEDERATED_CREDENTIALS_ENABLED`)
 
 ### Full System Development
 Use [fcp-mpdp-core](../fcp-mpdp-core) orchestration:
@@ -150,23 +146,23 @@ cd ../fcp-mpdp-core
 
 ### Testing
 ```bash
-npm run docker:test          # Run all tests with coverage
-npm run docker:test:watch    # TDD mode
-npm run docker:test:debug    # Debug tests (attach via .vscode launch config)
+npm test                  # All tests (unit + integration) with coverage
+npm run test:unit         # Unit tests only — fast, no containers needed
+npm run test:integration  # Integration tests — auto-starts Redis via Testcontainers
+npm run test:watch        # TDD watch mode
 ```
-- Mock OIDC flows in tests
-- Use `server.inject()` with auth credentials
+- Integration tests use [Testcontainers](https://testcontainers.com/) to start a real Redis instance automatically. Docker must be running.
+- Unit tests mock all infrastructure (Redis, backend API, OIDC).
 - Tests in `test/unit/**/*.test.js` and `test/integration/**/*.test.js`
+- Vitest global setup: [test/setup/global-redis.js](../test/setup/global-redis.js)
+- Vitest config: [vitest.config.js](../vitest.config.js)
 
 ### Debugging
-Debug inside Docker using the VS Code launch configs in [.vscode/launch.json](../.vscode/launch.json):
-- Run `npm run docker:dev`, then attach with **Docker: Attach to App**
-- Run `npm run docker:test:debug`, then attach with **Docker: Attach to Tests**
+Debug locally using the VS Code launch configs in [.vscode/launch.json](../.vscode/launch.json):
+- **Dev: run server** — launches the server with the inspector. Requires `npm run services:up` first.
+- **Debug current test** — opens the inspector on the active test file. Open a test file and hit F5.
 
-Or debug locally outside Docker:
-```bash
-npm run dev:debug            # Debugger listening on 0.0.0.0:9229
-```
+To debug inside Docker (e.g. when running with fcp-mpdp-core), use **Docker: Attach to App (together)**.
 
 ## Component Integration
 
