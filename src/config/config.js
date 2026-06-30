@@ -120,7 +120,7 @@ export const config = convict({
     watch: {
       doc: 'Reload templates when they are changed.',
       format: Boolean,
-      default: isDevelopment
+      default: false
     },
     noCache: {
       doc: 'Use a cache and recompile templates each time',

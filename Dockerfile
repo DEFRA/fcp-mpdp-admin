@@ -1,10 +1,8 @@
-ARG PARENT_VERSION=3.0.8-node24.15.0
+ARG PARENT_VERSION=3.1.1-node24.18.0
 ARG PORT=3003
 ARG PORT_DEBUG=9229
 
 FROM defradigital/node-development:${PARENT_VERSION} AS development
-ARG PARENT_VERSION
-LABEL uk.gov.defra.ffc.parent-image=defradigital/node-development:${PARENT_VERSION}
 
 ENV TZ="Europe/London"
 
@@ -13,9 +11,9 @@ ARG PORT_DEBUG
 ENV PORT=${PORT}
 EXPOSE ${PORT} ${PORT_DEBUG}
 
-COPY --chown=node:node --chmod=755 package*.json ./
-RUN npm install
-COPY --chown=node:node --chmod=755 . .
+COPY --chown=node:node package*.json ./
+RUN npm ci
+COPY --chown=node:node . .
 RUN npm run build:frontend
 
 CMD [ "npm", "run", "dev" ]
@@ -27,8 +25,6 @@ ENV NODE_ENV=production
 RUN npm run build:frontend
 
 FROM defradigital/node:${PARENT_VERSION} AS production
-ARG PARENT_VERSION
-LABEL uk.gov.defra.ffc.parent-image=defradigital/node:${PARENT_VERSION}
 
 ENV TZ="Europe/London"
 

@@ -28,8 +28,8 @@ describe('post', () => {
     config.validate({ allowed: 'strict' })
 
     vi.spyOn(config, 'get').mockImplementation(key => {
-      if (key === 'backend.endpoint') return endpoint
-      if (key === 'backend.path') return path
+      if (key === 'backend.endpoint') { return endpoint }
+      if (key === 'backend.path') { return path }
       return config[key]
     })
   })
