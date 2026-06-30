@@ -63,6 +63,12 @@ Build the Vite frontend assets and run locally with hot reload:
 npm run dev
 ```
 
+Or do both in one command:
+
+```bash
+npm run local
+```
+
 Sessions persist across `node --watch` restarts because Redis is used as the session store.
 
 To run the full system together inside Docker (e.g. for journey tests), use:

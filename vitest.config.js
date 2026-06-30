@@ -35,6 +35,7 @@ export default defineConfig({
         test: {
           name: 'unit',
           include: ['test/unit/**/*.test.js'],
+          clearMocks: true,
           environment: 'node',
           env: sharedEnv
         }
@@ -43,6 +44,7 @@ export default defineConfig({
         test: {
           name: 'integration',
           include: ['test/integration/**/*.test.js'],
+          clearMocks: true,
           environment: 'node',
           env: sharedEnv,
           globalSetup: ['./test/setup/global-redis.js']
