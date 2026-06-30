@@ -1,6 +1,5 @@
 services:
   fcp-mpdp-admin:
-    init: true
     build:
       context: .
       target: development
