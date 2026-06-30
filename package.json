@@ -6,12 +6,12 @@
   "main": "src/index.js",
   "type": "module",
   "engines": {
-    "node": ">=22.16.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
     "build:frontend": "NODE_ENV=production webpack",
-    "dev": "npm run frontend:watch & npm run server:watch wait",
-    "dev:debug": "npm run frontend:watch & npm run server:debug wait",
+    "dev": "npm run frontend:watch & npm run server:watch",
+    "dev:debug": "npm run frontend:watch & npm run server:debug",
     "docker:build": "docker compose build",
     "docker:dev": "docker compose up",
     "docker:test": "npm run lint && mkdir -p coverage 2>/dev/null || true && docker compose -p fcp-mpdp-admin-test down -v && docker compose -f compose.yml -f compose.test.yml -p fcp-mpdp-admin-test run --build --rm fcp-mpdp-admin",
@@ -22,10 +22,10 @@
     "lint:fix": "eslint --fix",
     "postinstall": "npm run setup:husky",
     "postversion": "git add package.json package-lock.json && git commit -m $npm_package_version",
-    "server:debug": "nodemon --inspect-brk=0.0.0.0 --ext js,json --legacy-watch --watch src --watch .public/assets-manifest.json ./src",
-    "server:watch": "nodemon --inspect=0.0.0.0 --ext js,json,njk --legacy-watch --watch src --watch .public/assets-manifest.json ./src",
+    "server:debug": "node --watch --watch-path=./src --watch-path=./.public/assets-manifest.json --inspect-brk=0.0.0.0 src/index.js",
+    "server:watch": "node --watch --watch-path=./src --watch-path=./.public/assets-manifest.json --inspect=0.0.0.0 src/index.js",
     "setup:husky": "node -e \"try { (await import('husky')).default() } catch (e) { if (e.code !== 'ERR_MODULE_NOT_FOUND') throw e }\" --input-type module",
-    "start": "NODE_ENV=production node --use-strict .",
+    "start": "NODE_ENV=production node .",
     "test": "TZ=UTC vitest run --coverage",
     "test:watch": "TZ=UTC vitest"
   },
@@ -80,7 +80,6 @@
     "husky": "9.1.7",
     "jsdom": "26.1.0",
     "neostandard": "0.12.1",
-    "nodemon": "3.1.10",
     "postcss-load-config": "6.0.1",
     "postcss-loader": "8.1.1",
     "sass": "1.89.2",

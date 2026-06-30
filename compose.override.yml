@@ -5,9 +5,6 @@ services:
       - '9002:9229'
     networks:
       - fcp-mpdp
-    depends_on:
-      redis:
-        condition: service_started
 
   redis:
     ports:

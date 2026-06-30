@@ -1,5 +1,6 @@
 services:
   fcp-mpdp-admin:
+    init: true
     build:
       context: .
       target: development
@@ -16,6 +17,9 @@ services:
       ENTRA_SIGN_OUT_REDIRECT_URL: http://localhost:3003/auth/sign-out-oidc
       REDIS_HOST: redis
       COOKIE_PASSWORD: this-is-a-secret-that-must-be-at-least-32-characters
+    depends_on:
+      redis:
+        condition: service_started
 
   redis:
     image: redis

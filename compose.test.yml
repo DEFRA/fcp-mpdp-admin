@@ -4,6 +4,7 @@ services:
       target: development
     command: npm test
     environment:
+      NODE_ENV: test
       ENTRA_WELL_KNOWN_URL: https://login.microsoftonline.com/test-tenant-id/v2.0/.well-known/openid-configuration
       ENTRA_TENANT_ID: test-tenant-id
       ENTRA_CLIENT_ID: test-client-id

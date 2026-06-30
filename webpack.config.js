@@ -46,9 +46,7 @@ export default {
         : 'javascripts/[name].js',
 
     path: path.join(dirname, '.public'),
-    publicPath: '/public/',
-    libraryTarget: 'module',
-    module: true
+    publicPath: '/public/'
   },
   resolve: {
     alias: {
