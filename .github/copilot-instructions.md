@@ -13,7 +13,7 @@ Authenticated admin interface for Making Payment Data Public (MPDP) service. Ser
 - Sibling service: [fcp-mpdp-frontend](../fcp-mpdp-frontend) (public interface)
 
 ### Core Technology Stack
-- **Runtime:** Node.js 22+ with ES modules (`"type": "module"`)
+- **Runtime:** Node.js 24+ with ES modules (`"type": "module"`)
 - **Framework:** Hapi.js 21 for HTTP server
 - **Authentication:** `@hapi/bell` (OIDC), `@hapi/jwt` (token validation)
 - **Templates:** Nunjucks for server-side rendering
@@ -132,13 +132,13 @@ export const adminRoute = {
 ```bash
 npm install
 npm run docker:build
-npm run docker:dev           # Runs on port 3000 (different than public frontend)
+npm run docker:dev           # Runs on port 3003 (different than public frontend)
 ```
 
-**Note:** OIDC authentication requires environment configuration:
-- `OIDC_WELLKNOWN_CONFIGURATION_URL` - OIDC provider endpoint
-- `OIDC_CLIENT_ID` - OAuth client ID
-- `OIDC_CLIENT_SECRET` - OAuth client secret
+**Note:** Authentication uses Microsoft Entra ID (an OIDC provider) and requires environment configuration:
+- `ENTRA_WELL_KNOWN_URL` - Entra OIDC well-known/discovery endpoint
+- `ENTRA_CLIENT_ID` - OAuth client ID
+- `ENTRA_CLIENT_SECRET` - OAuth client secret (or use AWS STS federated credentials via `FEDERATED_CREDENTIALS_ENABLED`)
 
 ### Full System Development
 Use [fcp-mpdp-core](../fcp-mpdp-core) orchestration:
@@ -152,12 +152,18 @@ cd ../fcp-mpdp-core
 ```bash
 npm run docker:test          # Run all tests with coverage
 npm run docker:test:watch    # TDD mode
+npm run docker:test:debug    # Debug tests (attach via .vscode launch config)
 ```
 - Mock OIDC flows in tests
 - Use `server.inject()` with auth credentials
 - Tests in `test/unit/**/*.test.js` and `test/integration/**/*.test.js`
 
 ### Debugging
+Debug inside Docker using the VS Code launch configs in [.vscode/launch.json](../.vscode/launch.json):
+- Run `npm run docker:dev`, then attach with **Docker: Attach to App**
+- Run `npm run docker:test:debug`, then attach with **Docker: Attach to Tests**
+
+Or debug locally outside Docker:
 ```bash
 npm run dev:debug            # Debugger listening on 0.0.0.0:9229
 ```

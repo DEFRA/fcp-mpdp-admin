@@ -8,8 +8,8 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-mpdp-admin&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-mpdp-admin)
 [![Dependabot](https://badgen.net/github/dependabot/DEFRA/fcp-mpdp-admin)](https://github.com/DEFRA/fcp-mpdp-admin/security/dependabot)
 
-Frontend service for the Making Payment Data Public (MPDP) service.
-x
+Admin service for the Making Payment Data Public (MPDP) service.
+
 MPDP is part of the Farming and Countryside Programme (FCP).
 
 ## Requirements
@@ -57,6 +57,14 @@ Tests can also be run in watch mode to support Test Driven Development (TDD):
 ```bash
 npm run docker:test:watch
 ```
+
+### Debugging
+
+VS Code launch configurations for debugging inside Docker are provided in [.vscode/launch.json](./.vscode/launch.json).
+
+To debug the running application, start it with `npm run docker:dev` and then run the **Docker: Attach to App** launch configuration.
+
+To debug the tests, start them paused for the debugger with `npm run docker:test:debug` and then run the **Docker: Attach to Tests** launch configuration.
 
 ### npm scripts
 
