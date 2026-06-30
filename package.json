@@ -17,7 +17,6 @@
     "frontend:watch": "vite build --mode development --watch",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "postversion": "git add package.json package-lock.json && git commit -m $npm_package_version",
     "server:debug": "node --env-file-if-exists=.env --watch --watch-path=./src --watch-path=./.public/assets-manifest.json --inspect src/index.js",
     "server:watch": "node --env-file-if-exists=.env --watch --watch-path=./src --watch-path=./.public/assets-manifest.json src/index.js",
     "local": "npm run services:up && npm run dev",
