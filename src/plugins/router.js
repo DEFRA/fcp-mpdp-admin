@@ -15,6 +15,7 @@ import { managePaymentSummaryRoute } from '../routes/admin/manage-payment-summar
 import { addPaymentSummaryRoute } from '../routes/admin/add-payment-summary.js'
 import { editPaymentSummaryRoute } from '../routes/admin/edit-payment-summary.js'
 import { deletePaymentSummaryRoute } from '../routes/admin/delete-payment-summary.js'
+import { manageCacheRoutes } from '../routes/admin/manage-cache.js'
 
 export const router = {
   plugin: {
@@ -36,6 +37,7 @@ export const router = {
       await server.route(addPaymentSummaryRoute)
       await server.route(editPaymentSummaryRoute)
       await server.route(deletePaymentSummaryRoute)
+      await server.route(manageCacheRoutes)
       await server.register([serveStaticFiles])
     }
   }

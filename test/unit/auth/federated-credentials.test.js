@@ -268,7 +268,7 @@ describe('getClientCredentialParams', () => {
 
   test('should return client_assertion params when federated credentials enabled', async () => {
     mockConfigGet.mockImplementation((key) => {
-      if (key === 'federatedCredentials.enabled') return true
+      if (key === 'federatedCredentials.enabled') { return true }
       return setupConfigMock() || null
     })
     // Re-implement to call the real config mock properly

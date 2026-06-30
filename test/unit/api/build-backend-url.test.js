@@ -16,8 +16,8 @@ describe('build-backend-url', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     config.get.mockImplementation((key) => {
-      if (key === 'backend.endpoint') return endpoint
-      if (key === 'backend.path') return path
+      if (key === 'backend.endpoint') { return endpoint }
+      if (key === 'backend.path') { return path }
       return undefined
     })
   })
@@ -65,8 +65,8 @@ describe('build-backend-url', () => {
 
   test('should handle different endpoint and path from config', () => {
     config.get.mockImplementation((key) => {
-      if (key === 'backend.endpoint') return 'http://localhost:3001'
-      if (key === 'backend.path') return '/v2'
+      if (key === 'backend.endpoint') { return 'http://localhost:3001' }
+      if (key === 'backend.path') { return '/v2' }
       return undefined
     })
 

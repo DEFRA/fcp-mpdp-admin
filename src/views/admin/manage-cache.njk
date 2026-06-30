@@ -1,0 +1,55 @@
+{% extends "layout.njk" %}
+
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+
+{% block containerStart %}
+  {{ super() }}
+  {{ govukBackLink({
+    text: "Back",
+    href: "/"
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+
+  {% if success === 'invalidated' %}
+    {% set html %}
+      <p class="govuk-notification-banner__heading">Search cache successfully invalidated and rebuild triggered</p>
+    {% endset %}
+    {{ govukNotificationBanner({
+      type: "success",
+      html: html
+    }) }}
+  {% endif %}
+
+  {% if error %}
+    {% set html %}
+      <p class="govuk-notification-banner__heading">Failed to invalidate search cache. Please try again.</p>
+    {% endset %}
+    {{ govukNotificationBanner({
+      type: "important",
+      html: html
+    }) }}
+  {% endif %}
+
+  <p class="govuk-body">
+    The search cache stores a pre-built index of all payment data to speed up search suggestions.
+    Use this page to clear the cache and trigger a rebuild, for example after importing new payment data.
+  </p>
+
+  <p class="govuk-body">
+    After invalidation, the index will rebuild automatically in the background. Search may be slower
+    or return no results until the rebuild is complete.
+  </p>
+
+  <form method="post" action="/admin/cache/invalidate">
+    <input type="hidden" name="crumb" value="{{ crumb }}"/>
+    {{ govukButton({
+      text: "Invalidate search cache",
+      classes: "govuk-button--warning"
+    }) }}
+  </form>
+{% endblock %}
