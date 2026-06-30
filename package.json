@@ -23,13 +23,13 @@
     "lint:fix": "eslint --fix",
     "postinstall": "npm run setup:husky",
     "postversion": "git add package.json package-lock.json && git commit -m $npm_package_version",
-    "server:debug": "node --watch --watch-path=./src --watch-path=./.public/assets-manifest.json --inspect-brk=0.0.0.0 src/index.js",
-    "server:watch": "node --watch --watch-path=./src --watch-path=./.public/assets-manifest.json --inspect=0.0.0.0 src/index.js",
+    "server:debug": "node --watch --watch-path=./src/views --watch-path=./.public/assets-manifest.json --inspect-brk=0.0.0.0 src/index.js",
+    "server:watch": "node --watch --watch-path=./src/views --watch-path=./.public/assets-manifest.json --inspect=0.0.0.0 src/index.js",
     "setup:husky": "node -e \"try { (await import('husky')).default() } catch (e) { if (e.code !== 'ERR_MODULE_NOT_FOUND') throw e }\" --input-type module",
     "start": "NODE_ENV=production node .",
     "test": "TZ=UTC vitest run --coverage",
     "test:watch": "TZ=UTC vitest",
-    "test:debug": "TZ=UTC vitest --inspect-brk=0.0.0.0:9229 --no-file-parallelism"
+    "test:debug": "TZ=UTC vitest --inspect=0.0.0.0:9229 --no-file-parallelism"
   },
   "author": "Defra DDTS",
   "contributors": [
