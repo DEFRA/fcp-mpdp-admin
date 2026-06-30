@@ -6,6 +6,7 @@ services:
     volumes:
       - ./src:/home/node/src
       - ./package.json:/home/node/package.json
+      - ./vite.config.js:/home/node/vite.config.js
     environment:
       MPDP_BACKEND_ENDPOINT: ${MPDP_BACKEND_ENDPOINT:-http://fcp-mpdp-backend:3001}
       ENTRA_WELL_KNOWN_URL: https://login.microsoftonline.com/${ENTRA_TENANT_ID}/v2.0/.well-known/openid-configuration
@@ -18,7 +19,12 @@ services:
       COOKIE_PASSWORD: this-is-a-secret-that-must-be-at-least-32-characters
     depends_on:
       redis:
-        condition: service_started
+        condition: service_healthy
 
   redis:
     image: redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5

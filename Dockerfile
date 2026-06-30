@@ -11,9 +11,9 @@ ARG PORT_DEBUG
 ENV PORT=${PORT}
 EXPOSE ${PORT} ${PORT_DEBUG}
 
-COPY --chown=node:node --chmod=755 package*.json ./
+COPY --chown=node:node package*.json ./
 RUN npm ci
-COPY --chown=node:node --chmod=755 . .
+COPY --chown=node:node . .
 RUN npm run build:frontend
 
 CMD [ "npm", "run", "dev" ]

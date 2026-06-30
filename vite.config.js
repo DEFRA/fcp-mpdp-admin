@@ -1,15 +1,13 @@
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import { createRequire } from 'node:module'
 import { cp } from 'node:fs/promises'
 import { defineConfig } from 'vite'
 import { NodePackageImporter } from 'sass'
 
-const require = createRequire(import.meta.url)
-const dirname = path.dirname(fileURLToPath(import.meta.url))
+const dirname = import.meta.dirname
 
 const govukFrontendPath = path.dirname(
-  require.resolve('govuk-frontend/package.json')
+  fileURLToPath(import.meta.resolve('govuk-frontend/package.json'))
 )
 
 export default defineConfig(({ mode }) => ({
