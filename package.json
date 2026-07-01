@@ -10,8 +10,8 @@
   },
   "scripts": {
     "build:frontend": "vite build",
-    "dev": "npm-run-all2 --parallel frontend:watch server:watch",
-    "dev:debug": "npm-run-all2 --parallel frontend:watch server:debug",
+    "dev": "vite build --mode development && npm-run-all2 --parallel frontend:watch server:watch",
+    "dev:debug": "vite build --mode development && npm-run-all2 --parallel frontend:watch server:debug",
     "docker:build": "docker compose --profile app build",
     "docker:dev": "docker compose --profile app up",
     "frontend:watch": "vite build --mode development --watch",
