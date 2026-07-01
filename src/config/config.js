@@ -140,7 +140,6 @@ export const config = convict({
     endpoint: {
       doc: 'Endpoint for fcp-mpdp-backend',
       format: String,
-      nullable: true,
       default: null,
       env: 'MPDP_BACKEND_ENDPOINT'
     },
@@ -246,6 +245,12 @@ export const config = convict({
       format: String,
       default: null,
       env: 'REDIS_HOST'
+    },
+    port: {
+      doc: 'The Redis cache port.',
+      format: 'port',
+      default: 6379,
+      env: 'REDIS_PORT'
     },
     username: {
       doc: 'The Redis cache username.',

@@ -1,5 +1,0 @@
-services:
-  fcp-mpdp-admin:
-    command: npm run test:debug
-    ports:
-      - '9012:9229'

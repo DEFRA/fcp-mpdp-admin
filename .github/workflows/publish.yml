@@ -28,12 +28,23 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Create Coverage Directory
-        run : mkdir -p -m 777 coverage
+        run: mkdir -p -m 777 coverage
+
+      - name: Lint
+        run: npm run lint
 
       - name: Run Tests
-        run : |
-          npm run docker:test
+        run: npm test
 
       - name: SonarQube Cloud scan
         uses: SonarSource/sonarqube-scan-action@c7ee0f9df90b7aa20e8dcf9695dcfe2e7da5b4f2 # v7
