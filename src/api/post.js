@@ -1,4 +1,3 @@
-import Wreck from '@hapi/wreck'
 import { buildBackendUrl } from './build-backend-url.js'
 import { requestPromise } from './request-promise.js'
 import { getBackendAuthHeaders } from './get-backend-auth-headers.js'
@@ -9,6 +8,13 @@ export async function post (path, payload) {
 
   return requestPromise(
     backendUrl,
-    Wreck.post(backendUrl, { payload, headers })
+    fetch(backendUrl, {
+      method: 'POST',
+      body: payload != null ? JSON.stringify(payload) : undefined,
+      headers: { 'Content-Type': 'application/json', ...headers }
+    }).then(async (res) => ({
+      res,
+      payload: Buffer.from(await res.arrayBuffer())
+    }))
   )
 }

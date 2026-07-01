@@ -1,5 +1,4 @@
 import { vi, describe, beforeEach, afterEach, test, expect } from 'vitest'
-import Wreck from '@hapi/wreck'
 import { config } from '../../../src/config/config.js'
 import { get } from '../../../src/api/get.js'
 
@@ -36,27 +35,30 @@ describe('get', () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
+    vi.unstubAllGlobals()
   })
 
   test('should use env variable to connect to backend service', async () => {
-    const mockGet = vi.fn()
-    vi.spyOn(Wreck, 'get').mockImplementation(mockGet)
+    const mockFetch = vi.fn().mockResolvedValue({
+      arrayBuffer: () => Promise.resolve(new ArrayBuffer(0))
+    })
+    vi.stubGlobal('fetch', mockFetch)
 
     await get(route)
 
-    expect(mockGet).toHaveBeenCalledWith(`${endpoint}${path}${route}`, { headers: {} })
+    expect(mockFetch).toHaveBeenCalledWith(`${endpoint}${path}${route}`, { headers: {} })
   })
 
   test('should handle error when request fails', async () => {
     const mockLoggerError = vi.fn()
     mockLogger.error = mockLoggerError
 
-    const mockGet = vi.fn().mockRejectedValue(null)
-    vi.spyOn(Wreck, 'get').mockImplementation(mockGet)
+    const mockFetch = vi.fn().mockRejectedValue(null)
+    vi.stubGlobal('fetch', mockFetch)
 
     await expect(get(route)).rejects.toThrow()
 
-    expect(mockGet).toHaveBeenCalledWith(`${endpoint}${path}${route}`, { headers: {} })
+    expect(mockFetch).toHaveBeenCalledWith(`${endpoint}${path}${route}`, { headers: {} })
     expect(mockLoggerError).toHaveBeenCalled()
   })
 })

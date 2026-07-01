@@ -1,14 +1,7 @@
-import { vi, describe, beforeEach, test, expect } from 'vitest'
+import { vi, describe, beforeEach, afterEach, test, expect } from 'vitest'
 
 const mockPayload = { authorization_endpoint: 'https://example.com/auth' }
 const mockWellKnownUrl = 'https://example.com/.well-known/openid-configuration'
-
-const mockWreckGet = vi.fn()
-vi.mock('@hapi/wreck', () => ({
-  default: {
-    get: mockWreckGet
-  }
-}))
 
 const mockConfigGet = vi.fn()
 vi.mock('../../../src/config/config.js', () => ({
@@ -23,7 +16,13 @@ describe('getOidcConfig', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockConfigGet.mockReturnValue(mockWellKnownUrl)
-    mockWreckGet.mockResolvedValue({ payload: mockPayload })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      json: () => Promise.resolve(mockPayload)
+    }))
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
   })
 
   test('should get well known url from config', async () => {
@@ -31,9 +30,9 @@ describe('getOidcConfig', () => {
     expect(mockConfigGet).toHaveBeenCalledWith('entra.wellKnownUrl')
   })
 
-  test('should make api get request to well known url and parse response to json', async () => {
+  test('should make api get request to well known url', async () => {
     await getOidcConfig()
-    expect(mockWreckGet).toHaveBeenCalledWith(mockWellKnownUrl, { json: true })
+    expect(fetch).toHaveBeenCalledWith(mockWellKnownUrl)
   })
 
   test('should return the payload from the API response', async () => {
@@ -42,7 +41,7 @@ describe('getOidcConfig', () => {
   })
 
   test('should throw an error if the API request fails', async () => {
-    mockWreckGet.mockRejectedValue(new Error('Test error'))
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Test error')))
     await expect(getOidcConfig()).rejects.toThrow('Test error')
   })
 })

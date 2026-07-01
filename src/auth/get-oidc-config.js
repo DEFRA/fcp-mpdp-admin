@@ -1,12 +1,8 @@
-import Wreck from '@hapi/wreck'
 import { config } from '../config/config.js'
 
 async function getOidcConfig () {
-  const { payload } = await Wreck.get(config.get('entra.wellKnownUrl'), {
-    json: true
-  })
-
-  return payload
+  const response = await fetch(config.get('entra.wellKnownUrl'))
+  return response.json()
 }
 
 export { getOidcConfig }

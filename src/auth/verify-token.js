@@ -1,6 +1,5 @@
 import { createPublicKey } from 'node:crypto'
 import Jwt from '@hapi/jwt'
-import Wreck from '@hapi/wreck'
 import { getOidcConfig } from './get-oidc-config.js'
 
 async function verifyToken (token) {
@@ -9,11 +8,8 @@ async function verifyToken (token) {
 
   const { jwks_uri: uri } = await getOidcConfig()
 
-  const { payload } = await Wreck.get(uri, {
-    json: true
-  })
-
-  const { keys } = payload
+  const response = await fetch(uri)
+  const { keys } = await response.json()
 
   const jwk = keys.find(k => k.kid === header.kid || k.x5t === header.kid)
 
