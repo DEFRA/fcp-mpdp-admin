@@ -9,16 +9,12 @@ services:
       - ./src:/home/node/src
       - ./package.json:/home/node/package.json
       - ./vite.config.js:/home/node/vite.config.js
+    env_file:
+      - .env
     environment:
+      # Override values that differ inside Docker (take precedence over env_file)
       MPDP_BACKEND_ENDPOINT: http://fcp-mpdp-backend:3001
-      ENTRA_WELL_KNOWN_URL: https://login.microsoftonline.com/${ENTRA_TENANT_ID}/v2.0/.well-known/openid-configuration
-      ENTRA_TENANT_ID: ${ENTRA_TENANT_ID}
-      ENTRA_CLIENT_ID: ${ENTRA_CLIENT_ID}
-      ENTRA_CLIENT_SECRET: ${ENTRA_CLIENT_SECRET}
-      ENTRA_REDIRECT_URL: http://localhost:3003/auth/sign-in-oidc
-      ENTRA_SIGN_OUT_REDIRECT_URL: http://localhost:3003/auth/sign-out-oidc
       REDIS_HOST: redis
-      COOKIE_PASSWORD: this-is-a-secret-that-must-be-at-least-32-characters
     depends_on:
       redis:
         condition: service_healthy
