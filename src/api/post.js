@@ -10,7 +10,7 @@ export async function post (path, payload) {
     backendUrl,
     fetch(backendUrl, {
       method: 'POST',
-      body: payload != null ? JSON.stringify(payload) : undefined,
+      body: payload == null ? undefined : JSON.stringify(payload),
       headers: { 'Content-Type': 'application/json', ...headers }
     }).then(async (res) => {
       if (!res.ok) {

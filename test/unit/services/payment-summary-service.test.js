@@ -127,6 +127,13 @@ describe('Payment Summary Service', () => {
         totalAmount: 12000
       })
     })
+
+    test('should throw error if update fails', async () => {
+      buildBackendUrl.buildBackendUrl.mockReturnValue('http://backend/admin/summary/1')
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 404 }))
+
+      await expect(updatePaymentSummary(1, {})).rejects.toThrow('Failed to update payment summary')
+    })
   })
 
   describe('deletePaymentSummaryById', () => {
@@ -139,6 +146,13 @@ describe('Payment Summary Service', () => {
       expect(buildBackendUrl.buildBackendUrl).toHaveBeenCalledWith('/admin/summary/1')
       expect(fetch).toHaveBeenCalledWith('http://backend/admin/summary/1', { method: 'DELETE', headers: {} })
       expect(result).toBe(true)
+    })
+
+    test('should throw error if deletion fails', async () => {
+      buildBackendUrl.buildBackendUrl.mockReturnValue('http://backend/admin/summary/1')
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 500 }))
+
+      await expect(deletePaymentSummaryById(1)).rejects.toThrow('Failed to delete payment summary')
     })
   })
 })

@@ -8,7 +8,8 @@ import {
   fetchFinancialYears,
   deletePaymentsByYear,
   deletePaymentsByPublishedDate,
-  uploadPaymentsCsv
+  uploadPaymentsCsv,
+  bulkSetPublishedDate
 } from '../../../src/services/admin-service.js'
 import * as apiGet from '../../../src/api/get.js'
 import * as apiPost from '../../../src/api/post.js'
@@ -350,6 +351,37 @@ describe('admin-service', () => {
 
       async function * emptyData () {}
       await expect(uploadPaymentsCsv(emptyData())).rejects.toThrow('Failed to upload CSV')
+    })
+  })
+
+  describe('bulkSetPublishedDate', () => {
+    test('should set published date for payments in a financial year', async () => {
+      const mockResult = { updated: true, count: 25 }
+
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 200,
+        json: () => Promise.resolve(mockResult)
+      }))
+
+      const result = await bulkSetPublishedDate('23/24', '2024-01-15')
+
+      expect(result).toEqual(mockResult)
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/admin/payments/year/23%2F24/published-date'),
+        expect.objectContaining({
+          method: 'PUT',
+          body: JSON.stringify({ published_date: '2024-01-15' })
+        })
+      )
+    })
+
+    test('should throw error if update fails', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 500,
+        json: () => Promise.resolve({})
+      }))
+
+      await expect(bulkSetPublishedDate('23/24', '2024-01-15')).rejects.toThrow('Failed to set published date')
     })
   })
 })

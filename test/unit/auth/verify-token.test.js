@@ -53,6 +53,14 @@ describe('verifyToken', () => {
     await expect(verifyToken(mockToken)).resolves.not.toThrow()
   })
 
+  test('should throw error if no matching JWK found for token kid', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      json: () => Promise.resolve({ keys: [{ kid: 'non-matching-kid', x5t: 'non-matching-x5t' }] })
+    }))
+
+    await expect(verifyToken(mockToken)).rejects.toThrow('No matching JWK for kid')
+  })
+
   test('should throw error if the token was not signed by the correct key', async () => {
     const { privateKey: wrongPrivateKey } = generateKeyPairSync('rsa', {
       modulusLength: 4096,
