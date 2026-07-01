@@ -16,6 +16,7 @@ import { addPaymentSummaryRoute } from '../routes/admin/add-payment-summary.js'
 import { editPaymentSummaryRoute } from '../routes/admin/edit-payment-summary.js'
 import { deletePaymentSummaryRoute } from '../routes/admin/delete-payment-summary.js'
 import { manageCacheRoutes } from '../routes/admin/manage-cache.js'
+import { publishedDateTotals } from '../routes/admin/published-date-totals.js'
 
 export const router = {
   plugin: {
@@ -32,6 +33,7 @@ export const router = {
       await server.route(bulkUpload)
       await server.route(deleteByYear)
       await server.route(deleteByPublishedDate)
+      await server.route(publishedDateTotals)
       await server.route(bulkSetPublishedDateRoutes)
       await server.route(managePaymentSummaryRoute)
       await server.route(addPaymentSummaryRoute)

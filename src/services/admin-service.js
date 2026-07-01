@@ -104,6 +104,16 @@ export async function uploadPaymentsCsv (fileStream) {
   return response.json()
 }
 
+export async function fetchPublishedDateTotals () {
+  const url = getUrlParams('admin/payments/published-date-totals')
+  const data = await get(url)
+  return data.map(record => ({
+    publishedDate: record.published_date,
+    financialYear: record.financial_year,
+    count: record.count
+  }))
+}
+
 export async function bulkSetPublishedDate (financialYear, publishedDate) {
   const encodedYear = encodeURIComponent(financialYear)
   const backendUrl = buildBackendUrl(`/admin/payments/year/${encodedYear}/published-date`)
