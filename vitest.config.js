@@ -9,7 +9,8 @@ const sharedEnv = {
   ENTRA_REDIRECT_URL: 'http://localhost:3003/auth/sign-in-oidc',
   ENTRA_SIGN_OUT_REDIRECT_URL: 'http://localhost:3003/auth/sign-out-oidc',
   COOKIE_PASSWORD: 'test-cookie-password-at-least-32-chars!!',
-  USE_SINGLE_INSTANCE_CACHE: 'true'
+  USE_SINGLE_INSTANCE_CACHE: 'true',
+  MPDP_BACKEND_ENDPOINT: 'http://localhost:3001'
 }
 
 const coverageConfig = {
