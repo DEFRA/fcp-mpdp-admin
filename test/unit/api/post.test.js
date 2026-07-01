@@ -39,17 +39,29 @@ describe('post', () => {
   })
 
   test('service uses the env variable to connect to backend service', async () => {
+    const mockData = { foo: 'bar' }
     const mockFetch = vi.fn().mockResolvedValue({
-      arrayBuffer: () => Promise.resolve(new ArrayBuffer(0))
+      ok: true,
+      json: () => Promise.resolve(mockData)
     })
     vi.stubGlobal('fetch', mockFetch)
 
-    await post(route, {})
+    const result = await post(route, {})
 
     expect(mockFetch).toHaveBeenCalledWith(
       `${endpoint}${path}${route}`,
       { method: 'POST', body: JSON.stringify({}), headers: { 'Content-Type': 'application/json' } }
     )
+    expect(result).toEqual(mockData)
+  })
+
+  test('throws with status when backend returns non-ok response', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 422 }))
+
+    const err = await post(route, {}).catch(e => e)
+
+    expect(err.message).toMatch('422')
+    expect(err.status).toBe(422)
   })
 
   test('post function handles error', async () => {

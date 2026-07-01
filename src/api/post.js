@@ -12,9 +12,13 @@ export async function post (path, payload) {
       method: 'POST',
       body: payload != null ? JSON.stringify(payload) : undefined,
       headers: { 'Content-Type': 'application/json', ...headers }
-    }).then(async (res) => ({
-      res,
-      payload: Buffer.from(await res.arrayBuffer())
-    }))
+    }).then(async (res) => {
+      if (!res.ok) {
+        const err = new Error(`Backend request failed with status ${res.status}`)
+        err.status = res.status
+        throw err
+      }
+      return res.json()
+    })
   )
 }

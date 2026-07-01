@@ -9,25 +9,16 @@ const { constants: http2Constants } = http2
 const { HTTP_STATUS_OK, HTTP_STATUS_NO_CONTENT } = http2Constants
 
 async function fetchPaymentSummaries () {
-  const response = await get('/admin/summary')
-  if (!response) {
-    return []
-  }
-  return summariesToViewModel(JSON.parse(response.payload))
+  return summariesToViewModel(await get('/admin/summary'))
 }
 
 async function fetchPaymentSummaryById (id) {
-  const response = await get(`/admin/summary/${id}`)
-  if (!response) {
-    return null
-  }
-  return toViewModel(JSON.parse(response.payload))
+  return toViewModel(await get(`/admin/summary/${id}`))
 }
 
 async function createPaymentSummary (summary) {
   const apiModel = toApiModel(summary)
-  const response = await post('/admin/summary', apiModel)
-  return toViewModel(JSON.parse(response.payload))
+  return toViewModel(await post('/admin/summary', apiModel))
 }
 
 async function updatePaymentSummary (id, summary) {

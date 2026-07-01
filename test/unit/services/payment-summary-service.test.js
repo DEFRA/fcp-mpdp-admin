@@ -29,14 +29,12 @@ describe('Payment Summary Service', () => {
 
   describe('fetchPaymentSummaries', () => {
     test('should fetch all payment summaries and convert to camelCase', async () => {
-      const mockResponse = {
-        payload: JSON.stringify([
-          { id: 1, financial_year: '2023', scheme: 'SFI', total_amount: 10000 },
-          { id: 2, financial_year: '2022', scheme: 'BPS', total_amount: 15000 }
-        ])
-      }
+      const mockData = [
+        { id: 1, financial_year: '2023', scheme: 'SFI', total_amount: 10000 },
+        { id: 2, financial_year: '2022', scheme: 'BPS', total_amount: 15000 }
+      ]
 
-      get.get.mockResolvedValue(mockResponse)
+      get.get.mockResolvedValue(mockData)
 
       const result = await fetchPaymentSummaries()
 
@@ -48,7 +46,7 @@ describe('Payment Summary Service', () => {
     })
 
     test('should return empty array when no summaries exist', async () => {
-      get.get.mockResolvedValue({ payload: JSON.stringify([]) })
+      get.get.mockResolvedValue([])
 
       const result = await fetchPaymentSummaries()
 
@@ -58,11 +56,7 @@ describe('Payment Summary Service', () => {
 
   describe('fetchPaymentSummaryById', () => {
     test('should fetch payment summary by ID and convert to camelCase', async () => {
-      const mockResponse = {
-        payload: JSON.stringify({ id: 1, financial_year: '2023', scheme: 'SFI', total_amount: 10000 })
-      }
-
-      get.get.mockResolvedValue(mockResponse)
+      get.get.mockResolvedValue({ id: 1, financial_year: '2023', scheme: 'SFI', total_amount: 10000 })
 
       const result = await fetchPaymentSummaryById(1)
 
@@ -84,11 +78,7 @@ describe('Payment Summary Service', () => {
         totalAmount: 25000
       }
 
-      const mockResponse = {
-        payload: JSON.stringify({ id: 1, financial_year: '2024', scheme: 'SFI', total_amount: 25000 })
-      }
-
-      post.post.mockResolvedValue(mockResponse)
+      post.post.mockResolvedValue({ id: 1, financial_year: '2024', scheme: 'SFI', total_amount: 25000 })
 
       const result = await createPaymentSummary(camelCaseData)
 

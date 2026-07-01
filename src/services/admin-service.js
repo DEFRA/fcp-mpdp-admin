@@ -15,30 +15,18 @@ export async function fetchAdminPayments (page = 1, limit = 20, searchString = '
     limit,
     ...(searchString && { searchString })
   })
-  const response = await get(url)
-  if (!response) {
-    return { count: 0, rows: [], page: 1, totalPages: 0 }
-  }
-  return paymentsToViewModel(JSON.parse(response.payload))
+  return paymentsToViewModel(await get(url))
 }
 
 export async function fetchPaymentById (id) {
   const url = getUrlParams(`admin/payments/${id}`)
-  const response = await get(url)
-  if (!response) {
-    return null
-  }
-  return toViewModel(JSON.parse(response.payload))
+  return toViewModel(await get(url))
 }
 
 export async function createPayment (paymentData) {
   const url = getUrlParams('admin/payments')
   const apiModel = toApiModel(paymentData)
-  const response = await post(url, apiModel)
-  if (!response) {
-    throw new Error('Failed to create payment')
-  }
-  return toViewModel(JSON.parse(response.payload))
+  return toViewModel(await post(url, apiModel))
 }
 
 export async function updatePayment (id, paymentData) {
@@ -70,11 +58,7 @@ export async function deletePaymentById (id) {
 
 export async function fetchFinancialYears () {
   const url = getUrlParams('admin/financial-years')
-  const response = await get(url)
-  if (!response) {
-    return []
-  }
-  return JSON.parse(response.payload)
+  return get(url)
 }
 
 export async function deletePaymentsByYear (financialYear) {

@@ -39,14 +39,26 @@ describe('get', () => {
   })
 
   test('should use env variable to connect to backend service', async () => {
+    const mockData = { foo: 'bar' }
     const mockFetch = vi.fn().mockResolvedValue({
-      arrayBuffer: () => Promise.resolve(new ArrayBuffer(0))
+      ok: true,
+      json: () => Promise.resolve(mockData)
     })
     vi.stubGlobal('fetch', mockFetch)
 
-    await get(route)
+    const result = await get(route)
 
     expect(mockFetch).toHaveBeenCalledWith(`${endpoint}${path}${route}`, { headers: {} })
+    expect(result).toEqual(mockData)
+  })
+
+  test('should throw with status when backend returns non-ok response', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 503 }))
+
+    const err = await get(route).catch(e => e)
+
+    expect(err.message).toMatch('503')
+    expect(err.status).toBe(503)
   })
 
   test('should handle error when request fails', async () => {

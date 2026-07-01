@@ -30,7 +30,8 @@ describe('cache-service', () => {
   describe('invalidateSearchCache', () => {
     test('should call the backend cache invalidation endpoint', async () => {
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(0))
+        ok: true,
+        json: () => Promise.resolve(null)
       }))
 
       await invalidateSearchCache()
@@ -43,7 +44,8 @@ describe('cache-service', () => {
 
     test('should resolve successfully on 200 response', async () => {
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(0))
+        ok: true,
+        json: () => Promise.resolve(null)
       }))
 
       await expect(invalidateSearchCache()).resolves.not.toThrow()

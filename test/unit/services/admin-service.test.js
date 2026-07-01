@@ -42,19 +42,6 @@ describe('admin-service', () => {
   })
 
   describe('fetchAdminPayments', () => {
-    test('should return empty results if no response received', async () => {
-      apiGet.get.mockResolvedValue(null)
-
-      const result = await fetchAdminPayments(1, 20, '')
-
-      expect(result).toMatchObject({
-        count: 0,
-        rows: [],
-        page: 1,
-        totalPages: 0
-      })
-    })
-
     test('should return paginated payments', async () => {
       const mockData = {
         count: 100,
@@ -66,7 +53,7 @@ describe('admin-service', () => {
         totalPages: 5
       }
 
-      apiGet.get.mockResolvedValue({ payload: JSON.stringify(mockData) })
+      apiGet.get.mockResolvedValue(mockData)
 
       const result = await fetchAdminPayments(1, 20, '')
 
@@ -81,7 +68,7 @@ describe('admin-service', () => {
     test('should include search string in request', async () => {
       const mockData = { count: 10, rows: [], page: 1, totalPages: 1 }
 
-      apiGet.get.mockResolvedValue({ payload: JSON.stringify(mockData) })
+      apiGet.get.mockResolvedValue(mockData)
 
       await fetchAdminPayments(1, 20, 'test search')
 
@@ -92,14 +79,6 @@ describe('admin-service', () => {
   })
 
   describe('fetchPaymentById', () => {
-    test('should return null if no response received', async () => {
-      apiGet.get.mockResolvedValue(null)
-
-      const result = await fetchPaymentById(1)
-
-      expect(result).toBeNull()
-    })
-
     test('should return payment data', async () => {
       const mockPayment = {
         id: 1,
@@ -108,7 +87,7 @@ describe('admin-service', () => {
         amount: 1000
       }
 
-      apiGet.get.mockResolvedValue({ payload: JSON.stringify(mockPayment) })
+      apiGet.get.mockResolvedValue(mockPayment)
 
       const result = await fetchPaymentById(1)
 
@@ -122,12 +101,6 @@ describe('admin-service', () => {
   })
 
   describe('createPayment', () => {
-    test('should throw if no response received', async () => {
-      apiPost.post.mockResolvedValue(null)
-
-      await expect(createPayment({})).rejects.toThrow('Failed to create payment')
-    })
-
     test('should create a new payment with camelCase input and return mapped response', async () => {
       const paymentData = {
         payeeName: 'Test Payee',
@@ -143,7 +116,7 @@ describe('admin-service', () => {
         financial_year: '23/24'
       }
 
-      apiPost.post.mockResolvedValue({ payload: JSON.stringify(apiResponse) })
+      apiPost.post.mockResolvedValue(apiResponse)
 
       const result = await createPayment(paymentData)
 
@@ -238,18 +211,10 @@ describe('admin-service', () => {
   })
 
   describe('fetchFinancialYears', () => {
-    test('should return empty array if no response received', async () => {
-      apiGet.get.mockResolvedValue(null)
-
-      const result = await fetchFinancialYears()
-
-      expect(result).toEqual([])
-    })
-
     test('should return list of financial years', async () => {
       const mockYears = ['23/24', '22/23', '21/22']
 
-      apiGet.get.mockResolvedValue({ payload: JSON.stringify(mockYears) })
+      apiGet.get.mockResolvedValue(mockYears)
 
       const result = await fetchFinancialYears()
 
