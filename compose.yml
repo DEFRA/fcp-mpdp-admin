@@ -5,6 +5,9 @@ services:
     build:
       context: .
       target: development
+    ports:
+      - '3003:3003'
+      - '9002:9229'
     volumes:
       - ./src:/home/node/src
       - ./package.json:/home/node/package.json
@@ -12,17 +15,33 @@ services:
     env_file:
       - .env
     environment:
-      # Override values that differ inside Docker (take precedence over env_file)
       MPDP_BACKEND_ENDPOINT: http://fcp-mpdp-backend:3001
       REDIS_HOST: redis
+    networks:
+      - fcp-mpdp
     depends_on:
       redis:
         condition: service_healthy
 
   redis:
     image: redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    command: redis-server --dir /data --save 5 1
+    networks:
+      - fcp-mpdp
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 3s
       retries: 5
+
+networks:
+  fcp-mpdp:
+    driver: bridge
+    name: fcp-mpdp
+
+volumes:
+  redis_data:
