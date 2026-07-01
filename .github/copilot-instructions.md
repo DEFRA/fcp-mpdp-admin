@@ -17,7 +17,7 @@ Authenticated admin interface for Making Payment Data Public (MPDP) service. Ser
 - **Framework:** Hapi.js 21 for HTTP server
 - **Authentication:** `@hapi/bell` (OIDC), `@hapi/jwt` (token validation)
 - **Templates:** Nunjucks for server-side rendering
-- **Bundling:** Webpack for client-side assets
+- **Bundling:** Vite for client-side assets
 - **Testing:** Vitest with separate unit/integration directories
 - **Linting:** Neostandard (modern ESLint config)
 - **Config:** Convict for environment-based configuration
@@ -121,8 +121,8 @@ export const adminRoute = {
 ```
 
 ### Session Management
-- Redis cache in production (`@hapi/catbox-redis`)
-- Memory cache in local dev (`@hapi/catbox-memory`)
+- Redis cache in production and local dev (`@hapi/catbox-redis`) — started via `npm run services:up`
+- `@hapi/catbox-memory` used in tests only (auto-mocked by Vitest)
 - Session cookies via `@hapi/cookie` plugin
 - Configuration in [src/config/config.js](../src/config/config.js)
 
@@ -174,7 +174,7 @@ To debug inside Docker (e.g. when running with fcp-mpdp-core), use **Docker: Att
 
 ### Client-Side Assets
 - Source: [src/client](../src/client)
-- Webpack bundles to `.public/` directory
+- Vite builds to `.public/` directory
 - GOV.UK Frontend components for consistent styling
 
 ## Testing Guidelines
@@ -210,13 +210,13 @@ const response = await server.inject({
 
 ### GitHub Actions
 - [.github/workflows/publish.yml](../.github/workflows/publish.yml) - Main branch builds
-- Runs `npm run docker:test` and SonarQube scan
+- Runs `npm test` and SonarQube scan
 - Deploys to CDP (Defra Cloud Platform)
 - Requires OIDC configuration in CDP environments
 
 ### Environment-Specific Config
 Key differences between environments:
-- **Local:** Memory cache, mock OIDC (optional)
+- **Local:** Redis cache (via `services:up`), real or mock OIDC
 - **Dev/Test:** Redis cache, test OIDC provider
 - **Production:** Redis cache, production OIDC provider
 
