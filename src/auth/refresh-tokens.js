@@ -1,4 +1,3 @@
-import Wreck from '@hapi/wreck'
 import { getClientCredentialParams } from './federated-credentials.js'
 import { getOidcConfig } from './get-oidc-config.js'
 import { config } from '../config/config.js'
@@ -16,16 +15,16 @@ async function refreshTokens (refreshToken) {
     redirect_uri: config.get('entra.redirectUrl')
   })
 
-  const { payload } = await Wreck.post(`${url}?${params.toString()}`, {
+  const response = await fetch(`${url}?${params.toString()}`, {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    json: true
+    }
   })
 
   // Payload will include both a new access token and a new refresh token
   // Refresh tokens can only be used once, so the new refresh token should be stored in place of the old one
-  return payload
+  return response.json()
 }
 
 export { refreshTokens }

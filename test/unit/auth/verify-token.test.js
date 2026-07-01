@@ -1,18 +1,11 @@
 import { generateKeyPairSync } from 'crypto'
-import { vi, describe, beforeEach, test, expect } from 'vitest'
+import { vi, describe, beforeEach, afterEach, test, expect } from 'vitest'
 import Jwt from '@hapi/jwt'
 
 const mockOidcConfig = { jwks_uri: 'https://example.com/jwks_uri' }
 const mockGetOidcConfig = vi.fn()
 vi.mock('../../../src/auth/get-oidc-config.js', () => ({
   getOidcConfig: mockGetOidcConfig
-}))
-
-const mockWreckGet = vi.fn()
-vi.mock('@hapi/wreck', () => ({
-  default: {
-    get: mockWreckGet
-  }
 }))
 
 const { privateKey, publicKey } = generateKeyPairSync('rsa', {
@@ -37,7 +30,13 @@ describe('verifyToken', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetOidcConfig.mockResolvedValue(mockOidcConfig)
-    mockWreckGet.mockResolvedValue({ payload: mockPayload })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      json: () => Promise.resolve(mockPayload)
+    }))
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
   })
 
   test('should get oidc config', async () => {
@@ -45,13 +44,21 @@ describe('verifyToken', () => {
     expect(mockGetOidcConfig).toHaveBeenCalledTimes(1)
   })
 
-  test('should make api get request to jwks uri and parse response to json', async () => {
+  test('should make api get request to jwks uri', async () => {
     await verifyToken(mockToken)
-    expect(mockWreckGet).toHaveBeenCalledWith(mockOidcConfig.jwks_uri, { json: true })
+    expect(fetch).toHaveBeenCalledWith(mockOidcConfig.jwks_uri)
   })
 
   test('should not throw error if the token was signed by the correct key', async () => {
     await expect(verifyToken(mockToken)).resolves.not.toThrow()
+  })
+
+  test('should throw error if no matching JWK found for token kid', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      json: () => Promise.resolve({ keys: [{ kid: 'non-matching-kid', x5t: 'non-matching-x5t' }] })
+    }))
+
+    await expect(verifyToken(mockToken)).rejects.toThrow('No matching JWK for kid')
   })
 
   test('should throw error if the token was not signed by the correct key', async () => {

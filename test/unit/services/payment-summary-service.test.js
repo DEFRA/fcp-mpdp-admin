@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest'
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   fetchPaymentSummaries,
   fetchPaymentSummaryById,
@@ -9,12 +9,10 @@ import {
 import * as get from '../../../src/api/get.js'
 import * as post from '../../../src/api/post.js'
 import * as buildBackendUrl from '../../../src/api/build-backend-url.js'
-import Wreck from '@hapi/wreck'
 
 vi.mock('../../../src/api/get.js')
 vi.mock('../../../src/api/post.js')
 vi.mock('../../../src/api/build-backend-url.js')
-vi.mock('@hapi/wreck')
 vi.mock('../../../src/api/get-backend-auth-headers.js', () => ({
   getBackendAuthHeaders: vi.fn().mockReturnValue({})
 }))
@@ -25,16 +23,18 @@ describe('Payment Summary Service', () => {
     buildBackendUrl.buildBackendUrl.mockImplementation((path) => `http://backend${path}`)
   })
 
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   describe('fetchPaymentSummaries', () => {
     test('should fetch all payment summaries and convert to camelCase', async () => {
-      const mockResponse = {
-        payload: JSON.stringify([
-          { id: 1, financial_year: '2023', scheme: 'SFI', total_amount: 10000 },
-          { id: 2, financial_year: '2022', scheme: 'BPS', total_amount: 15000 }
-        ])
-      }
+      const mockData = [
+        { id: 1, financial_year: '2023', scheme: 'SFI', total_amount: 10000 },
+        { id: 2, financial_year: '2022', scheme: 'BPS', total_amount: 15000 }
+      ]
 
-      get.get.mockResolvedValue(mockResponse)
+      get.get.mockResolvedValue(mockData)
 
       const result = await fetchPaymentSummaries()
 
@@ -46,7 +46,7 @@ describe('Payment Summary Service', () => {
     })
 
     test('should return empty array when no summaries exist', async () => {
-      get.get.mockResolvedValue({ payload: JSON.stringify([]) })
+      get.get.mockResolvedValue([])
 
       const result = await fetchPaymentSummaries()
 
@@ -56,11 +56,7 @@ describe('Payment Summary Service', () => {
 
   describe('fetchPaymentSummaryById', () => {
     test('should fetch payment summary by ID and convert to camelCase', async () => {
-      const mockResponse = {
-        payload: JSON.stringify({ id: 1, financial_year: '2023', scheme: 'SFI', total_amount: 10000 })
-      }
-
-      get.get.mockResolvedValue(mockResponse)
+      get.get.mockResolvedValue({ id: 1, financial_year: '2023', scheme: 'SFI', total_amount: 10000 })
 
       const result = await fetchPaymentSummaryById(1)
 
@@ -82,11 +78,7 @@ describe('Payment Summary Service', () => {
         totalAmount: 25000
       }
 
-      const mockResponse = {
-        payload: JSON.stringify({ id: 1, financial_year: '2024', scheme: 'SFI', total_amount: 25000 })
-      }
-
-      post.post.mockResolvedValue(mockResponse)
+      post.post.mockResolvedValue({ id: 1, financial_year: '2024', scheme: 'SFI', total_amount: 25000 })
 
       const result = await createPaymentSummary(camelCaseData)
 
@@ -109,21 +101,22 @@ describe('Payment Summary Service', () => {
         totalAmount: 12000
       }
 
-      const mockResponse = {
-        res: { statusCode: 200 },
-        payload: JSON.stringify({ id: 1, financial_year: '2023', scheme: 'SFI', total_amount: 12000 })
-      }
+      const apiResponse = { id: 1, financial_year: '2023', scheme: 'SFI', total_amount: 12000 }
 
       buildBackendUrl.buildBackendUrl.mockReturnValue('http://backend/admin/summary/1')
-      Wreck.put.mockResolvedValue(mockResponse)
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 200,
+        json: () => Promise.resolve(apiResponse)
+      }))
 
       const result = await updatePaymentSummary(1, camelCaseData)
 
       expect(buildBackendUrl.buildBackendUrl).toHaveBeenCalledWith('/admin/summary/1')
-      expect(Wreck.put).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         'http://backend/admin/summary/1',
         {
-          payload: JSON.stringify({ total_amount: 12000 }),
+          method: 'PUT',
+          body: JSON.stringify({ total_amount: 12000 }),
           headers: { 'Content-Type': 'application/json' }
         }
       )
@@ -134,20 +127,32 @@ describe('Payment Summary Service', () => {
         totalAmount: 12000
       })
     })
+
+    test('should throw error if update fails', async () => {
+      buildBackendUrl.buildBackendUrl.mockReturnValue('http://backend/admin/summary/1')
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 404 }))
+
+      await expect(updatePaymentSummary(1, {})).rejects.toThrow('Failed to update payment summary')
+    })
   })
 
   describe('deletePaymentSummaryById', () => {
     test('should delete payment summary by ID', async () => {
-      const mockResponse = { res: { statusCode: 204 } }
-
       buildBackendUrl.buildBackendUrl.mockReturnValue('http://backend/admin/summary/1')
-      Wreck.delete.mockResolvedValue(mockResponse)
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 204 }))
 
       const result = await deletePaymentSummaryById(1)
 
       expect(buildBackendUrl.buildBackendUrl).toHaveBeenCalledWith('/admin/summary/1')
-      expect(Wreck.delete).toHaveBeenCalledWith('http://backend/admin/summary/1', { headers: {} })
+      expect(fetch).toHaveBeenCalledWith('http://backend/admin/summary/1', { method: 'DELETE', headers: {} })
       expect(result).toBe(true)
+    })
+
+    test('should throw error if deletion fails', async () => {
+      buildBackendUrl.buildBackendUrl.mockReturnValue('http://backend/admin/summary/1')
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 500 }))
+
+      await expect(deletePaymentSummaryById(1)).rejects.toThrow('Failed to delete payment summary')
     })
   })
 })

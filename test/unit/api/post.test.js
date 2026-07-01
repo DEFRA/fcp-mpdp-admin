@@ -1,5 +1,4 @@
 import { vi, describe, beforeEach, afterEach, test, expect } from 'vitest'
-import Wreck from '@hapi/wreck'
 import { config } from '../../../src/config/config.js'
 import { post } from '../../../src/api/post.js'
 
@@ -36,27 +35,48 @@ describe('post', () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
+    vi.unstubAllGlobals()
   })
 
   test('service uses the env variable to connect to backend service', async () => {
-    const mockPost = vi.fn()
-    vi.spyOn(Wreck, 'post').mockImplementation(mockPost)
+    const mockData = { foo: 'bar' }
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockData)
+    })
+    vi.stubGlobal('fetch', mockFetch)
 
-    await post(route, {})
+    const result = await post(route, {})
 
-    expect(mockPost).toHaveBeenCalledWith(`${endpoint}${path}${route}`, { payload: {}, headers: {} })
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${endpoint}${path}${route}`,
+      { method: 'POST', body: JSON.stringify({}), headers: { 'Content-Type': 'application/json' } }
+    )
+    expect(result).toEqual(mockData)
+  })
+
+  test('throws with status when backend returns non-ok response', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 422 }))
+
+    const err = await post(route, {}).catch(e => e)
+
+    expect(err.message).toMatch('422')
+    expect(err.status).toBe(422)
   })
 
   test('post function handles error', async () => {
     const mockLoggerError = vi.fn()
     mockLogger.error = mockLoggerError
 
-    const mockPost = vi.fn().mockRejectedValue(new Error('Test error'))
-    vi.spyOn(Wreck, 'post').mockImplementation(mockPost)
+    const mockFetch = vi.fn().mockRejectedValue(new Error('Test error'))
+    vi.stubGlobal('fetch', mockFetch)
 
     await expect(post(route, {})).rejects.toThrow('Test error')
 
-    expect(mockPost).toHaveBeenCalledWith(`${endpoint}${path}${route}`, { payload: {}, headers: {} })
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${endpoint}${path}${route}`,
+      expect.objectContaining({ method: 'POST' })
+    )
     expect(mockLoggerError).toHaveBeenCalled()
   })
 })

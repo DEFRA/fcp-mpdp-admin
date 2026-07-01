@@ -1,4 +1,4 @@
-import { vi, describe, beforeEach, test, expect } from 'vitest'
+import { vi, describe, beforeEach, afterEach, test, expect } from 'vitest'
 
 const mockOidcConfig = { token_endpoint: 'https://example.com/token' }
 const mockGetOidcConfig = vi.fn()
@@ -6,13 +6,8 @@ vi.mock('../../../src/auth/get-oidc-config.js', () => ({
   getOidcConfig: mockGetOidcConfig
 }))
 
-const mockWreckPost = vi.fn()
+let mockFetch
 const mockTokenPayload = { access_token: 'DEFRA_ID_JWT', refresh_token: 'DEFRA_ID_REFRESH_TOKEN_NEW' }
-vi.mock('@hapi/wreck', () => ({
-  default: {
-    post: mockWreckPost
-  }
-}))
 
 const mockConfigGet = vi.fn()
 vi.mock('../../../src/config/config.js', () => ({
@@ -46,9 +41,14 @@ describe('refreshTokens', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetOidcConfig.mockResolvedValue(mockOidcConfig)
-    mockWreckPost.mockResolvedValue({ payload: mockTokenPayload })
+    mockFetch = vi.fn().mockResolvedValue({ json: () => Promise.resolve(mockTokenPayload) })
+    vi.stubGlobal('fetch', mockFetch)
     setupConfigMock()
     mockGetClientCredentialParams.mockReturnValue({ client_secret: 'mockClientSecret' })
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
   })
 
   test('should get oidc config', async () => {
@@ -73,19 +73,19 @@ describe('refreshTokens', () => {
 
   test('should make api post request to token endpoint host', async () => {
     await refreshTokens(refreshToken)
-    const url = new URL(mockWreckPost.mock.calls[0][0])
+    const url = new URL(mockFetch.mock.calls[0][0])
     expect(url.origin).toBe('https://example.com')
   })
 
   test('should make api post request to token endpoint path', async () => {
     await refreshTokens(refreshToken)
-    const url = new URL(mockWreckPost.mock.calls[0][0])
+    const url = new URL(mockFetch.mock.calls[0][0])
     expect(url.pathname).toBe('/token')
   })
 
   test('should make api post request to token endpoint with query string', async () => {
     await refreshTokens(refreshToken)
-    const url = new URL(mockWreckPost.mock.calls[0][0])
+    const url = new URL(mockFetch.mock.calls[0][0])
     expect(url.searchParams.get('client_id')).toBe('mockClientId')
     expect(url.searchParams.get('client_secret')).toBe('mockClientSecret')
     expect(url.searchParams.get('grant_type')).toBe('refresh_token')
@@ -96,17 +96,12 @@ describe('refreshTokens', () => {
 
   test('should make api post request to token endpoint with content type header', async () => {
     await refreshTokens(refreshToken)
-    expect(mockWreckPost.mock.calls[0][1].headers).toEqual({ 'Content-Type': 'application/x-www-form-urlencoded' })
-  })
-
-  test('should make api post request to token endpoint and parse response to json', async () => {
-    await refreshTokens(refreshToken)
-    expect(mockWreckPost.mock.calls[0][1].json).toBeTruthy()
+    expect(mockFetch.mock.calls[0][1].headers).toEqual({ 'Content-Type': 'application/x-www-form-urlencoded' })
   })
 
   test('should return the payload from the API response', async () => {
     const result = await refreshTokens(refreshToken)
-    expect(result).toBe(mockTokenPayload)
+    expect(result).toEqual(mockTokenPayload)
   })
 
   test('should throw error if get oidc config fails', async () => {
@@ -115,7 +110,7 @@ describe('refreshTokens', () => {
   })
 
   test('should throw an error if the api request fails', async () => {
-    mockWreckPost.mockRejectedValue(new Error('Unable to get token'))
+    mockFetch.mockRejectedValue(new Error('Unable to get token'))
     await expect(refreshTokens(refreshToken)).rejects.toThrow()
   })
 })
@@ -124,7 +119,8 @@ describe('refreshTokens - federated credentials enabled', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetOidcConfig.mockResolvedValue(mockOidcConfig)
-    mockWreckPost.mockResolvedValue({ payload: mockTokenPayload })
+    mockFetch = vi.fn().mockResolvedValue({ json: () => Promise.resolve(mockTokenPayload) })
+    vi.stubGlobal('fetch', mockFetch)
     setupConfigMock({ 'federatedCredentials.enabled': true })
     mockGetClientCredentialParams.mockReturnValue({
       client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
@@ -132,28 +128,32 @@ describe('refreshTokens - federated credentials enabled', () => {
     })
   })
 
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   test('should include client_assertion_type in query string', async () => {
     await refreshTokens(refreshToken)
-    const url = new URL(mockWreckPost.mock.calls[0][0])
+    const url = new URL(mockFetch.mock.calls[0][0])
     expect(url.searchParams.get('client_assertion_type'))
       .toBe('urn:ietf:params:oauth:client-assertion-type:jwt-bearer')
   })
 
   test('should include client_assertion from cached federated token in query string', async () => {
     await refreshTokens(refreshToken)
-    const url = new URL(mockWreckPost.mock.calls[0][0])
+    const url = new URL(mockFetch.mock.calls[0][0])
     expect(url.searchParams.get('client_assertion')).toBe('mock-federated-assertion-token')
   })
 
   test('should not include client_secret in query string', async () => {
     await refreshTokens(refreshToken)
-    const url = new URL(mockWreckPost.mock.calls[0][0])
+    const url = new URL(mockFetch.mock.calls[0][0])
     expect(url.searchParams.get('client_secret')).toBeNull()
   })
 
   test('should still include client_id and grant_type in query string', async () => {
     await refreshTokens(refreshToken)
-    const url = new URL(mockWreckPost.mock.calls[0][0])
+    const url = new URL(mockFetch.mock.calls[0][0])
     expect(url.searchParams.get('client_id')).toBe('mockClientId')
     expect(url.searchParams.get('grant_type')).toBe('refresh_token')
   })

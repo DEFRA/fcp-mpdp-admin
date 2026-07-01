@@ -1,5 +1,4 @@
 import { describe, beforeEach, afterEach, test, expect, vi } from 'vitest'
-import Wreck from '@hapi/wreck'
 import { invalidateSearchCache } from '../../../src/services/cache-service.js'
 import { config } from '../../../src/config/config.js'
 
@@ -25,35 +24,35 @@ describe('cache-service', () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
+    vi.unstubAllGlobals()
   })
 
   describe('invalidateSearchCache', () => {
     test('should call the backend cache invalidation endpoint', async () => {
-      const mockPost = vi.fn().mockResolvedValue({
-        res: { statusCode: 200 },
-        payload: JSON.stringify({ message: 'Search cache invalidated' })
-      })
-      vi.spyOn(Wreck, 'post').mockImplementation(mockPost)
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(null)
+      }))
 
       await invalidateSearchCache()
 
-      expect(mockPost).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         expect.stringContaining('/admin/cache/invalidate'),
         expect.anything()
       )
     })
 
     test('should resolve successfully on 200 response', async () => {
-      vi.spyOn(Wreck, 'post').mockResolvedValue({
-        res: { statusCode: 200 },
-        payload: JSON.stringify({ message: 'Search cache invalidated' })
-      })
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(null)
+      }))
 
       await expect(invalidateSearchCache()).resolves.not.toThrow()
     })
 
     test('should throw when backend call fails', async () => {
-      vi.spyOn(Wreck, 'post').mockRejectedValue(new Error('Connection refused'))
+      vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Connection refused')))
 
       await expect(invalidateSearchCache()).rejects.toThrow('Connection refused')
     })

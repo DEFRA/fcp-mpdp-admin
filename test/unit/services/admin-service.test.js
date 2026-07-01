@@ -1,5 +1,4 @@
 import { describe, beforeEach, afterEach, test, expect, vi } from 'vitest'
-import Wreck from '@hapi/wreck'
 import {
   fetchAdminPayments,
   fetchPaymentById,
@@ -9,10 +8,15 @@ import {
   fetchFinancialYears,
   deletePaymentsByYear,
   deletePaymentsByPublishedDate,
-  uploadPaymentsCsv
+  uploadPaymentsCsv,
+  bulkSetPublishedDate
 } from '../../../src/services/admin-service.js'
+import * as apiGet from '../../../src/api/get.js'
+import * as apiPost from '../../../src/api/post.js'
 import { config } from '../../../src/config/config.js'
 
+vi.mock('../../../src/api/get.js')
+vi.mock('../../../src/api/post.js')
 vi.mock('../../../src/api/get-backend-auth-headers.js', () => ({
   getBackendAuthHeaders: vi.fn().mockReturnValue({})
 }))
@@ -35,23 +39,10 @@ describe('admin-service', () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
+    vi.unstubAllGlobals()
   })
 
   describe('fetchAdminPayments', () => {
-    test('should return empty results if no response received', async () => {
-      const mockGet = vi.fn().mockResolvedValue(null)
-      vi.spyOn(Wreck, 'get').mockImplementation(mockGet)
-
-      const result = await fetchAdminPayments(1, 20, '')
-
-      expect(result).toMatchObject({
-        count: 0,
-        rows: [],
-        page: 1,
-        totalPages: 0
-      })
-    })
-
     test('should return paginated payments', async () => {
       const mockData = {
         count: 100,
@@ -63,51 +54,32 @@ describe('admin-service', () => {
         totalPages: 5
       }
 
-      const mockGet = vi.fn().mockResolvedValue({
-        res: { statusCode: 200 },
-        payload: JSON.stringify(mockData)
-      })
-      vi.spyOn(Wreck, 'get').mockImplementation(mockGet)
+      apiGet.get.mockResolvedValue(mockData)
 
       const result = await fetchAdminPayments(1, 20, '')
 
       expect(result.count).toBe(100)
       expect(result.rows[0].payeeName).toBe('Test 1')
       expect(result.rows[1].payeeName).toBe('Test 2')
-      expect(mockGet).toHaveBeenCalledWith(
-        expect.stringContaining('admin/payments'),
-        expect.anything()
+      expect(apiGet.get).toHaveBeenCalledWith(
+        expect.stringContaining('admin/payments')
       )
     })
 
     test('should include search string in request', async () => {
       const mockData = { count: 10, rows: [], page: 1, totalPages: 1 }
 
-      const mockGet = vi.fn().mockResolvedValue({
-        res: { statusCode: 200 },
-        payload: JSON.stringify(mockData)
-      })
-      vi.spyOn(Wreck, 'get').mockImplementation(mockGet)
+      apiGet.get.mockResolvedValue(mockData)
 
       await fetchAdminPayments(1, 20, 'test search')
 
-      expect(mockGet).toHaveBeenCalledWith(
-        expect.stringContaining('searchString=test'),
-        expect.anything()
+      expect(apiGet.get).toHaveBeenCalledWith(
+        expect.stringContaining('searchString=test')
       )
     })
   })
 
   describe('fetchPaymentById', () => {
-    test('should return null if no response received', async () => {
-      const mockGet = vi.fn().mockResolvedValue(null)
-      vi.spyOn(Wreck, 'get').mockImplementation(mockGet)
-
-      const result = await fetchPaymentById(1)
-
-      expect(result).toBeNull()
-    })
-
     test('should return payment data', async () => {
       const mockPayment = {
         id: 1,
@@ -116,32 +88,20 @@ describe('admin-service', () => {
         amount: 1000
       }
 
-      const mockGet = vi.fn().mockResolvedValue({
-        res: { statusCode: 200 },
-        payload: JSON.stringify(mockPayment)
-      })
-      vi.spyOn(Wreck, 'get').mockImplementation(mockGet)
+      apiGet.get.mockResolvedValue(mockPayment)
 
       const result = await fetchPaymentById(1)
 
       expect(result.payeeName).toBe('Test Payee')
       expect(result.partPostcode).toBe('SW1A')
       expect(result.amount).toBe(1000)
-      expect(mockGet).toHaveBeenCalledWith(
-        expect.stringContaining('admin/payments/1'),
-        expect.anything()
+      expect(apiGet.get).toHaveBeenCalledWith(
+        expect.stringContaining('admin/payments/1')
       )
     })
   })
 
   describe('createPayment', () => {
-    test('should throw if no response received', async () => {
-      const mockPost = vi.fn().mockResolvedValue(null)
-      vi.spyOn(Wreck, 'post').mockImplementation(mockPost)
-
-      await expect(createPayment({})).rejects.toThrow('Failed to create payment')
-    })
-
     test('should create a new payment with camelCase input and return mapped response', async () => {
       const paymentData = {
         payeeName: 'Test Payee',
@@ -157,23 +117,17 @@ describe('admin-service', () => {
         financial_year: '23/24'
       }
 
-      const mockPost = vi.fn().mockResolvedValue({
-        res: { statusCode: 201 },
-        payload: JSON.stringify(apiResponse)
-      })
-      vi.spyOn(Wreck, 'post').mockImplementation(mockPost)
+      apiPost.post.mockResolvedValue(apiResponse)
 
       const result = await createPayment(paymentData)
 
       expect(result.payeeName).toBe('Test Payee')
       expect(result.partPostcode).toBe('SW1A')
-      expect(mockPost).toHaveBeenCalledWith(
+      expect(apiPost.post).toHaveBeenCalledWith(
         expect.stringContaining('admin/payments'),
         expect.objectContaining({
-          payload: expect.objectContaining({
-            payee_name: 'Test Payee',
-            part_postcode: 'SW1A'
-          })
+          payee_name: 'Test Payee',
+          part_postcode: 'SW1A'
         })
       )
     })
@@ -200,33 +154,32 @@ describe('admin-service', () => {
         activity_level: ''
       }
 
-      const mockPut = vi.fn().mockResolvedValue({
-        res: { statusCode: 200 },
-        payload: Buffer.from(JSON.stringify(apiResponse))
-      })
-      vi.spyOn(Wreck, 'put').mockImplementation(mockPut)
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 200,
+        json: () => Promise.resolve(apiResponse)
+      }))
 
       const result = await updatePayment(1, paymentData)
 
       expect(result.payeeName).toBe('Updated Payee')
       expect(result.amount).toBe(2000)
-      expect(mockPut).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         expect.stringContaining('/admin/payments/1'),
         expect.objectContaining({
-          headers: { 'Content-Type': 'application/json' }
+          method: 'PUT',
+          headers: expect.objectContaining({ 'Content-Type': 'application/json' })
         })
       )
-      const payloadSent = JSON.parse(mockPut.mock.calls[0][1].payload)
+      const payloadSent = JSON.parse(fetch.mock.calls[0][1].body)
       expect(payloadSent.payee_name).toBe('Updated Payee')
       expect(payloadSent.amount).toBe(2000)
     })
 
     test('should throw error if update fails', async () => {
-      const mockPut = vi.fn().mockResolvedValue({
-        res: { statusCode: 404 },
-        payload: Buffer.from('{}')
-      })
-      vi.spyOn(Wreck, 'put').mockImplementation(mockPut)
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 404,
+        json: () => Promise.resolve({})
+      }))
 
       await expect(updatePayment(999, {})).rejects.toThrow('Failed to update payment')
     })
@@ -234,57 +187,41 @@ describe('admin-service', () => {
 
   describe('deletePaymentById', () => {
     test('should delete a payment', async () => {
-      const mockDelete = vi.fn().mockResolvedValue({
-        res: { statusCode: 200 },
-        payload: Buffer.from(JSON.stringify({ deleted: true }))
-      })
-      vi.spyOn(Wreck, 'delete').mockImplementation(mockDelete)
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 200,
+        json: () => Promise.resolve({ deleted: true })
+      }))
 
       const result = await deletePaymentById(1)
 
       expect(result).toEqual({ deleted: true })
-      expect(mockDelete).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         expect.stringContaining('/admin/payments/1'),
-        expect.anything()
+        expect.objectContaining({ method: 'DELETE' })
       )
     })
 
     test('should throw error if deletion fails', async () => {
-      const mockDelete = vi.fn().mockResolvedValue({
-        res: { statusCode: 404 },
-        payload: Buffer.from('{}')
-      })
-      vi.spyOn(Wreck, 'delete').mockImplementation(mockDelete)
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 404,
+        json: () => Promise.resolve({})
+      }))
 
       await expect(deletePaymentById(999)).rejects.toThrow('Failed to delete payment')
     })
   })
 
   describe('fetchFinancialYears', () => {
-    test('should return empty array if no response received', async () => {
-      const mockGet = vi.fn().mockResolvedValue(null)
-      vi.spyOn(Wreck, 'get').mockImplementation(mockGet)
-
-      const result = await fetchFinancialYears()
-
-      expect(result).toEqual([])
-    })
-
     test('should return list of financial years', async () => {
       const mockYears = ['23/24', '22/23', '21/22']
 
-      const mockGet = vi.fn().mockResolvedValue({
-        res: { statusCode: 200 },
-        payload: JSON.stringify(mockYears)
-      })
-      vi.spyOn(Wreck, 'get').mockImplementation(mockGet)
+      apiGet.get.mockResolvedValue(mockYears)
 
       const result = await fetchFinancialYears()
 
       expect(result).toEqual(mockYears)
-      expect(mockGet).toHaveBeenCalledWith(
-        expect.stringContaining('admin/financial-years'),
-        expect.anything()
+      expect(apiGet.get).toHaveBeenCalledWith(
+        expect.stringContaining('admin/financial-years')
       )
     })
   })
@@ -297,42 +234,39 @@ describe('admin-service', () => {
         schemeCount: 5
       }
 
-      const mockDelete = vi.fn().mockResolvedValue({
-        res: { statusCode: 200 },
-        payload: Buffer.from(JSON.stringify(mockResult))
-      })
-      vi.spyOn(Wreck, 'delete').mockImplementation(mockDelete)
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 200,
+        json: () => Promise.resolve(mockResult)
+      }))
 
       const result = await deletePaymentsByYear('23/24')
 
       expect(result).toEqual(mockResult)
-      expect(mockDelete).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         expect.stringContaining('/admin/payments/year/23%2F24'),
-        expect.anything()
+        expect.objectContaining({ method: 'DELETE' })
       )
     })
 
     test('should URL-encode financial year', async () => {
-      const mockDelete = vi.fn().mockResolvedValue({
-        res: { statusCode: 200 },
-        payload: Buffer.from(JSON.stringify({ deleted: true }))
-      })
-      vi.spyOn(Wreck, 'delete').mockImplementation(mockDelete)
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 200,
+        json: () => Promise.resolve({ deleted: true })
+      }))
 
       await deletePaymentsByYear('22/23')
 
-      expect(mockDelete).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         expect.stringContaining('22%2F23'),
         expect.anything()
       )
     })
 
     test('should throw error if deletion fails', async () => {
-      const mockDelete = vi.fn().mockResolvedValue({
-        res: { statusCode: 500 },
-        payload: Buffer.from('{}')
-      })
-      vi.spyOn(Wreck, 'delete').mockImplementation(mockDelete)
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 500,
+        json: () => Promise.resolve({})
+      }))
 
       await expect(deletePaymentsByYear('23/24')).rejects.toThrow('Failed to delete payments')
     })
@@ -345,42 +279,39 @@ describe('admin-service', () => {
         paymentCount: 100
       }
 
-      const mockDelete = vi.fn().mockResolvedValue({
-        res: { statusCode: 200 },
-        payload: Buffer.from(JSON.stringify(mockResult))
-      })
-      vi.spyOn(Wreck, 'delete').mockImplementation(mockDelete)
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 200,
+        json: () => Promise.resolve(mockResult)
+      }))
 
       const result = await deletePaymentsByPublishedDate('2024-01-15')
 
       expect(result).toEqual(mockResult)
-      expect(mockDelete).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         expect.stringContaining('/admin/payments/published-date/2024-01-15'),
-        expect.anything()
+        expect.objectContaining({ method: 'DELETE' })
       )
     })
 
     test('should handle different date formats', async () => {
-      const mockDelete = vi.fn().mockResolvedValue({
-        res: { statusCode: 200 },
-        payload: Buffer.from(JSON.stringify({ deleted: true, paymentCount: 50 }))
-      })
-      vi.spyOn(Wreck, 'delete').mockImplementation(mockDelete)
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 200,
+        json: () => Promise.resolve({ deleted: true, paymentCount: 50 })
+      }))
 
       await deletePaymentsByPublishedDate('2023-12-31')
 
-      expect(mockDelete).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         expect.stringContaining('2023-12-31'),
         expect.anything()
       )
     })
 
     test('should throw error if deletion fails', async () => {
-      const mockDelete = vi.fn().mockResolvedValue({
-        res: { statusCode: 500 },
-        payload: Buffer.from('{}')
-      })
-      vi.spyOn(Wreck, 'delete').mockImplementation(mockDelete)
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 500,
+        json: () => Promise.resolve({})
+      }))
 
       await expect(deletePaymentsByPublishedDate('2024-01-15')).rejects.toThrow('Failed to delete payments by published date')
     })
@@ -394,33 +325,63 @@ describe('admin-service', () => {
         errors: []
       }
 
-      const mockPost = vi.fn().mockResolvedValue({
-        res: { statusCode: 201 },
-        payload: Buffer.from(JSON.stringify(mockResult))
-      })
-      vi.spyOn(Wreck, 'post').mockImplementation(mockPost)
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 201,
+        json: () => Promise.resolve(mockResult)
+      }))
 
-      const mockStream = { pipe: vi.fn() }
-      const result = await uploadPaymentsCsv(mockStream)
+      async function * mockData () { yield Buffer.from('csv-content') }
+      const result = await uploadPaymentsCsv(mockData())
 
       expect(result).toEqual(mockResult)
-      expect(mockPost).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         expect.stringContaining('/admin/payments/bulk-upload'),
         expect.objectContaining({
-          payload: mockStream,
-          headers: { 'Content-Type': 'text/csv' }
+          method: 'POST',
+          headers: expect.objectContaining({ 'Content-Type': 'text/csv' })
         })
       )
     })
 
     test('should throw error if upload fails', async () => {
-      const mockPost = vi.fn().mockResolvedValue({
-        res: { statusCode: 400 },
-        payload: Buffer.from('{}')
-      })
-      vi.spyOn(Wreck, 'post').mockImplementation(mockPost)
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 400,
+        json: () => Promise.resolve({})
+      }))
 
-      await expect(uploadPaymentsCsv({})).rejects.toThrow('Failed to upload CSV')
+      async function * emptyData () {}
+      await expect(uploadPaymentsCsv(emptyData())).rejects.toThrow('Failed to upload CSV')
+    })
+  })
+
+  describe('bulkSetPublishedDate', () => {
+    test('should set published date for payments in a financial year', async () => {
+      const mockResult = { updated: true, count: 25 }
+
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 200,
+        json: () => Promise.resolve(mockResult)
+      }))
+
+      const result = await bulkSetPublishedDate('23/24', '2024-01-15')
+
+      expect(result).toEqual(mockResult)
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/admin/payments/year/23%2F24/published-date'),
+        expect.objectContaining({
+          method: 'PUT',
+          body: JSON.stringify({ published_date: '2024-01-15' })
+        })
+      )
+    })
+
+    test('should throw error if update fails', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        status: 500,
+        json: () => Promise.resolve({})
+      }))
+
+      await expect(bulkSetPublishedDate('23/24', '2024-01-15')).rejects.toThrow('Failed to set published date')
     })
   })
 })
