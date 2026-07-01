@@ -9,7 +9,8 @@ import {
   deletePaymentsByYear,
   deletePaymentsByPublishedDate,
   uploadPaymentsCsv,
-  bulkSetPublishedDate
+  bulkSetPublishedDate,
+  fetchPublishedDateTotals
 } from '../../../src/services/admin-service.js'
 import * as apiGet from '../../../src/api/get.js'
 import * as apiPost from '../../../src/api/post.js'
@@ -382,6 +383,37 @@ describe('admin-service', () => {
       }))
 
       await expect(bulkSetPublishedDate('23/24', '2024-01-15')).rejects.toThrow('Failed to set published date')
+    })
+  })
+
+  describe('fetchPublishedDateTotals', () => {
+    test('should return published date totals mapped to camelCase', async () => {
+      const mockData = [
+        { published_date: '2024-01-15', financial_year: '2023/24', count: '50' },
+        { published_date: '2024-02-20', financial_year: '2023/24', count: '100' },
+        { published_date: null, financial_year: '2022/23', count: '10' }
+      ]
+
+      apiGet.get.mockResolvedValue(mockData)
+
+      const result = await fetchPublishedDateTotals()
+
+      expect(result).toEqual([
+        { publishedDate: '2024-01-15', financialYear: '2023/24', count: '50' },
+        { publishedDate: '2024-02-20', financialYear: '2023/24', count: '100' },
+        { publishedDate: null, financialYear: '2022/23', count: '10' }
+      ])
+      expect(apiGet.get).toHaveBeenCalledWith(
+        expect.stringContaining('admin/payments/published-date-totals')
+      )
+    })
+
+    test('should return empty array when no records exist', async () => {
+      apiGet.get.mockResolvedValue([])
+
+      const result = await fetchPublishedDateTotals()
+
+      expect(result).toEqual([])
     })
   })
 })

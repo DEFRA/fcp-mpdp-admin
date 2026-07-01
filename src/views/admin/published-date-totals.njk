@@ -1,0 +1,40 @@
+{% extends "layout.njk" %}
+
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+
+{% block containerStart %}
+  {{ super() }}
+  {{ govukBackLink({
+    text: "Back",
+    href: "/admin/payments"
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+
+  {% if records | length > 0 %}
+    {% set tableRows = [] %}
+    {% for record in records %}
+      {% set tableRows = (tableRows.push([
+        { text: record.publishedDate if record.publishedDate else "No date" },
+        { text: record.financialYear },
+        { text: record.count },
+        { html: '<a href="/admin/payments/delete-by-published-date" class="govuk-link">Delete</a>' if record.publishedDate else "" }
+      ]), tableRows) %}
+    {% endfor %}
+
+    {{ govukTable({
+      head: [
+        { text: "Published date" },
+        { text: "Financial year" },
+        { text: "Count" },
+        { text: "Actions" }
+      ],
+      rows: tableRows
+    }) }}
+  {% else %}
+    <p class="govuk-body">No payment records found.</p>
+  {% endif %}
+{% endblock %}
