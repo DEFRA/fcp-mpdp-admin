@@ -1,6 +1,7 @@
 import http2 from 'node:http2'
 import Joi from 'joi'
 import { fetchFinancialYears, deletePaymentsByYear } from '../../services/admin-service.js'
+import { metricsCounter } from '../../common/helpers/metrics.js'
 
 const { constants: httpConstants } = http2
 
@@ -43,6 +44,14 @@ export const deleteByYear = [
       handler: async function (request, h) {
         const { financialYear } = request.payload
         const result = await deletePaymentsByYear(financialYear)
+
+        request.logger.info({
+          message: 'Payments deleted by year',
+          event: { action: 'delete-by-year', category: 'admin', outcome: 'success' },
+          financialYear
+        })
+        metricsCounter('AdminDeleteByYear')
+
         return h.view('admin/delete-by-year-success', {
           pageTitle: 'Deletion Complete',
           financialYear,

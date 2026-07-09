@@ -1,4 +1,5 @@
 import { invalidateSearchCache } from '../../services/cache-service.js'
+import { metricsCounter } from '../../common/helpers/metrics.js'
 
 export const manageCacheRoutes = [
   {
@@ -23,6 +24,13 @@ export const manageCacheRoutes = [
       handler: async (request, h) => {
         try {
           await invalidateSearchCache()
+
+          request.logger.info({
+            message: 'Cache invalidated',
+            event: { action: 'cache-invalidate', category: 'admin', outcome: 'success' }
+          })
+          metricsCounter('AdminCacheInvalidate')
+
           return h.redirect('/admin/cache?success=invalidated')
         } catch (err) {
           request.logger.error(err, 'Failed to invalidate search cache')

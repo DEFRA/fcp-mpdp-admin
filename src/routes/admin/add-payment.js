@@ -1,6 +1,7 @@
 import http2 from 'node:http2'
 import Joi from 'joi'
 import { createPayment } from '../../services/admin-service.js'
+import { metricsCounter } from '../../common/helpers/metrics.js'
 
 const { constants: httpConstants } = http2
 
@@ -74,6 +75,13 @@ export const addPayment = [
         }
 
         await createPayment(paymentData)
+
+        request.logger.info({
+          message: 'Payment created',
+          event: { action: 'create-payment', category: 'admin', outcome: 'success' }
+        })
+        metricsCounter('AdminPaymentCreate')
+
         return h.redirect('/admin/payments?success=added')
       }
     }
