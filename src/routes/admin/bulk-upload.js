@@ -56,9 +56,8 @@ export const bulkUpload = [
           const result = await uploadPaymentsCsv(file)
 
           request.logger.info({
-            message: 'Bulk upload completed',
-            event: { action: 'bulk-upload', category: 'admin', outcome: 'success' },
-            recordCount: result.imported
+            message: `Bulk upload completed count=${result.imported}`,
+            event: { action: 'bulk-upload', category: 'admin', outcome: 'success' }
           })
           request.metrics.counter('AdminBulkUpload')
 
@@ -69,9 +68,8 @@ export const bulkUpload = [
           })
         } catch (err) {
           request.logger.info({
-            message: 'Bulk upload failed',
-            event: { action: 'bulk-upload', category: 'admin', outcome: 'failure' },
-            error: { message: err.message }
+            message: `Bulk upload failed error="${err.message}"`,
+            event: { action: 'bulk-upload', category: 'admin', outcome: 'failure' }
           })
           return h.view('admin/bulk-upload', {
             pageTitle: 'Bulk Upload Payments',

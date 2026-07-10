@@ -114,8 +114,7 @@ export const editPayment = [
 
         request.logger.info({
           message: 'Payment updated',
-          event: { action: 'update-payment', category: 'admin', outcome: 'success' },
-          paymentId: id
+          event: { action: 'update-payment', category: 'admin', outcome: 'success', reference: String(id) }
         })
         request.metrics.counter('AdminPaymentUpdate')
 

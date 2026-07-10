@@ -68,10 +68,8 @@ export const bulkSetPublishedDateRoutes = [
         const result = await bulkSetPublishedDate(financialYear, publishedDate)
 
         request.logger.info({
-          message: 'Published date set for year',
-          event: { action: 'set-published-date', category: 'admin', outcome: 'success' },
-          financialYear,
-          publishedDate
+          message: `Published date set year=${financialYear} date=${publishedDate}`,
+          event: { action: 'set-published-date', category: 'admin', outcome: 'success', reference: financialYear }
         })
         request.metrics.counter('AdminSetPublishedDate')
 
