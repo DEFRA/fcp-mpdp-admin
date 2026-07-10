@@ -1,6 +1,5 @@
 import http2 from 'node:http2'
 import { uploadPaymentsCsv } from '../../services/admin-service.js'
-import { metricsCounter } from '../../common/helpers/metrics.js'
 
 const { constants: httpConstants } = http2
 
@@ -61,7 +60,7 @@ export const bulkUpload = [
             event: { action: 'bulk-upload', category: 'admin', outcome: 'success' },
             recordCount: result.imported
           })
-          metricsCounter('AdminBulkUpload')
+          request.metrics.counter('AdminBulkUpload')
 
           return h.view('admin/bulk-upload', {
             pageTitle: 'Bulk Upload Payments',

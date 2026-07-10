@@ -21,6 +21,7 @@ import { requestLogger } from './common/helpers/logging/request-logger.js'
 import { secureContext } from './common/helpers/secure-context/secure-context.js'
 import { buildRedisClient } from './common/helpers/redis-client.js'
 import { serviceToken } from './plugins/service-token.js'
+import { metrics } from '@defra/cdp-metrics'
 
 export async function createServer () {
   setupProxy()
@@ -78,6 +79,7 @@ export async function createServer () {
     secureContext,
     pulse,
     serviceToken,
+    metrics,
     nunjucksConfig,
     contentSecurityPolicy,
     headers,

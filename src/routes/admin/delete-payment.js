@@ -1,7 +1,6 @@
 import http2 from 'node:http2'
 import Joi from 'joi'
 import { fetchPaymentById, deletePaymentById } from '../../services/admin-service.js'
-import { metricsCounter } from '../../common/helpers/metrics.js'
 
 const { constants: httpConstants } = http2
 
@@ -50,7 +49,7 @@ export const deletePayment = [
           event: { action: 'delete-payment', category: 'admin', outcome: 'success' },
           paymentId: id
         })
-        metricsCounter('AdminPaymentDelete')
+        request.metrics.counter('AdminPaymentDelete')
 
         return h.redirect('/admin/payments?success=deleted')
       }

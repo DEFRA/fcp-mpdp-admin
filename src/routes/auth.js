@@ -2,7 +2,6 @@ import { getSignOutUrl } from '../auth/get-sign-out-url.js'
 import { validateState } from '../auth/state.js'
 import { verifyToken } from '../auth/verify-token.js'
 import { getSafeRedirect } from '../common/helpers/get-safe-redirect.js'
-import { metricsCounter } from '../common/helpers/metrics.js'
 
 export const auth = [{
   method: 'GET',
@@ -56,7 +55,7 @@ export const auth = [{
       message: 'Admin login',
       event: { action: 'login', category: 'auth', outcome: 'success' }
     })
-    metricsCounter('AdminLogin')
+    request.metrics.counter('AdminLogin')
 
     // Redirect user to the page they were trying to access before signing in or to the home page if no redirect was set
     const redirect = request.yar.get('redirect') ?? '/'

@@ -1,5 +1,4 @@
 import { invalidateSearchCache } from '../../services/cache-service.js'
-import { metricsCounter } from '../../common/helpers/metrics.js'
 
 export const manageCacheRoutes = [
   {
@@ -29,7 +28,7 @@ export const manageCacheRoutes = [
             message: 'Cache invalidated',
             event: { action: 'cache-invalidate', category: 'admin', outcome: 'success' }
           })
-          metricsCounter('AdminCacheInvalidate')
+          request.metrics.counter('AdminCacheInvalidate')
 
           return h.redirect('/admin/cache?success=invalidated')
         } catch (err) {

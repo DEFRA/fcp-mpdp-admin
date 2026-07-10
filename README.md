@@ -135,13 +135,24 @@ When enabled, the service obtains a JWT from the AWS STS `GetWebIdentityToken` A
 
 The AWS SDK reads the `AWS_ROLE_ARN` and `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` environment variables automatically - these are injected by ECS and do not need to be set manually.
 
-### Environment variables
+## Environment variables
 
-| Variable | Required when enabled | Description |
+All variables are configured in `.env` for local development (see `.env.example`).
+
+| Variable | Default | Description |
 |---|---|---|
-| `SERVICE_AUTH_ENABLED` | ✅ | Set to `true` to enable. Default: `false` |
-| `SERVICE_AUTH_AUDIENCE` | optional | JWT audience sent in the token request - must match the backend's expected audience. Default: `fcp-mpdp-backend` |
-| `SERVICE_AUTH_TOKEN_DURATION` | optional | Token lifetime in seconds (max 900). Default: `300` |
+| `PORT` | `3003` | Server port |
+| `NODE_ENV` | `development` | Node environment |
+| `MPDP_BACKEND_ENDPOINT` | `http://localhost:3001` | Backend API URL |
+| `REDIS_HOST` | `localhost` | Redis session cache host |
+| `ENTRA_TENANT_ID` | — | Microsoft Entra tenant ID (required) |
+| `ENTRA_CLIENT_ID` | — | Entra application client ID (required) |
+| `ENTRA_CLIENT_SECRET` | — | Entra client secret (required locally) |
+| `COOKIE_PASSWORD` | — | Session cookie password (min 32 characters) |
+| `AWS_EMF_ENVIRONMENT` | `Local` | Prevents metrics from connecting to CloudWatch EMF agent locally |
+| `SERVICE_AUTH_ENABLED` | `false` | Enable service-to-service JWT on outbound backend requests |
+| `SERVICE_AUTH_AUDIENCE` | `fcp-mpdp-backend` | JWT audience sent in the token request |
+| `SERVICE_AUTH_TOKEN_DURATION` | `300` | Token lifetime in seconds (max 900) |
 
 ## SonarQube Cloud
 
