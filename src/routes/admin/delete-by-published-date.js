@@ -62,9 +62,8 @@ export const deleteByPublishedDate = [
         const result = await deletePaymentsByPublishedDate(publishedDate)
 
         request.logger.info({
-          message: 'Payments deleted by published date',
-          event: { action: 'delete-by-published-date', category: 'admin', outcome: 'success' },
-          publishedDate
+          message: `Payments deleted by publishedDate=${publishedDate}`,
+          event: { action: 'delete-by-published-date', category: 'admin', outcome: 'success', reference: String(publishedDate) }
         })
         request.metrics.counter('AdminDeleteByPublishedDate')
 

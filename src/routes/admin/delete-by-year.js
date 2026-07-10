@@ -45,9 +45,8 @@ export const deleteByYear = [
         const result = await deletePaymentsByYear(financialYear)
 
         request.logger.info({
-          message: 'Payments deleted by year',
-          event: { action: 'delete-by-year', category: 'admin', outcome: 'success' },
-          financialYear
+          message: `Payments deleted by year=${financialYear}`,
+          event: { action: 'delete-by-year', category: 'admin', outcome: 'success', reference: financialYear }
         })
         request.metrics.counter('AdminDeleteByYear')
 

@@ -46,8 +46,7 @@ export const deletePayment = [
 
         request.logger.info({
           message: 'Payment deleted',
-          event: { action: 'delete-payment', category: 'admin', outcome: 'success' },
-          paymentId: id
+          event: { action: 'delete-payment', category: 'admin', outcome: 'success', reference: String(id) }
         })
         request.metrics.counter('AdminPaymentDelete')
 
