@@ -1,5 +1,6 @@
 import http2 from 'node:http2'
 import { uploadPaymentsCsv } from '../../services/admin-service.js'
+import { metricsCounter } from '../../common/helpers/metrics.js'
 
 const { constants: httpConstants } = http2
 
@@ -55,12 +56,24 @@ export const bulkUpload = [
 
           const result = await uploadPaymentsCsv(file)
 
+          request.logger.info({
+            message: 'Bulk upload completed',
+            event: { action: 'bulk-upload', category: 'admin', outcome: 'success' },
+            recordCount: result.imported
+          })
+          metricsCounter('AdminBulkUpload')
+
           return h.view('admin/bulk-upload', {
             pageTitle: 'Bulk Upload Payments',
             successMessage: `Successfully uploaded ${result.imported} payments`,
             uploadResult: result
           })
         } catch (err) {
+          request.logger.info({
+            message: 'Bulk upload failed',
+            event: { action: 'bulk-upload', category: 'admin', outcome: 'failure' },
+            error: { message: err.message }
+          })
           return h.view('admin/bulk-upload', {
             pageTitle: 'Bulk Upload Payments',
             errorList: [{ text: `Upload failed: ${err.message}` }]

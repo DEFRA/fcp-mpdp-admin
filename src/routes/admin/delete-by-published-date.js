@@ -1,6 +1,7 @@
 import http2 from 'node:http2'
 import Joi from 'joi'
 import { deletePaymentsByPublishedDate } from '../../services/admin-service.js'
+import { metricsCounter } from '../../common/helpers/metrics.js'
 
 const { constants: httpConstants } = http2
 
@@ -60,6 +61,14 @@ export const deleteByPublishedDate = [
         }
 
         const result = await deletePaymentsByPublishedDate(publishedDate)
+
+        request.logger.info({
+          message: 'Payments deleted by published date',
+          event: { action: 'delete-by-published-date', category: 'admin', outcome: 'success' },
+          publishedDate
+        })
+        metricsCounter('AdminDeleteByPublishedDate')
+
         return h.view('admin/delete-by-published-date-success', {
           pageTitle: 'Deletion Complete',
           publishedDate,

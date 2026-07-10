@@ -1,6 +1,7 @@
 import http2 from 'node:http2'
 import Joi from 'joi'
 import { fetchFinancialYears, bulkSetPublishedDate } from '../../services/admin-service.js'
+import { metricsCounter } from '../../common/helpers/metrics.js'
 
 const { constants: httpConstants } = http2
 
@@ -66,6 +67,15 @@ export const bulkSetPublishedDateRoutes = [
         const publishedDate = parseDateFromComponents(publishedDateDay, publishedDateMonth, publishedDateYear)
 
         const result = await bulkSetPublishedDate(financialYear, publishedDate)
+
+        request.logger.info({
+          message: 'Published date set for year',
+          event: { action: 'set-published-date', category: 'admin', outcome: 'success' },
+          financialYear,
+          publishedDate
+        })
+        metricsCounter('AdminSetPublishedDate')
+
         return h.view('admin/bulk-set-published-date-success', {
           pageTitle: 'Published Date Updated',
           financialYear,
