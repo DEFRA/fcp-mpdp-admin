@@ -1,7 +1,6 @@
 import http2 from 'node:http2'
 import Joi from 'joi'
 import { fetchPaymentById, updatePayment } from '../../services/admin-service.js'
-import { metricsCounter } from '../../common/helpers/metrics.js'
 
 const { constants: httpConstants } = http2
 
@@ -118,7 +117,7 @@ export const editPayment = [
           event: { action: 'update-payment', category: 'admin', outcome: 'success' },
           paymentId: id
         })
-        metricsCounter('AdminPaymentUpdate')
+        request.metrics.counter('AdminPaymentUpdate')
 
         return h.redirect('/admin/payments?success=updated')
       }

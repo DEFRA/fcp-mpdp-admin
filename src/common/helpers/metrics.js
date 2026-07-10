@@ -1,31 +1,6 @@
-import {
-  createMetricsLogger,
-  Unit,
-  StorageResolution
-} from 'aws-embedded-metrics'
-import { config } from '../../config/config.js'
+import { Metrics } from '@defra/cdp-metrics'
 import { createLogger } from './logging/logger.js'
 
-/**
- * Aws embedded metrics wrapper
- */
-export async function metricsCounter (metricName, value = 1) {
-  const isMetricsEnabled = config.get('isMetricsEnabled')
+const serverMetrics = new Metrics(createLogger())
 
-  if (!isMetricsEnabled) {
-    return
-  }
-
-  try {
-    const metricsLogger = createMetricsLogger()
-    metricsLogger.putMetric(
-      metricName,
-      value,
-      Unit.Count,
-      StorageResolution.Standard
-    )
-    await metricsLogger.flush()
-  } catch (err) {
-    createLogger().error(err, err.message)
-  }
-}
+export { serverMetrics }
