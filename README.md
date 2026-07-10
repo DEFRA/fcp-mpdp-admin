@@ -49,6 +49,14 @@ cp .env.example .env
 
 Edit `.env` and provide real values for `ENTRA_TENANT_ID`, `ENTRA_CLIENT_ID`, and `ENTRA_CLIENT_SECRET`.
 
+| Variable | Default | Description |
+|---|---|---|
+| `PORT` | `3003` | Server port |
+| `NODE_ENV` | `development` | Node environment |
+| `MPDP_BACKEND_ENDPOINT` | `http://localhost:3001` | Backend API URL |
+| `REDIS_HOST` | `localhost` | Redis session cache host |
+| `AWS_EMF_ENVIRONMENT` | `Local` | Prevents metrics from connecting to CloudWatch EMF agent locally |
+
 ### Development
 
 Start the Redis session cache container:
