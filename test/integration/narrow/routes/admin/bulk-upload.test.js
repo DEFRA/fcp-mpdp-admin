@@ -68,7 +68,7 @@ describe('Bulk upload routes', () => {
       const $ = cheerio.load(response.payload)
 
       const templateLink = $('a[href="/admin/payments/bulk-upload/template"]')
-      expect(templateLink.length).toBe(1)
+      expect(templateLink).toHaveLength(1)
       expect(templateLink.text()).toBe('Download upload template')
     })
   })

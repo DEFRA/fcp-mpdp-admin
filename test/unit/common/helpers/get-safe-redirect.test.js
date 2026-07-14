@@ -8,43 +8,17 @@ describe('get-safe-redirect', () => {
       expect(result).toBe('/admin/payments')
     })
 
-    test('should return / for protocol-relative URL', () => {
-      const result = getSafeRedirect('//evil.com/phishing')
-      expect(result).toBe('/')
-    })
-
-    test('should return / for external URL', () => {
-      const result = getSafeRedirect('http://evil.com/phishing')
-      expect(result).toBe('/')
-    })
-
-    test('should return / for null redirect', () => {
-      const result = getSafeRedirect(null)
-      expect(result).toBe('/')
-    })
-
-    test('should return / for undefined redirect', () => {
-      const result = getSafeRedirect(undefined)
-      expect(result).toBe('/')
-    })
-
-    test('should return / for empty string', () => {
-      const result = getSafeRedirect('')
-      expect(result).toBe('/')
-    })
-
-    test('should return / for relative path without leading slash', () => {
-      const result = getSafeRedirect('admin/payments')
-      expect(result).toBe('/')
-    })
-
-    test('should return / for URL without leading slash', () => {
-      const result = getSafeRedirect('javascript:alert(1)')
-      expect(result).toBe('/')
-    })
-
-    test('should return / for data URL', () => {
-      const result = getSafeRedirect('data:text/html,<script>alert(1)</script>')
+    test.each([
+      ['//evil.com/phishing', 'protocol-relative URL'],
+      ['http://evil.com/phishing', 'external URL'],
+      [null, 'null redirect'],
+      [undefined, 'undefined redirect'],
+      ['', 'empty string'],
+      ['admin/payments', 'relative path without leading slash'],
+      ['javascript:alert(1)', 'javascript URI'],
+      ['data:text/html,<script>alert(1)</script>', 'data URL']
+    ])('should return / for %s — %s', (input) => {
+      const result = getSafeRedirect(input)
       expect(result).toBe('/')
     })
 

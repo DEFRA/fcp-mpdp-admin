@@ -32,7 +32,7 @@ export async function context (request) {
     try {
       assetManifest = buildAssetMap(JSON.parse(readFileSync(manifestPath, 'utf-8')))
     } catch (err) {
-      logger.error(`Vite ${path.basename(manifestPath)} not found`)
+      logger.error({ err }, `Vite ${path.basename(manifestPath)} not found`)
     }
   }
 

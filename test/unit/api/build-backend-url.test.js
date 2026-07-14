@@ -35,32 +35,15 @@ describe('build-backend-url', () => {
     expect(config.get).toHaveBeenCalledWith('backend.path')
   })
 
-  test('should handle URL with leading slash', () => {
-    const url = '/admin/summary'
+  test.each([
+    ['/admin/summary', 'https://test-backend.example.com/api/v1/admin/summary', 'URL with leading slash'],
+    ['payments/search', 'https://test-backend.example.com/api/v1payments/search', 'URL without leading slash'],
+    ['', 'https://test-backend.example.com/api/v1', 'empty URL'],
+    ['/payments?page=1&limit=20', 'https://test-backend.example.com/api/v1/payments?page=1&limit=20', 'URL with query parameters']
+  ])('should handle %s — %s', (url, expected) => {
     const result = buildBackendUrl(url)
 
-    expect(result).toBe('https://test-backend.example.com/api/v1/admin/summary')
-  })
-
-  test('should handle URL without leading slash', () => {
-    const url = 'payments/search'
-    const result = buildBackendUrl(url)
-
-    expect(result).toBe('https://test-backend.example.com/api/v1payments/search')
-  })
-
-  test('should handle empty URL', () => {
-    const url = ''
-    const result = buildBackendUrl(url)
-
-    expect(result).toBe('https://test-backend.example.com/api/v1')
-  })
-
-  test('should handle URL with query parameters', () => {
-    const url = '/payments?page=1&limit=20'
-    const result = buildBackendUrl(url)
-
-    expect(result).toBe('https://test-backend.example.com/api/v1/payments?page=1&limit=20')
+    expect(result).toBe(expected)
   })
 
   test('should handle different endpoint and path from config', () => {

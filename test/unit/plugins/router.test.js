@@ -95,27 +95,15 @@ describe('router', () => {
     expect(mockServer.register).toHaveBeenCalledWith([Inert])
   })
 
-  test('should register health route', async () => {
+  test.each([
+    ['/health'],
+    ['/auth'],
+    ['/start']
+  ])('should register %s route', async (routePath) => {
     await router.plugin.register(mockServer)
 
     expect(mockServer.route).toHaveBeenCalledWith(
-      expect.objectContaining({ path: '/health' })
-    )
-  })
-
-  test('should register auth routes', async () => {
-    await router.plugin.register(mockServer)
-
-    expect(mockServer.route).toHaveBeenCalledWith(
-      expect.objectContaining({ path: '/auth' })
-    )
-  })
-
-  test('should register start route', async () => {
-    await router.plugin.register(mockServer)
-
-    expect(mockServer.route).toHaveBeenCalledWith(
-      expect.objectContaining({ path: '/start' })
+      expect.objectContaining({ path: routePath })
     )
   })
 
