@@ -126,6 +126,7 @@ describe('Context and cache', () => {
 
       test('Should log that the Webpack Manifest file is not available', () => {
         expect(mockLoggerError).toHaveBeenCalledWith(
+          expect.objectContaining({ err: expect.any(Error) }),
           'Vite assets-manifest.json not found'
         )
       })

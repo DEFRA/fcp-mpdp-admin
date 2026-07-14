@@ -69,7 +69,7 @@ describe('Admin manage cache routes', () => {
       const response = await server.inject(options)
       const $ = cheerio.load(response.payload)
 
-      expect($('.govuk-notification-banner--success').length).toBe(0)
+      expect($('.govuk-notification-banner--success')).toHaveLength(0)
     })
   })
 

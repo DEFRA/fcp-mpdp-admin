@@ -124,28 +124,16 @@ describe('Admin manage payments route', () => {
       expect($('button[type="submit"]').text()).toContain('Search')
     })
 
-    test('should display success message when payment added', async () => {
-      const options = getOptions('admin/payments', 'GET', { success: 'added' })
+    test.each([
+      ['added'],
+      ['updated'],
+      ['deleted']
+    ])('should display success message when payment %s', async (action) => {
+      const options = getOptions('admin/payments', 'GET', { success: action })
       const response = await server.inject(options)
       const $ = cheerio.load(response.payload)
 
-      expect($('.govuk-notification-banner--success').text()).toContain('successfully added')
-    })
-
-    test('should display success message when payment updated', async () => {
-      const options = getOptions('admin/payments', 'GET', { success: 'updated' })
-      const response = await server.inject(options)
-      const $ = cheerio.load(response.payload)
-
-      expect($('.govuk-notification-banner--success').text()).toContain('successfully updated')
-    })
-
-    test('should display success message when payment deleted', async () => {
-      const options = getOptions('admin/payments', 'GET', { success: 'deleted' })
-      const response = await server.inject(options)
-      const $ = cheerio.load(response.payload)
-
-      expect($('.govuk-notification-banner--success').text()).toContain('successfully deleted')
+      expect($('.govuk-notification-banner--success').text()).toContain(`successfully ${action}`)
     })
   })
 
