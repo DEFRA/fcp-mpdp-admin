@@ -3,10 +3,10 @@ import { validateState } from '../auth/state.js'
 import { verifyToken } from '../auth/verify-token.js'
 import { getSafeRedirect } from '../common/helpers/get-safe-redirect.js'
 
-// event/reason is a text field downstream; bellError.data is either a Buffer (raw response body) or an Error (network failure)
 function toReasonString (data) {
   if (data instanceof Error) {
-    return data.message
+    const payload = data.data?.payload
+    return payload !== undefined ? toReasonString(payload) : data.message
   }
   return Buffer.isBuffer(data) ? data.toString() : data
 }
