@@ -116,12 +116,22 @@ describe('getCachedFederatedToken', () => {
   })
 
   test('should return the cached token from Redis without calling STS', async () => {
-    mockRedisGet.mockResolvedValue('cached-redis-token')
+    mockRedisGet.mockResolvedValue('header.payload.signature')
 
     const token = await getCachedFederatedToken()
 
-    expect(token).toBe('cached-redis-token')
+    expect(token).toBe('header.payload.signature')
     expect(mockSend).not.toHaveBeenCalled()
+  })
+
+  test('should ignore a cached value that is not shaped like a JWT and fetch a fresh one', async () => {
+    // Simulates a stale value left over from a previous, differently-shaped cache format
+    mockRedisGet.mockResolvedValue(JSON.stringify({ token: 'old-format-token', expiresAt: Date.now() + 800000 }))
+
+    const token = await getCachedFederatedToken()
+
+    expect(mockSend).toHaveBeenCalledTimes(1)
+    expect(token).toBe('mock-sts-identity-token')
   })
 
   test('should fetch from STS when Redis returns null', async () => {
