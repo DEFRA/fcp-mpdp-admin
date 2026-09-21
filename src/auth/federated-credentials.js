@@ -5,9 +5,6 @@ import { config } from '../config/config.js'
 
 const logger = createLogger()
 
-// AWS STS tokens are short-lived (≤ 900s), so we cache them in Redis to avoid
-// requesting a new one on every Entra token exchange/refresh.
-
 const AUDIENCE = config.get('federatedCredentials.audience')
 const TOKEN_DURATION_SECONDS = config.get('federatedCredentials.tokenDurationSeconds')
 
@@ -36,7 +33,6 @@ async function getFederatedToken () {
 }
 
 // Returns a still-valid token from Redis, or fetches a fresh one from STS and caches it.
-// The Redis TTL matches the token's own lifetime, which is already comfortably under AWS's 900s cap.
 async function getCachedFederatedToken () {
   const cached = await getRedisClient().get(REDIS_TOKEN_KEY)
 
