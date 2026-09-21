@@ -127,7 +127,7 @@ describe('getCachedFederatedToken', () => {
     expect(token).toBe('mock-sts-identity-token')
   })
 
-  test('should write the new token to Redis with the TTL shortened by the refresh buffer', async () => {
+  test('should write the new token to Redis with a TTL matching the token duration', async () => {
     mockRedisGet.mockResolvedValue(null)
 
     await getCachedFederatedToken()
@@ -136,7 +136,7 @@ describe('getCachedFederatedToken', () => {
       'federated-credentials-token',
       'mock-sts-identity-token',
       'EX',
-      730
+      850
     )
   })
 
