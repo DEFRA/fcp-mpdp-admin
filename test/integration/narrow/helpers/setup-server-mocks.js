@@ -19,9 +19,8 @@ vi.mock('../../../../src/auth/get-oidc-config.js', async () => {
 })
 
 vi.mock('../../../../src/auth/federated-credentials.js', () => ({
-  initFederatedTokenCache: vi.fn().mockResolvedValue(undefined),
-  getCachedFederatedToken: vi.fn().mockReturnValue('mock-federated-token'),
-  getClientCredentialParams: vi.fn().mockReturnValue({ client_secret: 'mock-client-secret' })
+  getCachedFederatedToken: vi.fn().mockResolvedValue('mock-federated-token'),
+  getClientCredentialParams: vi.fn().mockResolvedValue({ client_secret: 'mock-client-secret' })
 }))
 
 export { mockOidcConfig }

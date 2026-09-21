@@ -16,7 +16,7 @@ vi.mock('../../../src/config/config.js', () => ({
   }
 }))
 
-const mockGetCachedFederatedToken = vi.fn().mockReturnValue('mock-federated-assertion-token')
+const mockGetCachedFederatedToken = vi.fn().mockResolvedValue('mock-federated-assertion-token')
 const mockGetClientCredentialParams = vi.fn()
 vi.mock('../../../src/auth/federated-credentials.js', () => ({
   getCachedFederatedToken: mockGetCachedFederatedToken,
@@ -44,7 +44,7 @@ describe('refreshTokens', () => {
     mockFetch = vi.fn().mockResolvedValue({ json: () => Promise.resolve(mockTokenPayload) })
     vi.stubGlobal('fetch', mockFetch)
     setupConfigMock()
-    mockGetClientCredentialParams.mockReturnValue({ client_secret: 'mockClientSecret' })
+    mockGetClientCredentialParams.mockResolvedValue({ client_secret: 'mockClientSecret' })
   })
 
   afterEach(() => {
@@ -122,7 +122,7 @@ describe('refreshTokens - federated credentials enabled', () => {
     mockFetch = vi.fn().mockResolvedValue({ json: () => Promise.resolve(mockTokenPayload) })
     vi.stubGlobal('fetch', mockFetch)
     setupConfigMock({ 'federatedCredentials.enabled': true })
-    mockGetClientCredentialParams.mockReturnValue({
+    mockGetClientCredentialParams.mockResolvedValue({
       client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
       client_assertion: 'mock-federated-assertion-token'
     })

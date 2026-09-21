@@ -8,7 +8,7 @@ async function refreshTokens (refreshToken) {
   const clientId = config.get('entra.clientId')
   const params = new URLSearchParams({
     client_id: clientId,
-    ...getClientCredentialParams(),
+    ...(await getClientCredentialParams()),
     grant_type: 'refresh_token',
     scope: `${clientId}/.default offline_access`,
     refresh_token: refreshToken,
