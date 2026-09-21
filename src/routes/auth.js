@@ -3,6 +3,29 @@ import { validateState } from '../auth/state.js'
 import { verifyToken } from '../auth/verify-token.js'
 import { getSafeRedirect } from '../common/helpers/get-safe-redirect.js'
 
+// event/reason is a text field downstream, so bellError.data (Buffer, Error, plain object, or string) must always be flattened to a plain string
+function toReasonString (data) {
+  if (data === undefined || data === null) {
+    return undefined
+  }
+  if (Buffer.isBuffer(data)) {
+    return data.toString()
+  }
+  if (data instanceof Error) {
+    return data.message
+  }
+  if (typeof data === 'string') {
+    return data
+  }
+  try {
+    return JSON.stringify(data)
+  } catch {
+    return String(data)
+  }
+}
+
+export { toReasonString }
+
 export const auth = [{
   method: 'GET',
   path: '/auth/sign-in',
@@ -24,13 +47,13 @@ export const auth = [{
     // eg if the user has bookmarked the Entra sign-in page or they have signed out and tried to go back in the browser
     if (!request.auth.isAuthenticated) {
       const bellError = request.auth?.error
-      const errorData = bellError?.data
-      const entraResponse = Buffer.isBuffer(errorData) ? errorData.toString() : errorData
+      const entraResponse = toReasonString(bellError?.data)
 
       request.logger.error({
         err: bellError,
         event: { outcome: 'failure', reason: entraResponse }
       }, 'Bell authentication failed')
+
       return h.view('errors/unauthorised')
     }
 
