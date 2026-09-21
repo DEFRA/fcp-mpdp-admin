@@ -133,7 +133,7 @@ describe('getCachedFederatedToken', () => {
     expect(token).toBe('mock-sts-identity-token')
   })
 
-  test('should write the new token to Redis with a TTL based on STS Expiration', async () => {
+  test('should write the new token to Redis with a TTL based on STS Expiration, minus the validity buffer', async () => {
     mockRedisGet.mockResolvedValue(null)
     mockSend.mockResolvedValue({ WebIdentityToken: 'mock-sts-identity-token', Expiration: new Date(Date.now() + 850000) })
 
@@ -143,14 +143,14 @@ describe('getCachedFederatedToken', () => {
       'federated-credentials-token',
       'mock-sts-identity-token',
       'EX',
-      850
+      840
     )
   })
 
   test('should shorten the TTL by however long the STS call itself took', async () => {
     mockRedisGet.mockResolvedValue(null)
-    // Simulates a slow STS call: by the time we cache it, only 5s of validity remains
-    mockSend.mockResolvedValue({ WebIdentityToken: 'mock-sts-identity-token', Expiration: new Date(Date.now() + 5000) })
+    // Simulates a slow STS call: by the time we cache it, only 20s of validity remains
+    mockSend.mockResolvedValue({ WebIdentityToken: 'mock-sts-identity-token', Expiration: new Date(Date.now() + 20000) })
 
     await getCachedFederatedToken()
 
@@ -158,11 +158,11 @@ describe('getCachedFederatedToken', () => {
       'federated-credentials-token',
       'mock-sts-identity-token',
       'EX',
-      5
+      10
     )
   })
 
-  test('should use a minimum TTL of 1 second if the token is already at (or past) expiry', async () => {
+  test('should use a minimum TTL of 1 second if the token is within the validity buffer of expiry', async () => {
     mockRedisGet.mockResolvedValue(null)
     mockSend.mockResolvedValue({ WebIdentityToken: 'mock-sts-identity-token', Expiration: new Date(Date.now() - 1000) })
 

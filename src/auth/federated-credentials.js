@@ -9,6 +9,8 @@ const AUDIENCE = config.get('federatedCredentials.audience')
 const TOKEN_DURATION_SECONDS = config.get('federatedCredentials.tokenDurationSeconds')
 
 const REDIS_TOKEN_KEY = 'federated-credentials-token'
+// Ensure a cached token always has at least this much real validity left when handed out
+const MIN_VALIDITY_BUFFER_SECONDS = 10
 
 let redisClient = null
 
@@ -43,9 +45,10 @@ async function getCachedFederatedToken () {
   logger.info('Fetching AWS STS federated identity token')
   const result = await getFederatedToken()
 
-  // Use STS's own Expiration rather than TOKEN_DURATION_SECONDS, so the TTL isn't
-  // extended by however long the STS call itself took to complete.
-  const ttlSeconds = Math.max(Math.floor((result.Expiration.getTime() - Date.now()) / 1000), 1)
+  const ttlSeconds = Math.max(
+    Math.floor((result.Expiration.getTime() - Date.now()) / 1000) - MIN_VALIDITY_BUFFER_SECONDS,
+    1
+  )
   await getRedisClient().set(REDIS_TOKEN_KEY, result.WebIdentityToken, 'EX', ttlSeconds)
 
   return result.WebIdentityToken
