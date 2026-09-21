@@ -11,8 +11,6 @@ function toReasonString (data) {
   return Buffer.isBuffer(data) ? data.toString() : data
 }
 
-export { toReasonString }
-
 export const auth = [{
   method: 'GET',
   path: '/auth/sign-in',
