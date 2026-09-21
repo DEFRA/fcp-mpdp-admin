@@ -29,7 +29,10 @@ export const auth = [{
 
       request.logger.error({
         err: bellError,
-        event: { outcome: 'failure', reason: entraResponse }
+        event: { outcome: 'failure', reason: entraResponse },
+        // request.auth.credentials may hold Bell's partial state (eg. credentials.query),
+        // which can contain diagnostic detail not present on the error itself
+        credentials: request.auth.credentials
       }, 'Bell authentication failed')
       return h.view('errors/unauthorised')
     }

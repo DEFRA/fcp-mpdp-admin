@@ -40,8 +40,14 @@ async function getCachedFederatedToken () {
     return cached
   }
 
-  logger.info('Fetching AWS STS federated identity token')
-  const result = await getFederatedToken()
+  let result
+  try {
+    logger.info('Fetching AWS STS federated identity token')
+    result = await getFederatedToken()
+  } catch (err) {
+    logger.error(err, 'Failed to fetch AWS STS federated identity token')
+    throw err
+  }
 
   const ttlSeconds = Math.max(
     Math.floor((result.Expiration.getTime() - Date.now()) / 1000) - MIN_VALIDITY_BUFFER_SECONDS,

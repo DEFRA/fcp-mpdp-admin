@@ -2,10 +2,12 @@ import { vi, describe, beforeEach, afterEach, test, expect } from 'vitest'
 
 // vi.hoisted ensures these spies are available inside vi.mock factories,
 // which are hoisted above variable declarations.
-const { mockSend, mockRedisGet, mockRedisSet, mockConfigGet } = vi.hoisted(() => ({
+const { mockSend, mockRedisGet, mockRedisSet, mockConfigGet, mockLoggerInfo, mockLoggerError } = vi.hoisted(() => ({
   mockSend: vi.fn(),
   mockRedisGet: vi.fn(),
   mockRedisSet: vi.fn(),
+  mockLoggerInfo: vi.fn(),
+  mockLoggerError: vi.fn(),
   mockConfigGet: vi.fn().mockImplementation((key) => {
     switch (key) {
       case 'federatedCredentials.audience': return 'https://example.com'
@@ -37,7 +39,7 @@ vi.mock('../../../src/config/config.js', () => ({
 }))
 
 vi.mock('../../../src/common/helpers/logging/logger.js', () => ({
-  createLogger: vi.fn().mockReturnValue({ info: vi.fn(), error: vi.fn() })
+  createLogger: vi.fn().mockReturnValue({ info: mockLoggerInfo, error: mockLoggerError })
 }))
 
 const { getFederatedToken, getCachedFederatedToken, getClientCredentialParams } =
@@ -185,6 +187,16 @@ describe('getCachedFederatedToken', () => {
     mockRedisGet.mockResolvedValue(null)
     mockSend.mockRejectedValue(new Error('STS unavailable'))
     await expect(getCachedFederatedToken()).rejects.toThrow('STS unavailable')
+  })
+
+  test('should log STS errors before propagating them', async () => {
+    mockRedisGet.mockResolvedValue(null)
+    const stsError = new Error('STS unavailable')
+    mockSend.mockRejectedValue(stsError)
+
+    await expect(getCachedFederatedToken()).rejects.toThrow('STS unavailable')
+
+    expect(mockLoggerError).toHaveBeenCalledWith(stsError, 'Failed to fetch AWS STS federated identity token')
   })
 })
 
