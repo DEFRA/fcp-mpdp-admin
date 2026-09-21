@@ -109,9 +109,8 @@ describe('getCachedFederatedToken', () => {
     mockRedisSet.mockResolvedValue('OK')
   })
 
-  test('should return the cached token from Redis without calling STS when still valid', async () => {
-    const expiresAt = Date.now() + 800000
-    mockRedisGet.mockResolvedValue(JSON.stringify({ token: 'cached-redis-token', expiresAt }))
+  test('should return the cached token from Redis without calling STS', async () => {
+    mockRedisGet.mockResolvedValue('cached-redis-token')
 
     const token = await getCachedFederatedToken()
 
@@ -128,27 +127,16 @@ describe('getCachedFederatedToken', () => {
     expect(token).toBe('mock-sts-identity-token')
   })
 
-  test('should fetch from STS when the Redis token is within the refresh buffer', async () => {
-    // expiresAt is only 60s away — within the 2min buffer
-    const expiresAt = Date.now() + 60000
-    mockRedisGet.mockResolvedValue(JSON.stringify({ token: 'stale-token', expiresAt }))
-
-    const token = await getCachedFederatedToken()
-
-    expect(mockSend).toHaveBeenCalledTimes(1)
-    expect(token).toBe('mock-sts-identity-token')
-  })
-
-  test('should write the new token to Redis after a fresh STS fetch', async () => {
+  test('should write the new token to Redis with the TTL shortened by the refresh buffer', async () => {
     mockRedisGet.mockResolvedValue(null)
 
     await getCachedFederatedToken()
 
     expect(mockRedisSet).toHaveBeenCalledWith(
       'federated-credentials-token',
-      expect.stringContaining('mock-sts-identity-token'),
+      'mock-sts-identity-token',
       'EX',
-      850
+      730
     )
   })
 

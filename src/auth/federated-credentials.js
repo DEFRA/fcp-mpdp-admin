@@ -12,8 +12,9 @@ const AUDIENCE = config.get('federatedCredentials.audience')
 const TOKEN_DURATION_SECONDS = config.get('federatedCredentials.tokenDurationSeconds')
 
 const REDIS_TOKEN_KEY = 'federated-credentials-token'
-// Treat a token as expired slightly before its real expiry to avoid using it right at the boundary
-const REFRESH_BUFFER_MS = 2 * 60 * 1000
+// Shorten the Redis TTL by this much so a cached token is never used right up to its real expiry
+const REFRESH_BUFFER_SECONDS = 2 * 60
+const REDIS_TTL_SECONDS = Math.max(TOKEN_DURATION_SECONDS - REFRESH_BUFFER_SECONDS, 1)
 
 let redisClient = null
 
@@ -38,27 +39,18 @@ async function getFederatedToken () {
 }
 
 // Returns a still-valid token from Redis, or fetches a fresh one from STS and caches it.
+// The Redis TTL is shortened by the refresh buffer, so any value returned here is safe to use.
 async function getCachedFederatedToken () {
-  const raw = await getRedisClient().get(REDIS_TOKEN_KEY)
+  const cached = await getRedisClient().get(REDIS_TOKEN_KEY)
 
-  if (raw) {
-    const { token, expiresAt } = JSON.parse(raw)
-    if (expiresAt - Date.now() > REFRESH_BUFFER_MS) {
-      return token
-    }
+  if (cached) {
+    return cached
   }
 
   logger.info('Fetching AWS STS federated identity token')
   const result = await getFederatedToken()
-  const expiresAt = Date.now() + (TOKEN_DURATION_SECONDS * 1000)
 
-  // TTL matches tokenDurationSeconds so Redis auto-expires the key
-  await getRedisClient().set(
-    REDIS_TOKEN_KEY,
-    JSON.stringify({ token: result.WebIdentityToken, expiresAt }),
-    'EX',
-    TOKEN_DURATION_SECONDS
-  )
+  await getRedisClient().set(REDIS_TOKEN_KEY, result.WebIdentityToken, 'EX', REDIS_TTL_SECONDS)
 
   return result.WebIdentityToken
 }
