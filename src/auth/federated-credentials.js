@@ -9,7 +9,6 @@ const AUDIENCE = config.get('federatedCredentials.audience')
 const TOKEN_DURATION_SECONDS = config.get('federatedCredentials.tokenDurationSeconds')
 
 const REDIS_TOKEN_KEY = 'federated-credentials-token'
-// Ensure a cached token always has at least this much real validity left when handed out
 const MIN_VALIDITY_BUFFER_SECONDS = 10
 
 let redisClient = null
@@ -34,7 +33,6 @@ async function getFederatedToken () {
   return result
 }
 
-// Returns a still-valid token from Redis, or fetches a fresh one from STS and caches it.
 async function getCachedFederatedToken () {
   const cached = await getRedisClient().get(REDIS_TOKEN_KEY)
 
@@ -54,9 +52,6 @@ async function getCachedFederatedToken () {
   return result.WebIdentityToken
 }
 
-// Returns the client credential parameters for Entra token requests.
-// When federated credentials are enabled, returns client_assertion params;
-// otherwise returns client_secret. Used by both auth.js and refresh-tokens.js.
 async function getClientCredentialParams () {
   if (config.get('federatedCredentials.enabled')) {
     return {
