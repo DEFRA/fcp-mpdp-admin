@@ -19,20 +19,17 @@ export const auth = [{
     auth: { strategy: 'entra', mode: 'try' }
   },
   handler: async function (request, h) {
-    // If the user is not authenticated, redirect to the home page
+    // If the user is not authenticated, redirect to the unauthorised page
     // This should only occur if the user tries to access the sign-in page directly and not part of the sign-in flow
     // eg if the user has bookmarked the Entra sign-in page or they have signed out and tried to go back in the browser
     if (!request.auth.isAuthenticated) {
-      const bellError = request.auth.error
+      const bellError = request.auth?.error
       const errorData = bellError?.data
       const entraResponse = Buffer.isBuffer(errorData) ? errorData.toString() : errorData
 
       request.logger.error({
         err: bellError,
-        event: { outcome: 'failure', reason: entraResponse },
-        // request.auth.credentials may hold Bell's partial state (eg. credentials.query),
-        // which can contain diagnostic detail not present on the error itself
-        credentials: request.auth.credentials
+        event: { outcome: 'failure', reason: entraResponse }
       }, 'Bell authentication failed')
       return h.view('errors/unauthorised')
     }
