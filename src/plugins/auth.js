@@ -47,7 +47,7 @@ function getBellOptions (oidcConfig) {
     ...(config.get('federatedCredentials.enabled')
       ? {
           clientSecret: {},
-          tokenParams: (_request) => getClientCredentialParams()
+          tokenParams: (request) => getClientCredentialParamsWithLogging(request)
         }
       : { clientSecret: config.get('entra.clientSecret') }
     ),
@@ -84,6 +84,16 @@ function getCookieOptions () {
       return `/auth/sign-in?redirect=${request.url.pathname}${request.url.search}`
     },
     validate: async (request, session) => validateToken(request, session)
+  }
+}
+
+// Attributes any failure building client credential params (Redis, STS, etc) to Bell's token exchange in the logs.
+async function getClientCredentialParamsWithLogging (request) {
+  try {
+    return await getClientCredentialParams()
+  } catch (err) {
+    request.logger.error(err, 'Bell tokenParams failed to build client credential params')
+    throw err
   }
 }
 

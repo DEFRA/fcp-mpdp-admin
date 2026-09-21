@@ -164,4 +164,20 @@ describe('auth - federated credentials enabled', () => {
     const params = await bellOptions.tokenParams({})
     expect(params.client_secret).toBeUndefined()
   })
+
+  test('should log and rethrow if building client credential params fails', async () => {
+    const credentialError = new Error('Failed to fetch AWS STS federated identity token')
+    mockGetClientCredentialParams.mockRejectedValueOnce(credentialError)
+
+    const mockServer = createMockServer()
+    await auth.plugin.register(mockServer)
+    const bellOptions = getBellOptions(mockServer)
+
+    const mockRequest = { logger: { error: vi.fn() } }
+    await expect(bellOptions.tokenParams(mockRequest)).rejects.toThrow(credentialError)
+    expect(mockRequest.logger.error).toHaveBeenCalledWith(
+      credentialError,
+      'Bell tokenParams failed to build client credential params'
+    )
+  })
 })
