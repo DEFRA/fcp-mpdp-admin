@@ -1,4 +1,4 @@
-import { vi, describe, beforeEach, test, expect } from 'vitest'
+import { vi, describe, beforeEach, afterEach, test, expect } from 'vitest'
 
 // vi.hoisted ensures these spies are available inside vi.mock factories,
 // which are hoisted above variable declarations.
@@ -104,9 +104,15 @@ describe('getFederatedToken', () => {
 
 describe('getCachedFederatedToken', () => {
   beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'))
     setupConfigMock()
     mockSend.mockResolvedValue(mockTokenResult)
     mockRedisSet.mockResolvedValue('OK')
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   test('should return the cached token from Redis without calling STS', async () => {
@@ -127,8 +133,9 @@ describe('getCachedFederatedToken', () => {
     expect(token).toBe('mock-sts-identity-token')
   })
 
-  test('should write the new token to Redis with a TTL matching the token duration', async () => {
+  test('should write the new token to Redis with a TTL based on STS Expiration', async () => {
     mockRedisGet.mockResolvedValue(null)
+    mockSend.mockResolvedValue({ WebIdentityToken: 'mock-sts-identity-token', Expiration: new Date(Date.now() + 850000) })
 
     await getCachedFederatedToken()
 
@@ -137,6 +144,35 @@ describe('getCachedFederatedToken', () => {
       'mock-sts-identity-token',
       'EX',
       850
+    )
+  })
+
+  test('should shorten the TTL by however long the STS call itself took', async () => {
+    mockRedisGet.mockResolvedValue(null)
+    // Simulates a slow STS call: by the time we cache it, only 5s of validity remains
+    mockSend.mockResolvedValue({ WebIdentityToken: 'mock-sts-identity-token', Expiration: new Date(Date.now() + 5000) })
+
+    await getCachedFederatedToken()
+
+    expect(mockRedisSet).toHaveBeenCalledWith(
+      'federated-credentials-token',
+      'mock-sts-identity-token',
+      'EX',
+      5
+    )
+  })
+
+  test('should use a minimum TTL of 1 second if the token is already at (or past) expiry', async () => {
+    mockRedisGet.mockResolvedValue(null)
+    mockSend.mockResolvedValue({ WebIdentityToken: 'mock-sts-identity-token', Expiration: new Date(Date.now() - 1000) })
+
+    await getCachedFederatedToken()
+
+    expect(mockRedisSet).toHaveBeenCalledWith(
+      'federated-credentials-token',
+      'mock-sts-identity-token',
+      'EX',
+      1
     )
   })
 

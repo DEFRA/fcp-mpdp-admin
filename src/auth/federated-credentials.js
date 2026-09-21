@@ -43,7 +43,10 @@ async function getCachedFederatedToken () {
   logger.info('Fetching AWS STS federated identity token')
   const result = await getFederatedToken()
 
-  await getRedisClient().set(REDIS_TOKEN_KEY, result.WebIdentityToken, 'EX', TOKEN_DURATION_SECONDS)
+  // Use STS's own Expiration rather than TOKEN_DURATION_SECONDS, so the TTL isn't
+  // extended by however long the STS call itself took to complete.
+  const ttlSeconds = Math.max(Math.floor((result.Expiration.getTime() - Date.now()) / 1000), 1)
+  await getRedisClient().set(REDIS_TOKEN_KEY, result.WebIdentityToken, 'EX', ttlSeconds)
 
   return result.WebIdentityToken
 }
