@@ -10,8 +10,6 @@ const TOKEN_DURATION_SECONDS = config.get('federatedCredentials.tokenDurationSec
 
 const REDIS_TOKEN_KEY = 'federated-credentials-token'
 const MIN_VALIDITY_BUFFER_SECONDS = 10
-// Guards against a stale value left over from a previous, differently-shaped cache format
-const JWT_PATTERN = /^[\w-]+\.[\w-]+\.[\w-]+$/
 
 let redisClient = null
 
@@ -38,12 +36,18 @@ async function getFederatedToken () {
 async function getCachedFederatedToken () {
   const cached = await getRedisClient().get(REDIS_TOKEN_KEY)
 
-  if (cached && JWT_PATTERN.test(cached)) {
+  if (cached) {
     return cached
   }
 
-  logger.info('Fetching AWS STS federated identity token')
-  const result = await getFederatedToken()
+  let result
+  try {
+    logger.info('Fetching AWS STS federated identity token')
+    result = await getFederatedToken()
+  } catch (err) {
+    logger.error(err, 'Failed to fetch AWS STS federated identity token')
+    throw err
+  }
 
   const ttlSeconds = Math.max(
     Math.floor((result.Expiration.getTime() - Date.now()) / 1000) - MIN_VALIDITY_BUFFER_SECONDS,
