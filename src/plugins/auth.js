@@ -1,5 +1,5 @@
 import Jwt from '@hapi/jwt'
-import { getClientCredentialParams, initFederatedTokenCache } from '../auth/federated-credentials.js'
+import { getClientCredentialParams } from '../auth/federated-credentials.js'
 import { getOidcConfig } from '../auth/get-oidc-config.js'
 import { refreshTokens } from '../auth/refresh-tokens.js'
 import { getSafeRedirect } from '../common/helpers/get-safe-redirect.js'
@@ -10,12 +10,6 @@ export const auth = {
     name: 'auth',
     register: async (server) => {
       const oidcConfig = await getOidcConfig()
-
-      if (config.get('federatedCredentials.enabled')) {
-        // Pre-populate the in-memory token cache so the synchronous Bell
-        // tokenParams function can access it during the token exchange.
-        await initFederatedTokenCache()
-      }
 
       // Bell is a third-party plugin that provides a common interface for OAuth 2.0 authentication
       // Used to authenticate users with Entra and a pre-requisite for the Cookie authentication strategy

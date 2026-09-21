@@ -10,15 +10,13 @@ vi.mock('../../../src/config/config.js', () => ({
   }
 }))
 
-const mockGetCachedFederatedToken = vi.fn().mockReturnValue('mock-federated-token')
-const mockInitFederatedTokenCache = vi.fn().mockResolvedValue(undefined)
-const mockGetClientCredentialParams = vi.fn().mockReturnValue({
+const mockGetCachedFederatedToken = vi.fn().mockResolvedValue('mock-federated-token')
+const mockGetClientCredentialParams = vi.fn().mockResolvedValue({
   client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
   client_assertion: 'mock-federated-token'
 })
 vi.mock('../../../src/auth/federated-credentials.js', () => ({
   getCachedFederatedToken: mockGetCachedFederatedToken,
-  initFederatedTokenCache: mockInitFederatedTokenCache,
   getClientCredentialParams: mockGetClientCredentialParams
 }))
 
@@ -142,12 +140,6 @@ describe('auth - federated credentials enabled', () => {
     })
   })
 
-  test('should initialise the federated token cache during registration', async () => {
-    const mockServer = createMockServer()
-    await auth.plugin.register(mockServer)
-    expect(mockInitFederatedTokenCache).toHaveBeenCalledTimes(1)
-  })
-
   test('should configure Bell with clientSecret as empty object', async () => {
     const mockServer = createMockServer()
     await auth.plugin.register(mockServer)
@@ -160,7 +152,7 @@ describe('auth - federated credentials enabled', () => {
     await auth.plugin.register(mockServer)
     const bellOptions = getBellOptions(mockServer)
     expect(typeof bellOptions.tokenParams).toBe('function')
-    const params = bellOptions.tokenParams({})
+    const params = await bellOptions.tokenParams({})
     expect(params.client_assertion_type).toBe('urn:ietf:params:oauth:client-assertion-type:jwt-bearer')
     expect(params.client_assertion).toBe('mock-federated-token')
   })
@@ -169,7 +161,7 @@ describe('auth - federated credentials enabled', () => {
     const mockServer = createMockServer()
     await auth.plugin.register(mockServer)
     const bellOptions = getBellOptions(mockServer)
-    const params = bellOptions.tokenParams({})
+    const params = await bellOptions.tokenParams({})
     expect(params.client_secret).toBeUndefined()
   })
 })
