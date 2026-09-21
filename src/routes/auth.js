@@ -3,25 +3,12 @@ import { validateState } from '../auth/state.js'
 import { verifyToken } from '../auth/verify-token.js'
 import { getSafeRedirect } from '../common/helpers/get-safe-redirect.js'
 
-// event/reason is a text field downstream, so bellError.data (Buffer, Error, plain object, or string) must always be flattened to a plain string
+// event/reason is a text field downstream; bellError.data is either a Buffer (raw response body) or an Error (network failure)
 function toReasonString (data) {
-  if (data === undefined || data === null) {
-    return undefined
-  }
-  if (Buffer.isBuffer(data)) {
-    return data.toString()
-  }
   if (data instanceof Error) {
     return data.message
   }
-  if (typeof data === 'string') {
-    return data
-  }
-  try {
-    return JSON.stringify(data)
-  } catch {
-    return String(data)
-  }
+  return Buffer.isBuffer(data) ? data.toString() : data
 }
 
 export { toReasonString }

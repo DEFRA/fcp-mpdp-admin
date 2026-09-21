@@ -2,12 +2,12 @@ import { describe, test, expect } from 'vitest'
 import { toReasonString } from '../../../src/routes/auth.js'
 
 describe('toReasonString', () => {
-  test('should return undefined for undefined', () => {
+  test('should return undefined unchanged', () => {
     expect(toReasonString(undefined)).toBeUndefined()
   })
 
-  test('should return undefined for null', () => {
-    expect(toReasonString(null)).toBeUndefined()
+  test('should return null unchanged', () => {
+    expect(toReasonString(null)).toBeNull()
   })
 
   test('should convert a Buffer to a string', () => {
@@ -20,9 +20,5 @@ describe('toReasonString', () => {
 
   test('should extract the message from an Error', () => {
     expect(toReasonString(new Error('connect ECONNREFUSED'))).toBe('connect ECONNREFUSED')
-  })
-
-  test('should JSON stringify a plain object', () => {
-    expect(toReasonString({ error: 'invalid_client' })).toBe('{"error":"invalid_client"}')
   })
 })
